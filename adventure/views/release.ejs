@@ -58,7 +58,7 @@
         </thead>
         <% (downloads || []).forEach(function(i, n, a) {%>
             <tr>
-                <td><%= i.Name %></td>
+                <td><a href="/download/<%= i.DLUUID.toString('hex') %>"><%= i.Name %></a></td>
                 <td><%= i.Version %></td>
                 <td><%= i.RTM %></td>
                 <td><%= i.Upgrade %></td>
