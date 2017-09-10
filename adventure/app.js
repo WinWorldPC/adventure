@@ -1,5 +1,6 @@
 ﻿var express = require("express"),
     bodyParser = require("body-parser"),
+    marked = require("marked"),
     mysql = require("mysql2");
 
 // obviously not production creds!
@@ -29,11 +30,16 @@ server.get("/product/:product", function (req, res) {
     connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) return res.sendStatus(404);
+        var productNotesFormatted = marked(product.Notes || "");
         connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ?", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
             var sortedReleases = rlRes.sort(function (a, b) {
                 return a.ReleaseOrder - b.ReleaseOrder;
             });
-            res.render("product", { product: product, releases: sortedReleases });
+            res.render("product", {
+                product: product,
+                releases: sortedReleases,
+                productNotesFormatted: productNotesFormatted,
+            });
         });
     });
 });
@@ -42,12 +48,23 @@ server.get("/product/:product/:release", function (req, res) {
     connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) return res.sendStatus(404);
+        var productNotesFormatted = marked(product.Notes || "");
         connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `Slug` = ?", [product.ProductUUID, req.params.release], function (rlErr, rlRes, rlFields) {
             var release = rlRes[0] || null;
             if (release == null) return res.sendStatus(404);
             connection.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
                 connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
-                    res.render("release", { product: product, release: release, serials: seRes, downloads: dlRes });
+                    var iiFormated = marked(release.InstallationInstructions || "");
+                    var relNotesFormated = marked(release.Notes || "");
+                    res.render("release", {
+                        product: product,
+                        release: release,
+                        serials: seRes,
+                        downloads: dlRes,
+                        productNotesFormatted: productNotesFormatted,
+                        iiFormated: iiFormated,
+                        relNotesFormated: relNotesFormated,
+                    });
                 });
             });
         });

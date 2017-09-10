@@ -7,11 +7,11 @@
 </head>
 <body>
     <h1><%= product.Name %></h1>
-    <%= product.Notes %>
+    <%- productNotesFormatted %>
     <h2><%= release.Name %> from <%= release.VendorName %></h2>
-    <%= release.Notes %>
+    <%- relNotesFormated %>
     <h3>Installation instructions</h3>
-    <%= release.InstallationInstructions %>
+    <%- iiFormated %>
     <h3>Serials</h3>
     <% if (release.SerialRequired) { %>
     A serial is required to install this release.
