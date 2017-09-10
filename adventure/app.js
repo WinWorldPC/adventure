@@ -3,6 +3,8 @@
     marked = require("marked"),
     mysql = require("mysql2");
 
+const perPage = 25;
+
 // obviously not production creds!
 var connection = mysql.createConnection({
     host: "localhost",
@@ -20,9 +22,13 @@ server.set("views", "views");
 server.set("view engine", 'ejs');
 
 server.get("/library", function (req, res) {
-    connection.execute("SELECT `Name`,`Slug` FROM `Products`", null, function (prErr, prRes, prFields) {
-        // TODO: very slow! do pagination, badly!
-        res.render("library", { products: prRes });
+    var page = req.query.page || 1;
+    connection.execute("SELECT COUNT(*) FROM `Products`", null, function (cErr, cRes, cFields) {
+        var count = cRes[0]["COUNT(*)"];
+        var pages = Math.ceil(count / perPage);
+        connection.execute("SELECT `Name`,`Slug` FROM `Products` ORDER BY `Name` LIMIT ?,?", [(page - 1) * perPage, perPage], function (prErr, prRes, prFields) {
+            res.render("library", { products: prRes, page: page, pages: pages });
+        });
     });
 });
 
