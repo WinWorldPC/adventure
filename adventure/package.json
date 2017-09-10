@@ -8,6 +8,7 @@
     "email": ""
   },
   "dependencies": {
+    "body-parser": "^1.18.0",
     "ejs": "^2.5.7",
     "express": "^4.15.4",
     "mysql2": "^1.4.2"

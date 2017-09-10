@@ -11,6 +11,8 @@ var connection = mysql.createConnection({
 
 var server = express();
 
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
 server.use("/static", express.static("static"));
 server.set("views", "views");
 server.set("view engine", 'ejs');
@@ -92,7 +94,9 @@ server.get("/download/:download/from/:mirror", function (req, res) {
     });
 });
 
-server.get("/check-x-sendfile", function (req, res) {
+server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
+    var file = req.body.file;
+    var ip = req.body.ip;
     // TODO: Put anti-HL protection logic here (uses DLHits table, xref w/ IP)
     return res.send("true");
 });
