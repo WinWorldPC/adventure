@@ -20,7 +20,7 @@
         <% releases.forEach(function(i, n, a) {%>
             <li>
                 <a href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
-                <% if (product.DefaultRelease.toString("hex") == i.ReleaseUUID.toString("hex")) { %>
+                <% if ((product.DefaultRelease || "").toString("hex") == i.ReleaseUUID.toString("hex")) { %>
                 (Default)
                 <% } %>
             </li>
