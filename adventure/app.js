@@ -83,11 +83,10 @@ server.get("/download/:download/from/:mirror", function (req, res) {
         var download = dlRes[0] || null;
         connection.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
             connection.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
-                // filter out mirrors that aren't online and have the file
-                // HACK: arrays are NOT comparable, so turn them into strings
                 var mirror = miRes[0] || null;
                 // TODO: I think escape sequences may need to be replaced too?
                 var downloadPath = "http://" + mirror.Hostname + "/" + download.DownloadPath.replace("&", "+");
+                // Put HL protection logic here
                 return res.redirect(downloadPath);
             });
         });
