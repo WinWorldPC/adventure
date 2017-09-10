@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title><%= product.Name %></title>
+</head>
+<body>
+    <h1><%= product.Name %></h1>
+    <%= product.Notes %>
+    <h2>Releases</h2>
+    <ul>
+        <% releases.forEach(function(i, n, a) {%>
+            <li><a href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a></li>
+        <% }); %>
+    </ul>
+</body>
+</html>
