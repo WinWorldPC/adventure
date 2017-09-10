@@ -1,4 +1,5 @@
 ﻿var express = require("express"),
+    bodyParser = require("body-parser"),
     mysql = require("mysql2");
 
 // obviously not production creds!
