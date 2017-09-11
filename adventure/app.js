@@ -69,10 +69,19 @@ server.get("/library/:category/:tag", libraryRoute)
 server.get("/product/:product", function (req, res) {
     connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
-        if (product == null) return res.sendStatus(404);
-        var productNotesFormatted = marked(product.Notes || "");
+        if (product == null) {
+            return res.sendStatus(404);
+        } else if (product.DefaultRelease) {
+            connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `ReleaseUUID` = ?", [product.ProductUUID, product.DefaultRelease], function (reErr, reRes, reFields) {
+                var release = reRes[0] || null;
+                if (release) {
+                    return res.redirect("/product/" + product.Slug + "/" + release.Slug);
+                }
+            });
+        }
         connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
-            res.render("product", {
+            var productNotesFormatted = marked(product.Notes || "");
+            return res.render("product", {
                 product: product,
                 releases: rlRes,
                 productNotesFormatted: productNotesFormatted,
