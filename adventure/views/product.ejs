@@ -3,8 +3,10 @@
 <dl style="float:right">
     <dt>Product type</dt>
     <dd><%= product.Type %></dd>
+    <% if (product.ApplicationTags) { %>
     <dt>Tags</dt>
     <dd><%= product.ApplicationTags %></dd>
+    <% } %>
 </dl>
 <%- productNotesFormatted %>
 <h2>Releases</h2>

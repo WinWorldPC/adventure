@@ -3,30 +3,54 @@
 <dl style="float:right">
     <dt>Product type</dt>
     <dd><%= product.Type %></dd>
+    <% if (product.ApplicationTags) { %>
     <dt>Tags</dt>
     <dd><%= product.ApplicationTags %></dd>
+    <% } %>
 
+    <!-- TODO: Should fuzzy date-->
+    <% if (release.ReleaseDate.getTime()) { %>
     <dt>Release date</dt>
-    <dd><%= release.ReleaseDate %></dd>
+    <dd><%= release.FuzzyDate ? release.ReleaseDate.getFullYear() : release.ReleaseDate.toDateString() %></dd>
+    <% } %>
+    <% if (release.EndOfLife.getTime()) { %>
     <dt>End of life date</dt>
-    <dd><%= release.EndOfLife %></dd>
+    <dd><%= release.FuzzyDate ? release.EndOfLife.getFullYear() : release.EndOfLife.toDateString() %></dd>
+    <% } %>
+    <% if (release.CPURequirement) { %>
     <dt>Minimum CPU</dt>
     <dd><%= release.CPURequirement %></dd>
+    <% } %>
+    <% if (release.Arch) { %>
     <dt>Supported CPU architectures</dt>
     <dd><%= release.Arch %></dd>
+    <% } %>
+    <% if (release.RAMRequirement) { %>
     <dt>Minimum RAM</dt>
     <dd><%= release.RAMRequirement %></dd>
+    <% } %>
+    <% if (release.DiskSpaceRequired) { %>
     <dt>Minimum free disk space</dt>
     <dd><%= release.DiskSpaceRequired %></dd>
+    <% } %>
+    <% if (release.MultiUser) { %>
     <dt>Multi-user</dt>
     <dd><%= release.MultiUser %></dd>
+    <% } %>
+    <% if (release.Networking) { %>
     <dt>Networking</dt>
     <dd><%= release.Networking %></dd>
+    <% } %>
+    <% if (release.Type) { %>
     <dt>User interface</dt>
     <dd><%= release.Type %></dd>
+    <% } %>
+    <% if (release.Platform) { %>
     <dt>Platform</dt>
     <dd><%= release.Platform %></dd>
-</dl><%- productNotesFormatted %>
+    <% } %>
+</dl>
+<%- productNotesFormatted %>
 <h2>Releases</h2>
 <ul>
     <% releases.forEach(function(i, n, a) {%>
