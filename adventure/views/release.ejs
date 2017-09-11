@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: product.Name + " - " release.Name}) %>
+﻿<%- include("head", {title: product.Name + " - " + release.Name}) %>
     <h1><%= product.Name %></h1>
     <%- productNotesFormatted %>
     <h2><%= release.Name %> from <%= release.VendorName %></h2>
@@ -34,6 +34,8 @@
         <dd><%= release.Networking %></dd>
         <dt>User interface</dt>
         <dd><%= release.Type %></dd>
+        <dt>Platform</dt>
+        <dd><%= release.Platform %></dd>
     </dl>
     <h3>Downloads</h3>
     <table>
