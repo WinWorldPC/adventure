@@ -15,7 +15,7 @@
     </ul>
     <% for (var i = 1; i <= pages; i++) { %>
         <% if (i != page) { %>
-            <a href="/library/<%= category %>?page=<%= i %>"><%= i %></a>
+            <a href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>"><%= i %></a>
         <% } else { %>
             <%= i %>
         <% } %>

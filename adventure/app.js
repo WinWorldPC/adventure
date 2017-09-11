@@ -4,6 +4,32 @@
     mysql = require("mysql2");
 
 const perPage = 25;
+// Compat with old WW routes
+var tagMappings = {
+    'tag-word-processor': 'Word Processor',
+    'tag-spreadsheet': 'Spreadsheet',
+    'tag-database': 'Database',
+    'tag-presentations': 'Presentations',
+    'tag-browser': 'Web Browser',
+    'tag-chat': 'Chat',
+    'tag-utility': 'Utility',
+    'tag-graphics': 'Graphics',
+    'tag-publishing': 'Publishing',
+    'tag-financial': 'Financial',
+    'tag-reference': 'Reference',
+    'tag-editor': 'Editor',
+    'tag-communications': 'Communications',
+    'tag-novelty': 'Novelty',
+    'tag-pim': 'PIM',
+    'tag-video': 'Video',
+    'tag-audio': 'Audio',
+    'tag-document': 'Document',
+    'tag-media-player': 'Media Player',
+    'tag-virtualization': 'Virtualization',
+    'tag-archive': 'Archive',
+    'tag-other': 'Other',
+    'tag-server': 'Server'
+};
 
 // obviously not production creds!
 var connection = mysql.createConnection({
@@ -42,15 +68,21 @@ function libraryRoute(req, res) {
             category = "Application";
             break;
     }
-    connection.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ?", [category], function (cErr, cRes, cFields) {
+    var tag = null;
+    if (req.params.tag != null) {
+        tag = tagMappings[req.params.tag];
+    }
+    // HACK: I am not proud of this query
+    connection.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
         var pages = Math.ceil(count / perPage);
-        connection.execute("SELECT `Name`,`Slug` FROM `Products` WHERE `Type` LIKE ? ORDER BY `Name` LIMIT ?,?", [category, (page - 1) * perPage, perPage], function (prErr, prRes, prFields) {
+        connection.execute("SELECT `Name`,`Slug` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * perPage, perPage], function (prErr, prRes, prFields) {
             res.render("library", {
                 products: prRes,
                 page: page,
                 pages: pages,
                 category: req.params.category,
+                tag: req.params.tag
             });
         });
     });
