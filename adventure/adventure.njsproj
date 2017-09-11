@@ -33,6 +33,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="constants.js" />
+    <Compile Include="formatting.js" />
     <Content Include="package.json" />
     <Content Include="views\foot.ejs" />
     <Content Include="views\head.ejs" />

@@ -1,51 +1,9 @@
 ﻿var express = require("express"),
     bodyParser = require("body-parser"),
     marked = require("marked"),
-    mysql = require("mysql2");
-
-const perPage = 25;
-// Compat with old WW routes
-var tagMappings = {
-    'tag-word-processor': 'Word Processor',
-    'tag-spreadsheet': 'Spreadsheet',
-    'tag-database': 'Database',
-    'tag-presentations': 'Presentations',
-    'tag-browser': 'Web Browser',
-    'tag-chat': 'Chat',
-    'tag-utility': 'Utility',
-    'tag-graphics': 'Graphics',
-    'tag-publishing': 'Publishing',
-    'tag-financial': 'Financial',
-    'tag-reference': 'Reference',
-    'tag-editor': 'Editor',
-    'tag-communications': 'Communications',
-    'tag-novelty': 'Novelty',
-    'tag-pim': 'PIM',
-    'tag-video': 'Video',
-    'tag-audio': 'Audio',
-    'tag-document': 'Document',
-    'tag-media-player': 'Media Player',
-    'tag-virtualization': 'Virtualization',
-    'tag-archive': 'Archive',
-    'tag-other': 'Other',
-    'tag-server': 'Server'
-};
-
-function roundToPrecision(number, precision) {
-    var factor = Math.pow(10, precision);
-    var tempNumber = number * factor;
-    var roundedTempNumber = Math.round(tempNumber);
-    return roundedTempNumber / factor;
-};
-
-function formatBytes(size) {
-    if (size) {
-        var base = Math.log(size) / Math.log(1000);
-        var suffixes = ["", "KB", "MB", "GB", "TB"];
-        var ret = roundToPrecision(Math.pow(1000, base - Math.floor(base)), 2) + suffixes[Math.floor(base)];
-        return ret || "0";
-    } else return "0";
-}
+    mysql = require("mysql2"),
+    constants = require("./constants.js"),
+    formatting = require("./formatting.js");
 
 // obviously not production creds!
 var connection = mysql.createConnection({
@@ -86,13 +44,14 @@ function libraryRoute(req, res) {
     }
     var tag = null;
     if (req.params.tag != null) {
-        tag = tagMappings[req.params.tag];
+        tag = constants.tagMappings[req.params.tag];
     }
     // HACK: I am not proud of this query
     connection.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
-        var pages = Math.ceil(count / perPage);
-        connection.execute("SELECT `Name`,`Slug` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * perPage, perPage], function (prErr, prRes, prFields) {
+        var pages = Math.ceil(count / constants.perPage);
+        // TODO: Break up these queries, BADLY
+        connection.execute("SELECT `Name`,`Slug` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * constants.perPage, constants.perPage], function (prErr, prRes, prFields) {
             res.render("library", {
                 products: prRes,
                 page: page,
@@ -136,10 +95,10 @@ server.get("/product/:product/:release", function (req, res) {
                         var iiFormated = marked(release.InstallInstructions || "");
                         var relNotesFormated = marked(release.Notes || "");
                         // format beforehand, rather than in rendering or client end
-                        release.RAMRequirement = formatBytes(release.RAMRequirement);
-                        release.DiskSpaceRequired = formatBytes(release.DiskSpaceRequired);
+                        release.RAMRequirement = formatting.formatBytes(release.RAMRequirement);
+                        release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
                         var downloads = dlRes.map(function (x) {
-                            x.FileSize = formatBytes(x.FileSize);
+                            x.FileSize = formatting.formatBytes(x.FileSize);
                             return x;
                         });
                         res.render("release", {
