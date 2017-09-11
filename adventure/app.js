@@ -21,16 +21,43 @@ server.use("/static", express.static("static"));
 server.set("views", "views");
 server.set("view engine", 'ejs');
 
-server.get("/library", function (req, res) {
+function libraryRoute(req, res) {
     var page = req.query.page || 1;
-    connection.execute("SELECT COUNT(*) FROM `Products`", null, function (cErr, cRes, cFields) {
+    var category = "%";
+    switch (req.params.category)
+    {
+        case "operating-systems":
+            category = "OS";
+            break;
+        case "sys":
+            category = "System";
+            break
+        case "games":
+            category = "Game";
+            break;
+        case "dev":
+            category = "DevTool";
+            break;
+        case "applications":
+            category = "Application";
+            break;
+    }
+    connection.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ?", [category], function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
         var pages = Math.ceil(count / perPage);
-        connection.execute("SELECT `Name`,`Slug` FROM `Products` ORDER BY `Name` LIMIT ?,?", [(page - 1) * perPage, perPage], function (prErr, prRes, prFields) {
-            res.render("library", { products: prRes, page: page, pages: pages });
+        connection.execute("SELECT `Name`,`Slug` FROM `Products` WHERE `Type` LIKE ? ORDER BY `Name` LIMIT ?,?", [category, (page - 1) * perPage, perPage], function (prErr, prRes, prFields) {
+            res.render("library", {
+                products: prRes,
+                page: page,
+                pages: pages,
+                category: category == "%" ? "" : category,
+            });
         });
     });
-});
+}
+server.get("/library", libraryRoute);
+server.get("/library/:category", libraryRoute);
+// TODO: tag
 
 server.get("/product/:product", function (req, res) {
     connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
