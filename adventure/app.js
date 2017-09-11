@@ -50,14 +50,14 @@ function libraryRoute(req, res) {
                 products: prRes,
                 page: page,
                 pages: pages,
-                category: category == "%" ? "" : category,
+                category: req.params.category,
             });
         });
     });
 }
 server.get("/library", libraryRoute);
 server.get("/library/:category", libraryRoute);
-// TODO: tag
+server.get("/library/:category/:tag", libraryRoute)
 
 server.get("/product/:product", function (req, res) {
     connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
