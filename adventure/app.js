@@ -64,13 +64,10 @@ server.get("/product/:product", function (req, res) {
         var product = prRes[0] || null;
         if (product == null) return res.sendStatus(404);
         var productNotesFormatted = marked(product.Notes || "");
-        connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ?", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
-            var sortedReleases = rlRes.sort(function (a, b) {
-                return a.ReleaseOrder - b.ReleaseOrder;
-            });
+        connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
             res.render("product", {
                 product: product,
-                releases: sortedReleases,
+                releases: rlRes,
                 productNotesFormatted: productNotesFormatted,
             });
         });
