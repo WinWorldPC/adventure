@@ -1,67 +1,84 @@
 ﻿<%- include("head", {title: product.Name + " - " + release.Name}) %>
-    <h1><%= product.Name %></h1>
-    <%- productNotesFormatted %>
-    <h2><%= release.Name %> from <%= release.VendorName %></h2>
-    <%- relNotesFormated %>
-    <h3>Installation instructions</h3>
-    <%- iiFormated %>
-    <h3>Serials</h3>
-    <% if (release.SerialRequired) { %>
-    A serial is required to install this release.
-    <% } %>
-    <ul>
-        <% (serials || []).forEach(function(i, n, a) {%>
-            <li><%= i.Serial %></li>
-        <% }); %>
-    </ul>
-    <h3>Other information</h3>
-    <dl>
-        <dt>Release date</dt>
-        <dd><%= release.ReleaseDate %></dd>
-        <dt>End of life date</dt>
-        <dd><%= release.EndOfLife %></dd>
-        <dt>Minimum CPU</dt>
-        <dd><%= release.CPURequirement %></dd>
-        <dt>Supported CPU architectures</dt>
-        <dd><%= release.Arch %></dd>
-        <dt>Minimum RAM</dt>
-        <dd><%= release.RAMRequirement %></dd>
-        <dt>Minimum free disk space</dt>
-        <dd><%= release.DiskSpaceRequired %></dd>
-        <dt>Multi-user</dt>
-        <dd><%= release.MultiUser %></dd>
-        <dt>Networking</dt>
-        <dd><%= release.Networking %></dd>
-        <dt>User interface</dt>
-        <dd><%= release.Type %></dd>
-        <dt>Platform</dt>
-        <dd><%= release.Platform %></dd>
-    </dl>
-    <h3>Downloads</h3>
-    <table>
-        <thead>
-            <tr>
-                <td>Name</td>
-                <td>Version</td>
-                <td>RTM</td>
-                <td>Upgrade</td>
-                <td>CPU arch</td>
-                <td>File type</td>
-                <td>File size</td>
-                <td>SHA1</td>
-            </tr>
-        </thead>
-        <% (downloads || []).forEach(function(i, n, a) {%>
-            <tr>
-                <td><a href="/download/<%= i.DLUUID.toString('hex') %>"><%= i.Name %></a></td>
-                <td><%= i.Version %></td>
-                <td><%= i.RTM %></td>
-                <td><%= i.Upgrade %></td>
-                <td><%= i.Arch %></td>
-                <td><%= i.ImageType %></td>
-                <td><%= i.FileSize %></td>
-                <td><%= i.SHA1Sum.toString("hex") %></td>
-            </tr>
-        <% }); %>
-    </table>
+<%- productNotesFormatted %>
+<h2>Product information</h2>
+<dl>
+    <dt>Product type</dt>
+    <dd><%= product.Type %></dd>
+    <dt>Tags</dt>
+    <dd><%= product.ApplicationTags %></dd>
+</dl>
+<h2>Releases</h2>
+<ul>
+    <% releases.forEach(function(i, n, a) {%>
+    <li>
+        <a href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
+        <% if ((product.DefaultRelease || "").toString("hex") == i.ReleaseUUID.toString("hex")) { %>
+        (Default)
+        <% } %>
+    </li>
+    <% }); %>
+</ul>
+<h2><%= release.Name %> from <%= release.VendorName %></h2>
+<%- relNotesFormated %>
+<h3>Installation instructions</h3>
+<%- iiFormated %>
+<h3>Serials</h3>
+<% if (release.SerialRequired) { %>
+A serial is required to install this release.
+<% } %>
+<ul>
+    <% (serials || []).forEach(function(i, n, a) {%>
+        <li><%= i.Serial %></li>
+    <% }); %>
+</ul>
+<h3>Other information</h3>
+<dl>
+    <dt>Release date</dt>
+    <dd><%= release.ReleaseDate %></dd>
+    <dt>End of life date</dt>
+    <dd><%= release.EndOfLife %></dd>
+    <dt>Minimum CPU</dt>
+    <dd><%= release.CPURequirement %></dd>
+    <dt>Supported CPU architectures</dt>
+    <dd><%= release.Arch %></dd>
+    <dt>Minimum RAM</dt>
+    <dd><%= release.RAMRequirement %></dd>
+    <dt>Minimum free disk space</dt>
+    <dd><%= release.DiskSpaceRequired %></dd>
+    <dt>Multi-user</dt>
+    <dd><%= release.MultiUser %></dd>
+    <dt>Networking</dt>
+    <dd><%= release.Networking %></dd>
+    <dt>User interface</dt>
+    <dd><%= release.Type %></dd>
+    <dt>Platform</dt>
+    <dd><%= release.Platform %></dd>
+</dl>
+<h3>Downloads</h3>
+<table>
+    <thead>
+        <tr>
+            <td>Name</td>
+            <td>Version</td>
+            <td>RTM</td>
+            <td>Upgrade</td>
+            <td>CPU arch</td>
+            <td>File type</td>
+            <td>File size</td>
+            <td>SHA1</td>
+        </tr>
+    </thead>
+    <% (downloads || []).forEach(function(i, n, a) {%>
+        <tr>
+            <td><a href="/download/<%= i.DLUUID.toString('hex') %>"><%= i.Name %></a></td>
+            <td><%= i.Version %></td>
+            <td><%= i.RTM %></td>
+            <td><%= i.Upgrade %></td>
+            <td><%= i.Arch %></td>
+            <td><%= i.ImageType %></td>
+            <td><%= i.FileSize %></td>
+            <td><%= i.SHA1Sum.toString("hex") %></td>
+        </tr>
+    <% }); %>
+</table>
 <%- include("foot") %>

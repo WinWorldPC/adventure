@@ -1,15 +1,15 @@
 ﻿<%- include("head", {title: "Library"}) %>
-    <ul>
-        <% products.forEach(function(i, n, a) {%>
-            <li><a href="/product/<%= i.Slug %>"><%= i.Name %></a></li>
-            <!-- TODO: Show metadata, paginate -->
-        <% }); %>
-    </ul>
-    <% for (var i = 1; i <= pages; i++) { %>
-        <% if (i != page) { %>
-            <a href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>"><%= i %></a>
-        <% } else { %>
-            <%= i %>
-        <% } %>
+<ul>
+    <% products.forEach(function(i, n, a) {%>
+        <li><a href="/product/<%= i.Slug %>"><%= i.Name %></a></li>
+        <!-- TODO: Show metadata, paginate -->
+    <% }); %>
+</ul>
+<% for (var i = 1; i <= pages; i++) { %>
+    <% if (i != page) { %>
+        <a href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>"><%= i %></a>
+    <% } else { %>
+        <%= i %>
     <% } %>
+<% } %>
 <%- include("foot") %>

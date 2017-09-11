@@ -1,21 +1,21 @@
 ﻿<%- include("head", {title: product.Name}) %>
-    <%- productNotesFormatted %>
-    <h2>Product information</h2>
-    <dl>
-        <dt>Product type</dt>
-        <dd><%= product.Type %></dd>
-        <dt>Tags</dt>
-        <dd><%= product.ApplicationTags %></dd>
-    </dl>
-    <h2>Releases</h2>
-    <ul>
-        <% releases.forEach(function(i, n, a) {%>
-            <li>
-                <a href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
-                <% if ((product.DefaultRelease || "").toString("hex") == i.ReleaseUUID.toString("hex")) { %>
-                (Default)
-                <% } %>
-            </li>
-        <% }); %>
-    </ul>
+<%- productNotesFormatted %>
+<h2>Product information</h2>
+<dl>
+    <dt>Product type</dt>
+    <dd><%= product.Type %></dd>
+    <dt>Tags</dt>
+    <dd><%= product.ApplicationTags %></dd>
+</dl>
+<h2>Releases</h2>
+<ul>
+    <% releases.forEach(function(i, n, a) {%>
+        <li>
+            <a href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
+            <% if ((product.DefaultRelease || "").toString("hex") == i.ReleaseUUID.toString("hex")) { %>
+            (Default)
+            <% } %>
+        </li>
+    <% }); %>
+</ul>
 <%- include("foot") %>

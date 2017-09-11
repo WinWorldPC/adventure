@@ -1,8 +1,8 @@
 ﻿<%- include("head", {title: download.Name}) %>
-    <h2>Mirrors</h2>
-    <ul>
-        <% mirrors.forEach(function(i, n, a) {%>
-            <li><a href="/download/<%= download.DLUUID.toString('hex') %>/from/<%= i.MirrorUUID.toString('hex') %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
-        <% }); %>
-    </ul>
+<h2>Mirrors</h2>
+<ul>
+    <% mirrors.forEach(function(i, n, a) {%>
+        <li><a href="/download/<%= download.DLUUID.toString('hex') %>/from/<%= i.MirrorUUID.toString('hex') %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
+    <% }); %>
+</ul>
 <%- include("foot") %>
