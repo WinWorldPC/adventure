@@ -136,6 +136,8 @@ server.get("/product/:product/:release", function (req, res) {
                         var iiFormated = marked(release.InstallInstructions || "");
                         var relNotesFormated = marked(release.Notes || "");
                         // format beforehand, rather than in rendering or client end
+                        release.RAMRequirement = formatBytes(release.RAMRequirement);
+                        release.DiskSpaceRequired = formatBytes(release.DiskSpaceRequired);
                         var downloads = dlRes.map(function (x) {
                             x.FileSize = formatBytes(x.FileSize);
                             return x;

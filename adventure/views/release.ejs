@@ -62,7 +62,13 @@
     </li>
     <% }); %>
 </ul>
-<h2><%= release.Name %> from <%= release.VendorName %></h2>
+<h2>
+    <% if (release.VendorName) { %>
+    <%= release.Name %> from <%= release.VendorName %>
+    <% } else { %>
+    <%= release.Name %>
+    <% } %>
+</h2>
 <%- relNotesFormated %>
 <% if (release.InstallInstructions) { %>
 <h3>Installation instructions</h3>
