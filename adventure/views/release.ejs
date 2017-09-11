@@ -1,11 +1,4 @@
-﻿<!DOCTYPE html>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title><%= product.Name %> - <%= release.Name %></title>
-</head>
-<body>
+﻿<%- include("head", {title: product.Name + " - " release.Name}) %>
     <h1><%= product.Name %></h1>
     <%- productNotesFormatted %>
     <h2><%= release.Name %> from <%= release.VendorName %></h2>
@@ -69,5 +62,4 @@
             </tr>
         <% }); %>
     </table>
-</body>
-</html>
+<%- include("foot") %>

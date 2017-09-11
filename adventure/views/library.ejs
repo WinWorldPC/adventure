@@ -1,12 +1,4 @@
-﻿<!DOCTYPE html>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title>Library</title>
-</head>
-<body>
-    <h1>Library</h1>
+﻿<%- include("head", {title: "Library"}) %>
     <ul>
         <% products.forEach(function(i, n, a) {%>
             <li><a href="/product/<%= i.Slug %>"><%= i.Name %></a></li>
@@ -20,5 +12,4 @@
             <%= i %>
         <% } %>
     <% } %>
-</body>
-</html>
+<%- include("foot") %>

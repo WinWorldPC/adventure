@@ -1,17 +1,8 @@
-﻿<!DOCTYPE html>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title><%= download.Name %></title>
-</head>
-<body>
-    <h1><%= download.Name %></h1>
+﻿<%- include("head", {title: download.Name}) %>
     <h2>Mirrors</h2>
     <ul>
         <% mirrors.forEach(function(i, n, a) {%>
             <li><a href="/download/<%= download.DLUUID.toString('hex') %>/from/<%= i.MirrorUUID.toString('hex') %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
         <% }); %>
     </ul>
-</body>
-</html>
+<%- include("foot") %>

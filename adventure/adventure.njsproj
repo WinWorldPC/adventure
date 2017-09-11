@@ -34,6 +34,8 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Content Include="package.json" />
+    <Content Include="views\foot.ejs" />
+    <Content Include="views\head.ejs" />
     <Content Include="views\library.ejs" />
     <Content Include="views\selectMirror.ejs" />
     <Content Include="views\release.ejs" />
