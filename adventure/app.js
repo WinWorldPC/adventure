@@ -31,6 +31,22 @@ var tagMappings = {
     'tag-server': 'Server'
 };
 
+function roundToPrecision(number, precision) {
+    var factor = Math.pow(10, precision);
+    var tempNumber = number * factor;
+    var roundedTempNumber = Math.round(tempNumber);
+    return roundedTempNumber / factor;
+};
+
+function formatBytes(size) {
+    if (size) {
+        var base = Math.log(size) / Math.log(1000);
+        var suffixes = ["", "KB", "MB", "GB", "TB"];
+        var ret = roundToPrecision(Math.pow(1000, base - Math.floor(base)), 2) + suffixes[Math.floor(base)];
+        return ret || "0";
+    } else return "0";
+}
+
 // obviously not production creds!
 var connection = mysql.createConnection({
     host: "localhost",
@@ -119,12 +135,17 @@ server.get("/product/:product/:release", function (req, res) {
                     connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
                         var iiFormated = marked(release.InstallInstructions || "");
                         var relNotesFormated = marked(release.Notes || "");
+                        // format beforehand, rather than in rendering or client end
+                        var downloads = dlRes.map(function (x) {
+                            x.FileSize = formatBytes(x.FileSize);
+                            return x;
+                        });
                         res.render("release", {
                             product: product,
                             releases: rlRes,
                             release: release,
                             serials: seRes,
-                            downloads: dlRes,
+                            downloads: downloads,
                             productNotesFormatted: productNotesFormatted,
                             iiFormated: iiFormated,
                             relNotesFormated: relNotesFormated,
