@@ -25,11 +25,11 @@
     <dt>Supported CPU architectures</dt>
     <dd><%= release.Arch %></dd>
     <% } %>
-    <% if (release.RAMRequirement) { %>
+    <% if (release.RAMRequirement && release.RAMRequirement != "0") { %>
     <dt>Minimum RAM</dt>
     <dd><%= release.RAMRequirement %></dd>
     <% } %>
-    <% if (release.DiskSpaceRequired) { %>
+    <% if (release.DiskSpaceRequired && release.DiskSpaceRequired != "0") { %>
     <dt>Minimum free disk space</dt>
     <dd><%= release.DiskSpaceRequired %></dd>
     <% } %>
