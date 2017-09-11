@@ -117,7 +117,7 @@ server.get("/product/:product/:release", function (req, res) {
                 if (release == null) return res.sendStatus(404);
                 connection.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
                     connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
-                        var iiFormated = marked(release.InstallationInstructions || "");
+                        var iiFormated = marked(release.InstallInstructions || "");
                         var relNotesFormated = marked(release.Notes || "");
                         res.render("release", {
                             product: product,

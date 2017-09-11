@@ -1,12 +1,12 @@
 ﻿<%- include("head", {title: product.Name}) %>
-<%- productNotesFormatted %>
-<h2>Product information</h2>
-<dl>
+<!-- TODO: Move to stylesheet -->
+<dl style="float:right">
     <dt>Product type</dt>
     <dd><%= product.Type %></dd>
     <dt>Tags</dt>
     <dd><%= product.ApplicationTags %></dd>
 </dl>
+<%- productNotesFormatted %>
 <h2>Releases</h2>
 <ul>
     <% releases.forEach(function(i, n, a) {%>
