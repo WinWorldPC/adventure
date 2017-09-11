@@ -76,17 +76,20 @@ server.get("/product/:product", function (req, res) {
                 var release = reRes[0] || null;
                 if (release) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
+                } else {
+                    return res.sendStatus(404);
+                }
+            });
+        } else {
+            connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
+                var release = rlRes[0] || null;
+                if (release) {
+                    return res.redirect("/product/" + product.Slug + "/" + release.Slug);
+                } else {
+                    return res.sendStatus(404);
                 }
             });
         }
-        connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
-            var productNotesFormatted = marked(product.Notes || "");
-            return res.render("product", {
-                product: product,
-                releases: rlRes,
-                productNotesFormatted: productNotesFormatted,
-            });
-        });
     });
 });
 
@@ -94,7 +97,6 @@ server.get("/product/:product/:release", function (req, res) {
     connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) return res.sendStatus(404);
-        var productNotesFormatted = marked(product.Notes || "");
         connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
             connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `Slug` = ?", [product.ProductUUID, req.params.release], function (reErr, reRes, reFields) {
                 var release = reRes[0] || null;
@@ -103,6 +105,7 @@ server.get("/product/:product/:release", function (req, res) {
                     connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
                         var iiFormated = marked(release.InstallInstructions || "");
                         var relNotesFormated = marked(release.Notes || "");
+                        var productNotesFormatted = marked(product.Notes || "");
                         // format beforehand, rather than in rendering or client end
                         release.RAMRequirement = formatting.formatBytes(release.RAMRequirement);
                         release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
