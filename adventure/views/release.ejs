@@ -1,6 +1,6 @@
 ﻿<%- include("head", {title: product.Name + " - " + release.Name}) %>
 <!-- TODO: Move to stylesheet -->
-<dl style="float:right">
+<dl id="productInformationSheet" style="float:right">
     <dt>Product type</dt>
     <dd><%= product.Type %></dd>
     <% if (product.ApplicationTags) { %>
@@ -44,7 +44,7 @@
 </dl>
 <%- productNotesFormatted %>
 <h2>Releases</h2>
-<ul>
+<ul id="releasesList">
     <% releases.forEach(function(i, n, a) {%>
     <li>
         <a href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
@@ -68,14 +68,14 @@
 <% } %>
 <% if (serials && serials.length) { %>
 <h3>Serials</h3>
-<ul>
+<ul id="serialsList">
     <% serials.forEach(function(i, n, a) {%>
         <li><%= i.Serial %></li>
     <% }); %>
 </ul>
 <% } %>
 <h3>Downloads</h3>
-<table>
+<table id="downloadsTable">
     <thead>
         <tr>
             <td>Name</td>

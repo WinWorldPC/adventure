@@ -1,6 +1,6 @@
 ﻿<%- include("head", {title: product.Name}) %>
 <!-- TODO: Move to stylesheet -->
-<dl style="float:right">
+<dl id="productInformationSheet" style="float:right">
     <dt>Product type</dt>
     <dd><%= product.Type %></dd>
     <% if (product.ApplicationTags) { %>
@@ -10,7 +10,7 @@
 </dl>
 <%- productNotesFormatted %>
 <h2>Releases</h2>
-<ul>
+<ul id="releasesList">
     <% releases.forEach(function(i, n, a) {%>
         <li>
             <a href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>

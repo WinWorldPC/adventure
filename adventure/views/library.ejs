@@ -1,15 +1,25 @@
 ﻿<%- include("head", {title: "Library"}) %>
-<ul>
+<div id="libraryCategorySelection">
+    <a href="/library/operating-systems">OSes</a>
+    <a href="/library/applications">Applications</a>
+    <a href="/library/games">Games</a>
+    <a href="/library/dev">Developer Tools</a>
+    <a href="/library/sys">System Tools and Patches</a>
+    <!-- TODO: Tag selection-->
+</div>
+<ul id="libraryList">
     <% products.forEach(function(i, n, a) {%>
         <li><a href="/product/<%= i.Slug %>"><%= i.Name %></a></li>
-        <!-- TODO: Show metadata, paginate -->
+        <!-- TODO: Show metadata -->
     <% }); %>
 </ul>
-<% for (var i = 1; i <= pages; i++) { %>
-    <% if (i != page) { %>
-        <a href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>"><%= i %></a>
-    <% } else { %>
-        <%= i %>
+<div id="libraryPagination" class="pagination">
+    <% for (var i = 1; i <= pages; i++) { %>
+        <% if (i != page) { %>
+            <a class="paginationItem" href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>"><%= i %></a>
+        <% } else { %>
+            <span class="paginationItem activePaginationItem"><%= i %></span>
+        <% } %>
     <% } %>
-<% } %>
+</div>
 <%- include("foot") %>
