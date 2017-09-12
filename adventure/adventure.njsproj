@@ -7,6 +7,7 @@
     <RootNamespace>adventure</RootNamespace>
     <NodejsPort>3000</NodejsPort>
     <LaunchUrl>http://localhost:3000/</LaunchUrl>
+    <ScriptArguments>config.example.json</ScriptArguments>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -35,6 +36,7 @@
     <Compile Include="app.js" />
     <Compile Include="constants.js" />
     <Compile Include="formatting.js" />
+    <Content Include="config.example.json" />
     <Content Include="package.json" />
     <Content Include="views\foot.ejs" />
     <Content Include="views\head.ejs" />

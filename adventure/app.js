@@ -2,16 +2,15 @@
     bodyParser = require("body-parser"),
     marked = require("marked"),
     mysql = require("mysql2"),
+    fs = require("fs"),
     constants = require("./constants.js"),
     formatting = require("./formatting.js");
 
+// HACK: BOM must die
+var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEFF/, ""));
+
 // obviously not production creds!
-var connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "winworld"
-});
+var connection = mysql.createConnection(config.mysql);
 
 var server = express();
 

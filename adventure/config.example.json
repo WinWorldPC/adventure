@@ -1,0 +1,8 @@
+﻿{
+  "mysql": {
+    "database": "winworld",
+    "host": "localhost",
+    "password": "password",
+    "user": "root"
+  }
+}
