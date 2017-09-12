@@ -4,5 +4,6 @@
     "host": "localhost",
     "password": "password",
     "user": "root"
-  }
+  },
+  "pageDirectory":  "pages"
 }

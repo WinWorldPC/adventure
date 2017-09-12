@@ -3,6 +3,7 @@
     marked = require("marked"),
     mysql = require("mysql2"),
     fs = require("fs"),
+    path = require("path"),
     constants = require("./constants.js"),
     formatting = require("./formatting.js");
 
@@ -41,6 +42,8 @@ function libraryRoute(req, res) {
             break;
     }
     var tag = null;
+    // TODO: Support richer tag queries than the bare-minimum compat we have
+    // with old site (because library pages link to tags in descriptions)
     if (req.params.tag != null) {
         tag = constants.tagMappings[req.params.tag];
     }
@@ -61,11 +64,11 @@ function libraryRoute(req, res) {
         });
     });
 }
+server.get("/library/:category", libraryRoute);
+server.get("/library/:category/:tag", libraryRoute);
 server.get("/library", function (req, res) {
     return res.redirect("/library/operating-systems");
 });
-server.get("/library/:category", libraryRoute);
-server.get("/library/:category/:tag", libraryRoute)
 
 server.get("/product/:product", function (req, res) {
     connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
@@ -216,6 +219,25 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
             return res.send(dhRes.length ? "true" : "false");
         });
     });
+});
+
+// this will soak up anything without routes on root
+server.get("/:page", function (req, res) {
+    var file = path.join(config.pageDirectory, req.params.page + ".md");
+    fs.readFile(file, "utf8", function (err, contents) {
+        if (err) {
+            return res.sendStatus(404);
+        }
+        var page = marked(contents);
+        var title = req.params.page;
+        return res.render("page", {
+            page: page,
+            title: title,
+        });
+    });
+});
+server.get("/", function (req, res) {
+    return res.redirect("/home");
 });
 
 server.listen(3000);
