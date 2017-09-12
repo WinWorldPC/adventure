@@ -23,7 +23,7 @@ server.set("view engine", 'ejs');
 
 function libraryRoute(req, res) {
     var page = req.query.page || 1;
-    var category = "%";
+    var category = "OS"; // % for everything
     switch (req.params.category)
     {
         case "operating-systems":
@@ -52,6 +52,7 @@ function libraryRoute(req, res) {
         var pages = Math.ceil(count / constants.perPage);
         // TODO: Break up these queries, BADLY
         connection.execute("SELECT `Name`,`Slug` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * constants.perPage, constants.perPage], function (prErr, prRes, prFields) {
+            // TODO: Special-case OS for rendering the old custom layout
             res.render("library", {
                 products: prRes,
                 page: page,
