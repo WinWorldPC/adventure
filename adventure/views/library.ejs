@@ -7,12 +7,20 @@
     <a href="/library/sys">System Tools and Patches</a>
     <!-- TODO: Tag selection-->
 </div>
-<ul id="libraryList">
+<dl id="libraryList">
     <% products.forEach(function(i, n, a) {%>
-        <li><a href="/product/<%= i.Slug %>"><%= i.Name %></a></li>
-        <!-- TODO: Show metadata -->
+        <dt>
+            <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+            <% if (i.ApplicationTags) { %>
+                (<%= i.ApplicationTags %>)
+            <% } %>
+        </dt>
+        <dd>
+            <!-- TODO: Truncate, render Markdown? -->
+            <%= i.Notes %>
+        </dd>
     <% }); %>
-</ul>
+</dl>
 <div id="libraryPagination" class="pagination">
     <% for (var i = 1; i <= pages; i++) { %>
         <% if (i != page) { %>
