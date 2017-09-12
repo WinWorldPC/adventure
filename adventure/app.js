@@ -111,6 +111,7 @@ server.get("/product/:product/:release", function (req, res) {
                         release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
                         var downloads = dlRes.map(function (x) {
                             x.FileSize = formatting.formatBytes(x.FileSize);
+                            x.ImageType = constants.fileTypeMappings[x.ImageType];
                             return x;
                         });
                         res.render("release", {

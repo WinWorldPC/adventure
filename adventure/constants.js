@@ -27,4 +27,15 @@ module.exports = {
         'tag-other': 'Other',
         'tag-server': 'Server'
     },
+    // TODO: These could be localizable one day?
+    fileTypeMappings: {
+        "Archive": "File Archive",
+        "35Floppy": "3½ Floppy Image",
+        "525Floppy": "5¼ Floppy Image",
+        "CDISO": "CD Image",
+        "DVDISO": "DVD Image",
+        "VPC": "Virtual PC VM",
+        "VMWARE": "VMware VM",
+        "VBOX": "VirtualBox VM",
+    },
 };
