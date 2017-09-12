@@ -77,8 +77,6 @@
         <tr>
             <td>Name</td>
             <td>Version</td>
-            <td>RTM</td>
-            <td>Upgrade</td>
             <td>CPU arch</td>
             <td>File type</td>
             <td>File size</td>
@@ -87,9 +85,11 @@
     <% (downloads || []).forEach(function(i, n, a) {%>
         <tr>
             <td><a href="/download/<%= i.DLUUID.toString('hex') %>"><%= i.Name %></a></td>
-            <td><%= i.Version %></td>
-            <td><%= i.RTM %></td>
-            <td><%= i.Upgrade %></td>
+            <td>
+                <%= i.Version %>
+                <span class="downloadTagPrerelease"><%= i.RTM == "True" ? "" : "(Prerelease)" %></span>
+                <span class="downloadTagUpgrade"><%= i.Upgrade == "True" ? "(Upgrade)" : "" %></span>
+            </td>
             <td><%= i.Arch %></td>
             <td><%= i.ImageType %></td>
             <td><span title="<%= i.SHA1Sum.toString('hex') %>"><%= i.FileSize %></span></td>
