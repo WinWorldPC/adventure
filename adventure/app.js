@@ -9,7 +9,6 @@
 // HACK: BOM must die
 var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEFF/, ""));
 
-// obviously not production creds!
 var connection = mysql.createConnection(config.mysql);
 
 var server = express();
@@ -22,7 +21,7 @@ server.set("view engine", 'ejs');
 
 function libraryRoute(req, res) {
     var page = req.query.page || 1;
-    var category = "operating-system"; // % for everything
+    var category = "%"; // % for everything
     switch (req.params.category)
     {
         case "operating-systems":
@@ -62,7 +61,9 @@ function libraryRoute(req, res) {
         });
     });
 }
-server.get("/library", libraryRoute);
+server.get("/library", function (req, res) {
+    return res.redirect("/library/operating-systems");
+});
 server.get("/library/:category", libraryRoute);
 server.get("/library/:category/:tag", libraryRoute)
 

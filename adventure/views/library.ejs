@@ -11,7 +11,7 @@
     <% products.forEach(function(i, n, a) {%>
         <dt>
             <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
-            <% if (i.ApplicationTags) { %>
+            <% if (i.Type == "Application" && i.ApplicationTags) { %>
                 (<%= i.ApplicationTags %>)
             <% } %>
         </dt>
