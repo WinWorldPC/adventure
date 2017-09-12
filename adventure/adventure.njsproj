@@ -41,7 +41,6 @@
     <Content Include="views\library.ejs" />
     <Content Include="views\selectMirror.ejs" />
     <Content Include="views\release.ejs" />
-    <Content Include="views\product.ejs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="views\" />

@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: product.Name + " - " + release.Name}) %>
+﻿<%- include("head", {title: product.Name + " " + release.Name}) %>
 <!-- TODO: Move to stylesheet -->
 <dl id="productInformationSheet" style="float:right">
     <dt>Product type</dt>
@@ -8,6 +8,10 @@
     <dd><%= product.ApplicationTags %></dd>
     <% } %>
 
+    <% if (release.VendorName) { %>
+    <dt>Vendor</dt>
+    <dd><%= release.VendorName %></dd>
+    <% } %>
     <!-- TODO: Should fuzzy date-->
     <% if (release.ReleaseDate.getTime()) { %>
     <dt>Release date</dt>
@@ -43,7 +47,6 @@
     <% } %>
 </dl>
 <%- productNotesFormatted %>
-<h2>Releases</h2>
 <ul id="releasesList">
     <% releases.forEach(function(i, n, a) {%>
     <li>
@@ -54,13 +57,7 @@
     </li>
     <% }); %>
 </ul>
-<h2>
-    <% if (release.VendorName) { %>
-    <%= release.Name %> from <%= release.VendorName %>
-    <% } else { %>
-    <%= release.Name %>
-    <% } %>
-</h2>
+<h2><%= release.Name %></h2>
 <%- relNotesFormated %>
 <% if (release.InstallInstructions) { %>
 <h3>Installation instructions</h3>
