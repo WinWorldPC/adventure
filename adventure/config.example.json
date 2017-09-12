@@ -1,9 +1,10 @@
 ﻿{
+  "runBehindProxy": false,
   "mysql": {
     "database": "winworld",
     "host": "localhost",
     "password": "password",
     "user": "root"
   },
-  "pageDirectory":  "pages"
+  "pageDirectory": "pages"
 }

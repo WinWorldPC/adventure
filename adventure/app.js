@@ -19,6 +19,9 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 server.use("/static", express.static("static"));
 server.set("views", "views");
 server.set("view engine", 'ejs');
+if (config.runBehindProxy) {
+    server.set("trust proxy", "true")
+}
 
 function libraryRoute(req, res) {
     var page = req.query.page || 1;
@@ -240,4 +243,4 @@ server.get("/", function (req, res) {
     return res.redirect("/home");
 });
 
-server.listen(3000);
+server.listen(3000, config.runBehindProxy ? "127.0.0.1" : "0.0.0.0");
