@@ -152,20 +152,51 @@ server.get("/download/:download", function (req, res) {
     });
 });
 
+// BREAKING: The DownloadHits schema has changed from the original WinWorld to
+// Adventure. The new schema is:
+/*
+ * DROP TABLE IF EXISTS `DownloadHits`;
+ * CREATE TABLE IF NOT EXISTS `DownloadHits` (
+ *   `DownloadUUID` binary(16) NOT NULL,
+ *   `MirrorUUID` binary(16) NOT NULL,
+ *   `SessionUUID` binary(16) DEFAULT NULL,
+ *   `UserUUID` binary(16) DEFAULT NULL,
+ *   `IPAddress` varchar(46) COLLATE utf8_bin NOT NULL,
+ *   `DownloadTime` timestamp NOT NULL DEFAULT current_timestamp(),
+ *   KEY `DownloadUUID` (`DownloadUUID`),
+ *   KEY `UserUUID` (`UserUUID`),
+ *   KEY `MirrorUUID` (`MirrorUUID`),
+ *   KEY `DownloadTime` (`DownloadTime`),
+ *   KEY `IPAddress` (`IPAddress`)
+ * ) ENGINE=Aria DEFAULT CHARSET=utf8 COLLATE=utf8_bin PAGE_CHECKSUM=1;
+ */
+// IP addresses are stored as strings now, and session UUIDs are nullable (and
+// not keyed, because the sessions table has been dropped for now)
+
+//  Garbage collection scriot:
+//     DELETE FROM DownloadHits WHERE DATE_SUB(DownloadTime,INTERVAL 1 DAY) > CURDATE()
 server.get("/download/:download/from/:mirror", function (req, res) {
     // TODO: UUID compatiability
     // UUID format is like 60944f2b-4520-11e4-8d58-7054d21a8599/from/630d4e90-3d33-11e6-977e-525400b25447
     var uuidAsBuf = Buffer.from(req.params.download, "hex");
     var mirrorUuidAsBuf = Buffer.from(req.params.mirror, "hex");
-    connection.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
-        var download = dlRes[0] || null;
-        connection.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
-            connection.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
-                var mirror = miRes[0] || null;
-                // TODO: I think escape sequences may need to be replaced too?
-                var downloadPath = "http://" + mirror.Hostname + "/" + download.DownloadPath.replace("&", "+");
-                // Put HL protection logic here
-                return res.redirect(downloadPath);
+    // check how many downloads where hit (no user/session just yet)
+    connection.execute("SELECT * FROM `DownloadHits` WHERE IPAddress = ? AND DownloadTime > CURDATE()", [req.ip], function (idhErr, idhRes, idhFields) {
+        //  25 for now is a reasonable limit
+        if (idhRes.length > 25) {
+            return res.sendStatus(429);
+        }
+        connection.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
+            var download = dlRes[0] || null;
+            connection.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
+                connection.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
+                    var mirror = miRes[0] || null;
+                    // TODO: I think escape sequences may need to be replaced too?
+                    var downloadPath = "http://" + mirror.Hostname + "/" + download.DownloadPath;//.replace("&", "+");
+                    connection.execute("INSERT INTO `DownloadHits` (DownloadUUID, MirrorUUID, IPAddress) VALUES (?, ?, ?)", [uuidAsBuf, mirrorUuidAsBuf, req.ip], function (dhErr, dhRes, dhFields) {
+                        return res.redirect(downloadPath);
+                    });
+                });
             });
         });
     });
@@ -173,9 +204,17 @@ server.get("/download/:download/from/:mirror", function (req, res) {
 
 server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     var file = req.body.file;
+    var uuid = Buffer.from(file, "hex");
     var ip = req.body.ip;
-    // TODO: Put anti-HL protection logic here (uses DLHits table, xref w/ IP)
-    return res.send("true");
+    connection.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` =", [ip, file], function (dhErr, dhRes, dhFields) {
+        var dl = dhRes[0] || null;
+        if (dl == null) {
+            return res.send("false");
+        }
+        connection.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
+            return res.send(dhRes.length ? "true" : "false");
+        });
+    });
 });
 
 server.listen(3000);
