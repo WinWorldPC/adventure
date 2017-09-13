@@ -39,6 +39,7 @@
     <Content Include="config.example.json" />
     <Content Include="package.json" />
     <Content Include="pages\home.md" />
+    <Content Include="pages\titles.json" />
     <Content Include="views\foot.ejs" />
     <Content Include="views\head.ejs" />
     <Content Include="views\library.ejs" />

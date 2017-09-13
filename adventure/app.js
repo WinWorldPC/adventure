@@ -225,6 +225,7 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
 });
 
 // this will soak up anything without routes on root
+var titleMappings = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titles.json"), "utf8").replace(/^\uFEFF/, ""));;
 server.get("/:page", function (req, res) {
     var file = path.join(config.pageDirectory, req.params.page + ".md");
     fs.readFile(file, "utf8", function (err, contents) {
@@ -232,7 +233,7 @@ server.get("/:page", function (req, res) {
             return res.sendStatus(404);
         }
         var page = marked(contents);
-        var title = req.params.page;
+        var title = titleMappings[req.params.page];
         return res.render("page", {
             page: page,
             title: title,
