@@ -115,9 +115,9 @@ server.get("/product/:product/:release", function (req, res) {
                 if (release == null) return res.sendStatus(404);
                 connection.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
                     connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
-                        var iiFormated = marked(release.InstallInstructions || "");
-                        var relNotesFormated = marked(release.Notes || "");
-                        var productNotesFormatted = marked(product.Notes || "");
+                        release.InstallInstructions = marked(release.InstallInstructions || "");
+                        release.Notes = marked(release.Notes || "");
+                        product.Notes = marked(product.Notes || "");
                         // format beforehand, rather than in rendering or client end
                         release.RAMRequirement = formatting.formatBytes(release.RAMRequirement);
                         release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
@@ -132,9 +132,6 @@ server.get("/product/:product/:release", function (req, res) {
                             release: release,
                             serials: seRes,
                             downloads: downloads,
-                            productNotesFormatted: productNotesFormatted,
-                            iiFormated: iiFormated,
-                            relNotesFormated: relNotesFormated,
                         });
                     });
                 });

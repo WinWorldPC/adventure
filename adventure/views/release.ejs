@@ -46,7 +46,7 @@
     <dd><%= release.Platform %></dd>
     <% } %>
 </dl>
-<%- productNotesFormatted %>
+<%- product.Notes %>
 <ul id="releasesList">
     <% releases.forEach(function(i, n, a) {%>
     <li>
@@ -58,10 +58,10 @@
     <% }); %>
 </ul>
 <h2><%= release.Name %></h2>
-<%- relNotesFormated %>
+<%- release.Notes %>
 <% if (release.InstallInstructions) { %>
 <h3>Installation instructions</h3>
-<%- iiFormated %>
+<%- release.InstallInstructions %>
 <% } %>
 <% if (serials && serials.length) { %>
 <h3>Serials</h3>
