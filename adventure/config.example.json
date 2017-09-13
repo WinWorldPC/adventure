@@ -6,5 +6,7 @@
     "password": "password",
     "user": "root"
   },
-  "pageDirectory": "pages"
+  "pageDirectory": "pages",
+  "viewDirectory": "views",
+  "resDirectory":  "res"
 }
