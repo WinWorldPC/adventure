@@ -1,6 +1,5 @@
 ﻿// These are fixed values that aren't useful to be configurable.
 module.exports = {
-    perPage: 25,
     // Compat with old WW routes
     tagMappings: {
         'tag-word-processor': 'Word Processor',

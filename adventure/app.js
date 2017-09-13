@@ -53,9 +53,9 @@ function libraryRoute(req, res) {
     // HACK: I am not proud of this query
     connection.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
-        var pages = Math.ceil(count / constants.perPage);
+        var pages = Math.ceil(count / config.perPage);
         // TODO: Break up these queries, BADLY
-        connection.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * constants.perPage, constants.perPage], function (prErr, prRes, prFields) {
+        connection.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
             // TODO: Special-case OS for rendering the old custom layout
             res.render("library", {
                 products: prRes,

@@ -6,6 +6,7 @@
     "password": "password",
     "user": "root"
   },
+  "perPage":  25,
   "pageDirectory": "pages",
   "viewDirectory": "views",
   "resDirectory":  "res"
