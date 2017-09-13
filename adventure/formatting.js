@@ -14,4 +14,9 @@
             return ret || "0";
         } else return "0";
     },
+
+    truncateToFirstParagraph: function (string) {
+        // Handle Unix and Windows newlines
+        return string.replace(/(.*)\r?\n.*/g, "$1");
+    },
 };

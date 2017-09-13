@@ -56,9 +56,14 @@ function libraryRoute(req, res) {
         var pages = Math.ceil(count / config.perPage);
         // TODO: Break up these queries, BADLY
         connection.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+            // truncate and markdown
+            var productsFormatted = prRes.map(function (x) {
+                x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
+                return x;
+            })
             // TODO: Special-case OS for rendering the old custom layout
             res.render("library", {
-                products: prRes,
+                products: productsFormatted,
                 page: page,
                 pages: pages,
                 category: req.params.category,
