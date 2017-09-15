@@ -1,4 +1,5 @@
 ﻿var express = require("express"),
+    morgan = require("morgan"),
     bodyParser = require("body-parser"),
     marked = require("marked"),
     mysql = require("mysql2"),
@@ -15,7 +16,7 @@ var connection = mysql.createConnection(config.mysql);
 var server = express();
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
-
+server.use(morgan(config.morganLogFormat));
 server.use("/res", express.static(config.resDirectory));
 server.set("views", config.viewDirectory);
 server.set("view engine", 'ejs');

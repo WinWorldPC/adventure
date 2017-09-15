@@ -1,5 +1,6 @@
 ﻿{
   "runBehindProxy": false,
+  "morganLogFormat":  "dev",
   "mysql": {
     "database": "winworld",
     "host": "localhost",
