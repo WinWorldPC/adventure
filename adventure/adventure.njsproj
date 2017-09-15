@@ -37,6 +37,7 @@
     <Compile Include="constants.js" />
     <Compile Include="formatting.js" />
     <Content Include="config.example.json" />
+    <Content Include="deploy\adventure.example.service" />
     <Content Include="package.json" />
     <Content Include="pages\home.md" />
     <Content Include="pages\titles.json" />
@@ -48,6 +49,7 @@
     <Content Include="views\release.ejs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="deploy\" />
     <Folder Include="pages\" />
     <Folder Include="views\" />
   </ItemGroup>

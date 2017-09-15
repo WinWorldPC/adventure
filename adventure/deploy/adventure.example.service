@@ -1,0 +1,17 @@
+﻿; This is a systemd unit file for running adventure as a service.
+; Edit this unit file to match your deployment, then install in your unit file
+; directory. (Such as /etc/systemd/system)
+
+[Unit]
+Description=WinWorld library service
+After=network.target
+Documentation=https://github.com/WinWorldPC/adventure
+
+[Service]
+; Uncomment and tweak these values depending on your deployment.
+; User=winworld
+; WorkingDirectory=/var/adventure
+; ExecStart=/usr/bin/node /opt/adventure/adventure/app.js config.json
+
+[Install]
+WantedBy=multi-user.target
