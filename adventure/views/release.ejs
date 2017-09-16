@@ -98,9 +98,8 @@
             <% }); %>
         </ul>
     </nav>
-    <%- release.Notes %>
     <% if (screenshots && screenshots.length > 0) { %>
-    <div id="screenshotPanel" class="carousel slide lazy mb-2" data-ride="carousel">
+    <div id="screenshotPanel" class="carousel slide lazy mb-2 mt-2 w-75 mx-auto" data-ride="carousel">
         <ol class="carousel-indicators">
             <% screenshots.forEach(function (i, n, a) { %>
             <li data-target="#screenshotPanel" data-slide-to="<%= n %>" class="<%= n ? '' : 'active' %>"></li>
@@ -128,6 +127,7 @@
         </a>
     </div>
     <% } %>
+    <%- release.Notes %>
     <% if (release.InstallInstructions) { %>
     <h3>Installation instructions</h3>
     <%- release.InstallInstructions %>
