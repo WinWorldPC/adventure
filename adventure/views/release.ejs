@@ -1,51 +1,53 @@
 ﻿<%- include("head", {title: product.Name + " " + release.Name}) %>
 <!-- TODO: Move to stylesheet -->
-<dl id="productInformationSheet" style="float:right">
-    <dt>Product type</dt>
-    <dd><%= product.Type %></dd>
-    <% if (product.ApplicationTags) { %>
-    <dt>Tags</dt>
-    <dd><%= product.ApplicationTags %></dd>
-    <% } %>
+<div class="card float-right">
+    <dl id="productInformationSheet" class="card-body">
+        <dt>Product type</dt>
+        <dd><%= product.Type %></dd>
+        <% if (product.ApplicationTags) { %>
+        <dt>Tags</dt>
+        <dd><%= product.ApplicationTags %></dd>
+        <% } %>
 
-    <% if (release.VendorName) { %>
-    <dt>Vendor</dt>
-    <dd><%= release.VendorName %></dd>
-    <% } %>
-    <!-- TODO: Should fuzzy date-->
-    <% if (release.ReleaseDate.getTime()) { %>
-    <dt>Release date</dt>
-    <dd><%= release.FuzzyDate ? release.ReleaseDate.getFullYear() : release.ReleaseDate.toDateString() %></dd>
-    <% } %>
-    <% if (release.EndOfLife.getTime()) { %>
-    <dt>End of life date</dt>
-    <dd><%= release.FuzzyDate ? release.EndOfLife.getFullYear() : release.EndOfLife.toDateString() %></dd>
-    <% } %>
-    <% if (release.CPURequirement) { %>
-    <dt>Minimum CPU</dt>
-    <dd><%= release.CPURequirement %></dd>
-    <% } %>
-    <% if (release.Arch) { %>
-    <dt>Supported CPU architectures</dt>
-    <dd><%= release.Arch %></dd>
-    <% } %>
-    <% if (release.RAMRequirement && release.RAMRequirement != "0") { %>
-    <dt>Minimum RAM</dt>
-    <dd><%= release.RAMRequirement %></dd>
-    <% } %>
-    <% if (release.DiskSpaceRequired && release.DiskSpaceRequired != "0") { %>
-    <dt>Minimum free disk space</dt>
-    <dd><%= release.DiskSpaceRequired %></dd>
-    <% } %>
-    <% if (release.Type) { %>
-    <dt>User interface</dt>
-    <dd><%= release.Type %></dd>
-    <% } %>
-    <% if (release.Platform) { %>
-    <dt>Platform</dt>
-    <dd><%= release.Platform %></dd>
-    <% } %>
-</dl>
+        <% if (release.VendorName) { %>
+        <dt>Vendor</dt>
+        <dd><%= release.VendorName %></dd>
+        <% } %>
+        <!-- TODO: Should fuzzy date-->
+        <% if (release.ReleaseDate.getTime()) { %>
+        <dt>Release date</dt>
+        <dd><%= release.FuzzyDate ? release.ReleaseDate.getFullYear() : release.ReleaseDate.toDateString() %></dd>
+        <% } %>
+        <% if (release.EndOfLife.getTime()) { %>
+        <dt>End of life date</dt>
+        <dd><%= release.FuzzyDate ? release.EndOfLife.getFullYear() : release.EndOfLife.toDateString() %></dd>
+        <% } %>
+        <% if (release.CPURequirement) { %>
+        <dt>Minimum CPU</dt>
+        <dd><%= release.CPURequirement %></dd>
+        <% } %>
+        <% if (release.Arch) { %>
+        <dt>Supported CPU architectures</dt>
+        <dd><%= release.Arch %></dd>
+        <% } %>
+        <% if (release.RAMRequirement && release.RAMRequirement != "0") { %>
+        <dt>Minimum RAM</dt>
+        <dd><%= release.RAMRequirement %></dd>
+        <% } %>
+        <% if (release.DiskSpaceRequired && release.DiskSpaceRequired != "0") { %>
+        <dt>Minimum free disk space</dt>
+        <dd><%= release.DiskSpaceRequired %></dd>
+        <% } %>
+        <% if (release.Type) { %>
+        <dt>User interface</dt>
+        <dd><%= release.Type %></dd>
+        <% } %>
+        <% if (release.Platform) { %>
+        <dt>Platform</dt>
+        <dd><%= release.Platform %></dd>
+        <% } %>
+    </dl>
+</div>
 <%- product.Notes %>
 <nav id="releasesNav" aria-label="Releases navigation">
     <ul id="releasesList" class="nav nav-pills">
@@ -95,8 +97,8 @@
             <td><a href="/download/<%= i.DLUUID.toString('hex') %>"><%= i.Name %></a></td>
             <td>
                 <%= i.Version %>
-                <span class="downloadTagPrerelease"><%= i.RTM == "True" ? "" : "(Prerelease)" %></span>
-                <span class="downloadTagUpgrade"><%= i.Upgrade == "True" ? "(Upgrade)" : "" %></span>
+                <span class="downloadTagPrerelease badge badge-warning"><%= i.RTM == "True" ? "" : "Prerelease" %></span>
+                <span class="downloadTagUpgrade badge badge-secondary"><%= i.Upgrade == "True" ? "Upgrade" : "" %></span>
             </td>
             <td><%= i.Language %></td>
             <td><%= i.Arch %></td>
