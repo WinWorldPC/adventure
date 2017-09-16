@@ -1,7 +1,6 @@
 ﻿<%- include("head", {title: product.Name + " " + release.Name}) %>
-<h1><%= product.Name %></h1>
-<div class="card float-right ml-2 mb-2">
-    <dl id="productInformationSheet" class="card-body">
+<div id="productInformationSheet"  class="card float-right ml-2 mb-2">
+    <dl class="card-body">
         <dt>Product type</dt>
         <dd>
             <% 
@@ -81,51 +80,53 @@
         <% } %>
     </dl>
 </div>
+<h1><%= product.Name %> <%= release.Name %></h1>
 <%- product.Notes %>
-<nav id="releasesNav" aria-label="Releases navigation">
-    <ul id="releasesList" class="nav nav-pills">
-        <% releases.forEach(function(i, n, a) {%>
+<div id="releaseInformation">
+    <nav id="releasesNav" aria-label="Releases navigation">
+        <ul id="releasesList" class="nav nav-pills">
+            <% releases.forEach(function(i, n, a) {%>
             <% if (i.ReleaseUUID.toString("hex") == release.ReleaseUUID.toString("hex")) { %>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/product/<%= product.Slug %>/<%= i.Slug %>">
-                        <%= i.Name %> <span class="sr-only">(current)</span>
-                    </a>
-                </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/product/<%= product.Slug %>/<%= i.Slug %>">
+                    <%= i.Name %> <span class="sr-only">(current)</span>
+                </a>
+            </li>
             <% } else { %>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
-                </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
+            </li>
             <% } %>
+            <% }); %>
+        </ul>
+    </nav>
+    <!-- h2 of release name went here -->
+    <%- release.Notes %>
+    <% if (release.InstallInstructions) { %>
+    <h3>Installation instructions</h3>
+    <%- release.InstallInstructions %>
+    <% } %>
+    <% if (serials && serials.length) { %>
+    <h3>Serials</h3>
+    <ul id="serialsList">
+        <% serials.forEach(function(i, n, a) {%>
+        <li><%= i.Serial %></li>
         <% }); %>
     </ul>
-</nav>
-<!-- h2 of release name went here -->
-<%- release.Notes %>
-<% if (release.InstallInstructions) { %>
-<h3>Installation instructions</h3>
-<%- release.InstallInstructions %>
-<% } %>
-<% if (serials && serials.length) { %>
-<h3>Serials</h3>
-<ul id="serialsList">
-    <% serials.forEach(function(i, n, a) {%>
-        <li><%= i.Serial %></li>
-    <% }); %>
-</ul>
-<% } %>
-<h3>Downloads</h3>
-<table id="downloadsTable" class="table table-striped">
-    <thead>
-        <tr>
-            <td>Name</td>
-            <td>Version</td>
-            <td>Language</td>
-            <td>CPU arch</td>
-            <td>File type</td>
-            <td>File size</td>
-        </tr>
-    </thead>
-    <% (downloads || []).forEach(function(i, n, a) {%>
+    <% } %>
+    <h3>Downloads</h3>
+    <table id="downloadsTable" class="table table-striped" aria-label="Downloads table">
+        <thead>
+            <tr>
+                <td>Download Name</td>
+                <td>Version</td>
+                <td>Language</td>
+                <td>CPU arch</td>
+                <td>File type</td>
+                <td>File size</td>
+            </tr>
+        </thead>
+        <% (downloads || []).forEach(function(i, n, a) {%>
         <tr>
             <td><a href="/download/<%= i.DLUUID.toString('hex') %>"><%= i.Name %></a></td>
             <td>
@@ -138,6 +139,7 @@
             <td><%= i.ImageType %></td>
             <td><span title="<%= i.SHA1Sum.toString('hex') %>"><%= i.FileSize %></span></td>
         </tr>
-    <% }); %>
-</table>
+        <% }); %>
+    </table>
+</div>
 <%- include("foot") %>

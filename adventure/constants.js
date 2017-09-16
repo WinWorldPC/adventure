@@ -29,12 +29,13 @@ module.exports = {
     // TODO: These could be localizable one day?
     fileTypeMappings: {
         "Archive": "File Archive",
-        "35Floppy": "3½ Floppy Image",
-        "525Floppy": "5¼ Floppy Image",
-        "CDISO": "CD Image",
-        "DVDISO": "DVD Image",
-        "VPC": "Virtual PC VM",
-        "VMWARE": "VMware VM",
-        "VBOX": "VirtualBox VM",
+        "35Floppy": "3½ Floppy",
+        "525Floppy": "5¼ Floppy",
+        "CDISO": "CD",
+        "DVDISO": "DVD",
+        // VM is implied here, IMHO
+        "VPC": "Virtual PC",
+        "VMWARE": "VMware",
+        "VBOX": "VirtualBox",
     },
 };
