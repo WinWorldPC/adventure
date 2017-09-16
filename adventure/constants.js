@@ -28,7 +28,7 @@ module.exports = {
     },
     // TODO: These could be localizable one day?
     fileTypeMappings: {
-        "Archive": "File Archive",
+        "Archive": "Archive",
         "35Floppy": "3½ Floppy",
         "525Floppy": "5¼ Floppy",
         "CDISO": "CD",
