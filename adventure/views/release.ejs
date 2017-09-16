@@ -53,10 +53,6 @@
         <dt>Minimum CPU</dt>
         <dd><%= release.CPURequirement %></dd>
         <% } %>
-        <% if (release.Arch) { %>
-        <dt>Supported CPU architectures</dt>
-        <dd><%= release.Arch %></dd>
-        <% } %>
         <% if (release.RAMRequirement && release.RAMRequirement != "0") { %>
         <dt>Minimum RAM</dt>
         <dd><%= release.RAMRequirement %></dd>
