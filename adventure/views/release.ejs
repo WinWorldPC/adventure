@@ -1,90 +1,85 @@
 ﻿<%- include("head", {title: product.Name + " " + release.Name}) %>
-<div id="infoSheet"  class="card float-right ml-2 mb-2">
-    <div class="card-header" role="tab" id="infoSheetHeader">
-        <h6 class="mb-0">
-            <a data-toggle="collapse" href="#infoSheetBody" aria-expanded="true" aria-controls="infoSheetBody">
-                Information
-            </a>
-        </h6>
-    </div>
-    <dl id="infoSheetBody" class="card-body collapse show" role="tabpanel" aria-labelledby="infoSheetHeader" data-parent="infoSheet">
-        <dt>Product type</dt>
-        <dd>
-            <% 
+<div id="releaseInformation" class="clearfix">
+    <div id="infoSheet" class="card float-right ml-2 mb-2 w-25">
+        <div class="card-header" role="tab" id="infoSheetHeader">
+            <h6 class="mb-0">
+                <a data-toggle="collapse" href="#infoSheetBody" aria-expanded="true" aria-controls="infoSheetBody">
+                    Information
+                </a>
+            </h6>
+        </div>
+        <dl id="infoSheetBody" class="card-body collapse show" role="tabpanel" aria-labelledby="infoSheetHeader" data-parent="infoSheet">
+            <dt>Product type</dt>
+            <dd>
+                <%
                 var typeLink = "";
                 switch (product.Type) {
-                    case "OS":
-                        typeLink = "operating-systems";
-                        break;
-                    case "System":
-                        typeLink = "sys";
-                        break;
-                    case "Game":
-                        typeLink = "games";
-                        break;
-                    case "DevTool":
-                        typeLink = "dev";
-                        break;
-                    case "Application":
-                        typeLink = "applications";
-                        break;
+                case "OS":
+                typeLink = "operating-systems";
+                break;
+                case "System":
+                typeLink = "sys";
+                break;
+                case "Game":
+                typeLink = "games";
+                break;
+                case "DevTool":
+                typeLink = "dev";
+                break;
+                case "Application":
+                typeLink = "applications";
+                break;
                 }
-            %>
-            <a href="/library/<%= typeLink %>"><%= product.Type %></a>
-        </dd>
-        <% if (product.ApplicationTags) { %>
-        <dt>Tags</dt>
-        <dd>
-            <ul class="list-unstyled">
-                <% product.ApplicationTags.split(",").forEach(function(i, n, a) { %>
-                    <li><%= i %></li>
-                <% }); %>
-            </ul>
-        </dd>
-        <% } %>
+                %>
+                <a href="/library/<%= typeLink %>"><%= product.Type %></a>
+            </dd>
+            <% if (product.ApplicationTags) { %>
+            <dt>Tags</dt>
+            <dd>
+                <%= product.ApplicationTags.split(",").join(", ") %>
+            </dd>
+            <% } %>
 
-        <% if (release.VendorName) { %>
-        <dt>Vendor</dt>
-        <dd><%= release.VendorName %></dd>
-        <% } %>
-        <!-- TODO: Should fuzzy date-->
-        <% if (release.ReleaseDate.getTime()) { %>
-        <dt>Release date</dt>
-        <dd><%= release.FuzzyDate ? release.ReleaseDate.getFullYear() : release.ReleaseDate.toDateString() %></dd>
-        <% } %>
-        <% if (release.EndOfLife.getTime()) { %>
-        <dt>End of life date</dt>
-        <dd><%= release.FuzzyDate ? release.EndOfLife.getFullYear() : release.EndOfLife.toDateString() %></dd>
-        <% } %>
-        <% if (release.CPURequirement) { %>
-        <dt>Minimum CPU</dt>
-        <dd><%= release.CPURequirement %></dd>
-        <% } %>
-        <% if (release.RAMRequirement && release.RAMRequirement != "0") { %>
-        <dt>Minimum RAM</dt>
-        <dd><%= release.RAMRequirement %></dd>
-        <% } %>
-        <% if (release.DiskSpaceRequired && release.DiskSpaceRequired != "0") { %>
-        <dt>Minimum free disk space</dt>
-        <dd><%= release.DiskSpaceRequired %></dd>
-        <% } %>
-        <% if (release.Type) { %>
-        <dt>User interface</dt>
-        <dd><%= release.Type %></dd>
-        <% } %>
-        <% if (release.Platform) { %>
-        <dt>Platform</dt>
-        <dd>
-            <ul class="list-unstyled">
-                <% release.Platform.split(",").forEach(function(i, n, a) { %>
-                <li><%= i %></li>
-                <% }); %>
-            </ul></dd>
-        <% } %>
-    </dl>
+            <% if (release.VendorName) { %>
+            <dt>Vendor</dt>
+            <dd><%= release.VendorName %></dd>
+            <% } %>
+            <!-- TODO: Should fuzzy date-->
+            <% if (release.ReleaseDate.getTime()) { %>
+            <dt>Release date</dt>
+            <dd><%= release.FuzzyDate ? release.ReleaseDate.getFullYear() : release.ReleaseDate.toDateString() %></dd>
+            <% } %>
+            <% if (release.EndOfLife.getTime()) { %>
+            <dt>End of life date</dt>
+            <dd><%= release.FuzzyDate ? release.EndOfLife.getFullYear() : release.EndOfLife.toDateString() %></dd>
+            <% } %>
+            <% if (release.CPURequirement) { %>
+            <dt>Minimum CPU</dt>
+            <dd><%= release.CPURequirement %></dd>
+            <% } %>
+            <% if (release.RAMRequirement && release.RAMRequirement != "0") { %>
+            <dt>Minimum RAM</dt>
+            <dd><%= release.RAMRequirement %></dd>
+            <% } %>
+            <% if (release.DiskSpaceRequired && release.DiskSpaceRequired != "0") { %>
+            <dt>Minimum free disk space</dt>
+            <dd><%= release.DiskSpaceRequired %></dd>
+            <% } %>
+            <% if (release.Type) { %>
+            <dt>User interface</dt>
+            <dd><%= release.Type %></dd>
+            <% } %>
+            <% if (release.Platform) { %>
+            <dt>Platform</dt>
+            <dd>
+                <%= release.Platform.split(",").join(", ") %>
+            </dd>
+            <% } %>
+        </dl>
+    </div>
+    <h1><%= product.Name %> <small class="text-muted"><%= release.Name %></small></h1>
+    <%- product.Notes %>
 </div>
-<h1><%= product.Name %> <small class="text-muted"><%= release.Name %></small></h1>
-<%- product.Notes %>
 <div id="releaseInformation">
     <nav id="releasesNav" aria-label="Releases navigation">
         <ul id="releasesList" class="nav nav-pills">
