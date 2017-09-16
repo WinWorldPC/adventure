@@ -103,37 +103,47 @@
             <% }); %>
         </ul>
     </nav>
-    <% if (screenshots) { %>
-    <div id="screenshotPanel" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators">
-            <% screenshots.forEach(function (i, n, a) { %>
-            <li data-target="#screenshotPanel" data-slide-to="<%= n %>" class="<%= n ? '' : 'active' %>"></li>
-            <% }); %>
-        </ol>
-        <div class="carousel-inner">
-            <% screenshots.forEach(function (i, n, a) { %>
-            <div class="carousel-item <%= n ? '' : 'active' %>">
-                <img class="d-block w-100" src="<%= i.ScreenshotFile %>" alt="<%= i.ScreenshotTitle %>">
-                <%# White text on white backgrounds is gross %>
-                <div class="carousel-caption d-none d-md-block">
-                    <%= i.ScreenshotTitle %>
-                </div>
-            </div>
-            <% }); %>
-            <!-- TODO: Truncate, link to page with more... -->
+    <%- release.Notes %>
+    <% if (screenshots && screenshots.length > 0) { %>
+    <div id="screenshotSheet" class="card mt-2 mb-2">
+        <div class="card-header" role="tab" id="screenshotSheetHeader">
+            <h6 class="mb-0">
+                <a data-toggle="collapse" href="#screenshotSheetBody" aria-expanded="true" aria-controls="screenshotSheetBody">
+                    Screenshots
+                </a>
+            </h6>
         </div>
-        <a class="carousel-control-prev" href="#screenshotPanel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#screenshotPanel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
+        <div id="screenshotSheetBody" class="card-img collapse show" role="tabpanel" aria-labelledby="screenshotSheetHeader" data-parent="screenshotSheet">
+            <div id="screenshotPanel" class="carousel slide" data-ride="carousel">
+                <ol class="carousel-indicators">
+                    <% screenshots.forEach(function (i, n, a) { %>
+                    <li data-target="#screenshotPanel" data-slide-to="<%= n %>" class="<%= n ? '' : 'active' %>"></li>
+                    <% }); %>
+                </ol>
+                <div class="carousel-inner">
+                    <% screenshots.forEach(function (i, n, a) { %>
+                    <div class="carousel-item <%= n ? '' : 'active' %>">
+                        <img class="d-block w-100" src="<%= i.ScreenshotFile %>" alt="<%= i.ScreenshotTitle %>">
+                        <%# White text on white backgrounds is gross %>
+                        <div class="carousel-caption d-none d-md-block">
+                            <%= i.ScreenshotTitle %>
+                        </div>
+                    </div>
+                    <% }); %>
+                    <!-- TODO: Truncate, link to page with more... -->
+                </div>
+                <a class="carousel-control-prev" href="#screenshotPanel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#screenshotPanel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
     </div>
     <% } %>
-    <!-- h2 of release name went here -->
-    <%- release.Notes %>
     <% if (release.InstallInstructions) { %>
     <h3>Installation instructions</h3>
     <%- release.InstallInstructions %>
