@@ -6,7 +6,13 @@
         <dd><%= product.Type %></dd>
         <% if (product.ApplicationTags) { %>
         <dt>Tags</dt>
-        <dd><%= product.ApplicationTags %></dd>
+        <dd>
+            <ul class="list-unstyled">
+                <% product.ApplicationTags.split(",").forEach(function(i, n, a) { %>
+                    <li><%= i %></li>
+                <% }); %>
+            </ul>
+        </dd>
         <% } %>
 
         <% if (release.VendorName) { %>
@@ -44,7 +50,12 @@
         <% } %>
         <% if (release.Platform) { %>
         <dt>Platform</dt>
-        <dd><%= release.Platform %></dd>
+        <dd>
+            <ul class="list-unstyled">
+                <% release.Platform.split(",").forEach(function(i, n, a) { %>
+                <li><%= i %></li>
+                <% }); %>
+            </ul></dd>
         <% } %>
     </dl>
 </div>
