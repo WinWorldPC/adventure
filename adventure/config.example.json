@@ -8,8 +8,9 @@
     "user": "root"
   },
   "perPage": 25,
-  "perPageBounds":  5,
+  "perPageBounds": 5,
+  "screenshotBaseUrl":  "/res/img/screenshots/",
   "pageDirectory": "pages",
   "viewDirectory": "views",
-  "resDirectory":  "res"
+  "resDirectory":  "C:\\Users\\Calvin\\Downloads\\ww_site_code\\res\\"
 }

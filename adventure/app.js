@@ -119,24 +119,31 @@ server.get("/product/:product/:release", function (req, res) {
             });
             if (release == null) return res.sendStatus(404);
             connection.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
-                connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
-                    release.InstallInstructions = marked(release.InstallInstructions || "");
-                    release.Notes = marked(release.Notes || "");
-                    product.Notes = marked(product.Notes || "");
-                    // format beforehand, rather than in rendering or client end
-                    release.RAMRequirement = formatting.formatBytes(release.RAMRequirement);
-                    release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
-                    var downloads = dlRes.map(function (x) {
-                        x.FileSize = formatting.formatBytes(x.FileSize);
-                        x.ImageType = constants.fileTypeMappings[x.ImageType];
-                        return x;
-                    });
-                    res.render("release", {
-                        product: product,
-                        releases: rlRes,
-                        release: release,
-                        serials: seRes,
-                        downloads: downloads,
+                connection.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
+                    connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
+                        release.InstallInstructions = marked(release.InstallInstructions || "");
+                        release.Notes = marked(release.Notes || "");
+                        product.Notes = marked(product.Notes || "");
+                        // format beforehand, rather than in rendering or client end
+                        release.RAMRequirement = formatting.formatBytes(release.RAMRequirement);
+                        release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
+                        var downloads = dlRes.map(function (x) {
+                            x.FileSize = formatting.formatBytes(x.FileSize);
+                            x.ImageType = constants.fileTypeMappings[x.ImageType];
+                            return x;
+                        });
+                        var screenshots = scRes == null ? null : scRes.map(function (x) {
+                            x.ScreenshotFile = config.screenshotBaseUrl + x.ScreenshotFile;
+                            return x;
+                        });
+                        res.render("release", {
+                            product: product,
+                            releases: rlRes,
+                            release: release,
+                            serials: seRes,
+                            screenshots: screenshots,
+                            downloads: downloads,
+                        });
                     });
                 });
             });
