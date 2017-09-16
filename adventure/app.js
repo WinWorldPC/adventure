@@ -67,6 +67,7 @@ function libraryRoute(req, res) {
                 products: productsFormatted,
                 page: page,
                 pages: pages,
+                pageBounds: config.perPageBounds,
                 category: req.params.category,
                 tag: req.params.tag
             });

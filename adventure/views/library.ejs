@@ -22,7 +22,20 @@
 </dl>
 <nav aria-label="Page navigation">
     <ul id="libraryPagination" class="pagination">
-        <% for (var i = 1; i <= pages; i++) { %>
+        <%# HACK: How the hell does EJS get a string when we passed a number? %>
+        <% page = Number(page) %>
+        <%# Anyways, do bounds checking so we can make the pagination manageable. %>
+        <% if (page - pageBounds > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=1">1</a>
+                </li>
+        <% } %>
+        <% if (page - pageBounds > 2) { %>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">...</a>
+                </li>
+        <% } %>
+        <% for (var i = page - pageBounds > 0 ? page - pageBounds : 1; i <= (page + pageBounds < pages ? page + pageBounds : pages); i++) { %>
             <% if (i != page) { %>
                 <li class="page-item">
                     <a class="page-link" href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>"><%= i %></a>
@@ -34,6 +47,16 @@
                     </a>
                 </li>
             <% } %>
+        <% } %>
+        <% if (page + pageBounds < pages) { %>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">...</a>
+                </li>
+        <% } %>
+        <% if (page + pageBounds < pages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= pages %>"><%= pages %></a>
+                </li>
         <% } %>
     </ul>
 </nav>
