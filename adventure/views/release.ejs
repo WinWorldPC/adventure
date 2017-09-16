@@ -32,13 +32,10 @@
                 }
                 %>
                 <a href="/library/<%= typeLink %>"><%= product.Type %></a>
+                <% if (product.Type == "Application" && product.ApplicationTags) { %>
+                    (<%= product.ApplicationTags.split(",").join(", ") %>)
+                <% } %>
             </dd>
-            <% if (product.ApplicationTags) { %>
-            <dt>Tags</dt>
-            <dd>
-                <%= product.ApplicationTags.split(",").join(", ") %>
-            </dd>
-            <% } %>
 
             <% if (release.VendorName) { %>
             <dt>Vendor</dt>
