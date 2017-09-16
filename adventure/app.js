@@ -111,29 +111,31 @@ server.get("/product/:product/:release", function (req, res) {
         var product = prRes[0] || null;
         if (product == null) return res.sendStatus(404);
         connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
-            connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `Slug` = ?", [product.ProductUUID, req.params.release], function (reErr, reRes, reFields) {
-                var release = reRes[0] || null;
-                if (release == null) return res.sendStatus(404);
-                connection.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
-                    connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
-                        release.InstallInstructions = marked(release.InstallInstructions || "");
-                        release.Notes = marked(release.Notes || "");
-                        product.Notes = marked(product.Notes || "");
-                        // format beforehand, rather than in rendering or client end
-                        release.RAMRequirement = formatting.formatBytes(release.RAMRequirement);
-                        release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
-                        var downloads = dlRes.map(function (x) {
-                            x.FileSize = formatting.formatBytes(x.FileSize);
-                            x.ImageType = constants.fileTypeMappings[x.ImageType];
-                            return x;
-                        });
-                        res.render("release", {
-                            product: product,
-                            releases: rlRes,
-                            release: release,
-                            serials: seRes,
-                            downloads: downloads,
-                        });
+            if (rlRes == null || rlRes.length == 0) return res.sendStatus(404);
+            var release = rlRes.find(function (x) {
+                if (x.Slug == req.params.release)
+                    return x;
+            });
+            if (release == null) return res.sendStatus(404);
+            connection.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
+                connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
+                    release.InstallInstructions = marked(release.InstallInstructions || "");
+                    release.Notes = marked(release.Notes || "");
+                    product.Notes = marked(product.Notes || "");
+                    // format beforehand, rather than in rendering or client end
+                    release.RAMRequirement = formatting.formatBytes(release.RAMRequirement);
+                    release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
+                    var downloads = dlRes.map(function (x) {
+                        x.FileSize = formatting.formatBytes(x.FileSize);
+                        x.ImageType = constants.fileTypeMappings[x.ImageType];
+                        return x;
+                    });
+                    res.render("release", {
+                        product: product,
+                        releases: rlRes,
+                        release: release,
+                        serials: seRes,
+                        downloads: downloads,
                     });
                 });
             });
