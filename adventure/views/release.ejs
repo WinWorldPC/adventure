@@ -3,7 +3,29 @@
 <div class="card float-right">
     <dl id="productInformationSheet" class="card-body">
         <dt>Product type</dt>
-        <dd><%= product.Type %></dd>
+        <dd>
+            <% 
+                var typeLink = "";
+                switch (product.Type) {
+                    case "OS":
+                        typeLink = "operating-systems";
+                        break;
+                    case "System":
+                        typeLink = "sys";
+                        break;
+                    case "Game":
+                        typeLink = "games";
+                        break;
+                    case "DevTool":
+                        typeLink = "dev";
+                        break;
+                    case "Application":
+                        typeLink = "applications";
+                        break;
+                }
+            %>
+            <a href="/library/<%= typeLink %>"><%= product.Type %></a>
+        </dd>
         <% if (product.ApplicationTags) { %>
         <dt>Tags</dt>
         <dd>
