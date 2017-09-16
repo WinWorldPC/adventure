@@ -1,12 +1,12 @@
 ﻿<%- include("head", {title: "Library"}) %>
-<div id="libraryCategorySelection">
-    <a href="/library/operating-systems">OSes</a>
-    <a href="/library/applications">Applications</a>
-    <a href="/library/games">Games</a>
-    <a href="/library/dev">Developer Tools</a>
-    <a href="/library/sys">System Tools and Patches</a>
+<nav id="libraryCategorySelection" class="nav">
+    <a class="nav-link" href="/library/operating-systems">OSes</a>
+    <a class="nav-link" href="/library/applications">Applications</a>
+    <a class="nav-link" href="/library/games">Games</a>
+    <a class="nav-link" href="/library/dev">Developer Tools</a>
+    <a class="nav-link" href="/library/sys">System Tools and Patches</a>
     <!-- TODO: Tag selection-->
-</div>
+</nav>
 <dl id="libraryList">
     <% products.forEach(function(i, n, a) {%>
         <dt>
@@ -20,13 +20,21 @@
         </dd>
     <% }); %>
 </dl>
-<div id="libraryPagination" class="pagination">
-    <% for (var i = 1; i <= pages; i++) { %>
-        <% if (i != page) { %>
-            <a class="paginationItem" href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>"><%= i %></a>
-        <% } else { %>
-            <span class="paginationItem activePaginationItem"><%= i %></span>
+<nav aria-label="Page navigation">
+    <ul id="libraryPagination" class="pagination">
+        <% for (var i = 1; i <= pages; i++) { %>
+            <% if (i != page) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } else { %>
+                <li class="page-item active">
+                    <a class="page-link" href="/library/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= i %>">
+                        <%= i %><span class="sr-only">(current)</span>
+                    </a>
+                </li>
+            <% } %>
         <% } %>
-    <% } %>
-</div>
+    </ul>
+</nav>
 <%- include("foot") %>

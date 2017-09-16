@@ -47,17 +47,24 @@
     <% } %>
 </dl>
 <%- product.Notes %>
-<ul id="releasesList">
-    <% releases.forEach(function(i, n, a) {%>
-    <li>
-        <a href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
-        <% if ((product.DefaultRelease || "").toString("hex") == i.ReleaseUUID.toString("hex")) { %>
-        (Default)
-        <% } %>
-    </li>
-    <% }); %>
-</ul>
-<h2><%= release.Name %></h2>
+<nav id="releasesNav" aria-label="Releases navigation">
+    <ul id="releasesList" class="nav nav-pills">
+        <% releases.forEach(function(i, n, a) {%>
+            <% if (i.ReleaseUUID.toString("hex") == release.ReleaseUUID.toString("hex")) { %>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/product/<%= product.Slug %>/<%= i.Slug %>">
+                        <%= i.Name %> <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+            <% } else { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
+                </li>
+            <% } %>
+        <% }); %>
+    </ul>
+</nav>
+<!-- h2 of release name went here -->
 <%- release.Notes %>
 <% if (release.InstallInstructions) { %>
 <h3>Installation instructions</h3>
@@ -72,7 +79,7 @@
 </ul>
 <% } %>
 <h3>Downloads</h3>
-<table id="downloadsTable">
+<table id="downloadsTable" class="table table-striped">
     <thead>
         <tr>
             <td>Name</td>
