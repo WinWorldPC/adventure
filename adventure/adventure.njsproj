@@ -36,7 +36,7 @@
     <Compile Include="app.js" />
     <Compile Include="constants.js" />
     <Compile Include="formatting.js" />
-    <Compile Include="res\js\lazyCarousel.js" />
+    <Content Include="res\js\lazyCarousel.js" />
     <Content Include="config.example.json" />
     <Content Include="deploy\adventure.example.service" />
     <Content Include="package.json" />
