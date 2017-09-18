@@ -15,12 +15,19 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item active">
+                <%# Hardcode non-pages %>
+                <li class="nav-item">
                     <a class="nav-link" href="/library">Library</a>
                 </li>
+                <% Object.keys(sitePages).forEach(function (i, n, a) { %>
+                <% if (sitePages[i].show) { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/<%= i %>"><%= sitePages[i].title %></a>
+                </li>
+                <% } %>
+                <% }); %>
             </ul>
         </div>
-        <!-- Put links to landing page, about, IRC, etc. when content is written/in place. -->
     </nav>
     <div class="container mt-2">
     <!-- h1 with title used to go here -->

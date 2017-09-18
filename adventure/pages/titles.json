@@ -1,3 +1,3 @@
 ﻿{
-  "home":  "Hello World!"
+  "home": { "title": "Hello World!", "show":  false }
 }

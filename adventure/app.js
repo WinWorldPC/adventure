@@ -10,6 +10,7 @@
 
 // HACK: BOM must die
 var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEFF/, ""));
+var sitePages = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titles.json"), "utf8").replace(/^\uFEFF/, ""));
 
 var connection = mysql.createConnection(config.mysql);
 
@@ -64,6 +65,8 @@ function libraryRoute(req, res) {
             })
             // TODO: Special-case OS for rendering the old custom layout
             res.render("library", {
+                sitePages: sitePages,
+
                 products: productsFormatted,
                 page: page,
                 pages: pages,
@@ -137,6 +140,8 @@ server.get("/product/:product/:release", function (req, res) {
                             return x;
                         });
                         res.render("release", {
+                            sitePages: sitePages,
+
                             product: product,
                             releases: rlRes,
                             release: release,
@@ -166,7 +171,11 @@ server.get("/download/:download", function (req, res) {
                         return y.MirrorUUID.toString("hex");
                     }).indexOf(x.MirrorUUID.toString("hex")) > -1;
                 });
-                res.render("selectMirror", { download: download, mirrors: mirrors });
+                res.render("selectMirror", {
+                    sitePages: sitePages,
+
+                    download: download, mirrors: mirrors
+                });
             });
         });
     });
@@ -238,7 +247,6 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
 });
 
 // this will soak up anything without routes on root
-var titleMappings = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titles.json"), "utf8").replace(/^\uFEFF/, ""));;
 server.get("/:page", function (req, res) {
     var file = path.join(config.pageDirectory, req.params.page + ".md");
     fs.readFile(file, "utf8", function (err, contents) {
@@ -246,8 +254,10 @@ server.get("/:page", function (req, res) {
             return res.sendStatus(404);
         }
         var page = marked(contents);
-        var title = titleMappings[req.params.page];
+        var title = sitePages[req.params.page].title;
         return res.render("page", {
+            sitePages: sitePages,
+
             page: page,
             title: title,
         });
