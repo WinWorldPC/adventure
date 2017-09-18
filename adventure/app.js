@@ -232,6 +232,9 @@ server.get("/download/:download/from/:mirror", function (req, res) {
 });
 
 server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
+    if (req.body.ip == null || req.body.file == null) {
+        return res.sendStatus(400);
+    }
     var file = req.body.file;
     var uuid = Buffer.from(file, "hex");
     var ip = req.body.ip;
