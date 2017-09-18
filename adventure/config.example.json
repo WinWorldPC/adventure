@@ -12,5 +12,5 @@
   "screenshotBaseUrl":  "/res/img/screenshots/",
   "pageDirectory": "pages",
   "viewDirectory": "views",
-  "resDirectory":  "C:\\Users\\Calvin\\Downloads\\ww_site_code\\res\\"
+  "resDirectory":  "res"
 }
