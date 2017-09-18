@@ -157,6 +157,9 @@ server.get("/product/:product/:release", function (req, res) {
 });
 
 server.get("/download/:download", function (req, res) {
+    if (!formatting.isHexString(req.params.download)) {
+        return res.sendStatus(400);
+    }
     // TODO: UUID compatiability
     // UUID format is like 60944f2b-4520-11e4-8d58-7054d21a8599/from/630d4e90-3d33-11e6-977e-525400b25447
     var uuidAsBuf = Buffer.from(req.params.download, "hex");
@@ -205,6 +208,9 @@ server.get("/download/:download", function (req, res) {
 //  Garbage collection scriot:
 //     DELETE FROM DownloadHits WHERE DATE_SUB(DownloadTime,INTERVAL 1 DAY) > CURDATE()
 server.get("/download/:download/from/:mirror", function (req, res) {
+    if (!(formatting.isHexString(req.params.download) && formatting.isHexString(req.params.mirror))) {
+        return res.sendStatus(400);
+    }
     // TODO: UUID compatiability
     // UUID format is like 60944f2b-4520-11e4-8d58-7054d21a8599/from/630d4e90-3d33-11e6-977e-525400b25447
     var uuidAsBuf = Buffer.from(req.params.download, "hex");
@@ -232,7 +238,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
 });
 
 server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
-    if (req.body.ip == null || req.body.file == null) {
+    if (req.body.ip == null || req.body.file == null || !formatting.isHexString(req.body.file)) {
         return res.sendStatus(400);
     }
     var file = req.body.file;

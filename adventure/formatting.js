@@ -19,4 +19,8 @@
         // Handle Unix and Windows newlines
         return string.replace(/(.*)\r?\n.*/g, "$1");
     },
+
+    isHexString: function (string) {
+        return /^[0-9A-Fa-f]{32}$/.test(string);
+    }
 };
