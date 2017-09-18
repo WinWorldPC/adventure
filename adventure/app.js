@@ -50,7 +50,7 @@ function libraryRoute(req, res) {
     // TODO: Support richer tag queries than the bare-minimum compat we have
     // with old site (because library pages link to tags in descriptions)
     if (req.params.tag != null) {
-        tag = constants.tagMappings[req.params.tag];
+        tag = constants.tagMappings[req.params.tag] || null;
     }
     // HACK: I am not proud of this query
     connection.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
@@ -248,20 +248,26 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
 
 // this will soak up anything without routes on root
 server.get("/:page", function (req, res) {
-    var file = path.join(config.pageDirectory, req.params.page + ".md");
-    fs.readFile(file, "utf8", function (err, contents) {
-        if (err) {
-            return res.sendStatus(404);
+    if (sitePages[req.params.page]) {
+        if (sitePages[req.params.page].redirectTo) {
+            res.redirect(sitePages[req.params.page].redirectTo);
+        } else {
+            var file = path.join(config.pageDirectory, req.params.page + ".md");
+            fs.readFile(file, "utf8", function (err, contents) {
+                if (err) {
+                    return res.sendStatus(404);
+                }
+                var page = marked(contents);
+                var title = sitePages[req.params.page].title;
+                return res.render("page", {
+                    sitePages: sitePages,
+                    
+                    page: page,
+                    title: title,
+                });
+            });
         }
-        var page = marked(contents);
-        var title = sitePages[req.params.page].title;
-        return res.render("page", {
-            sitePages: sitePages,
-
-            page: page,
-            title: title,
-        });
-    });
+    }
 });
 server.get("/", function (req, res) {
     return res.redirect("/home");
