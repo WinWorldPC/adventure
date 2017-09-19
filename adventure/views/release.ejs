@@ -4,7 +4,7 @@
         <h1><%= product.Name %> <small class="text-muted"><%= release.Name %></small></h1>
         <%- product.Notes %>
         <div id="releaseInformation">
-            <nav id="releasesNav" aria-label="Releases navigation">
+            <nav class="mb-2" id="releasesNav" aria-label="Releases navigation">
                 <ul id="releasesList" class="nav nav-pills">
                     <% releases.forEach(function(i, n, a) {%>
                     <% if (i.ReleaseUUID.toString("hex") == release.ReleaseUUID.toString("hex")) { %>
@@ -22,7 +22,7 @@
                 </ul>
             </nav>
             <% if (screenshots && screenshots.length > 0) { %>
-            <div id="screenshotPanel" class="carousel slide lazy mb-2 mt-2 w-75 mx-auto" data-ride="carousel">
+            <div id="screenshotPanel" class="carousel slide lazy mb-2 w-75 mx-auto" data-ride="carousel">
                 <ol class="carousel-indicators">
                     <% screenshots.forEach(function (i, n, a) { %>
                     <li data-target="#screenshotPanel" data-slide-to="<%= n %>" class="<%= n ? '' : 'active' %>"></li>
