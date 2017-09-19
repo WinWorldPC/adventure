@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Compile Include="constants.js" />
+    <Compile Include="database.js" />
     <Compile Include="formatting.js" />
     <Content Include="res\js\lazyCarousel.js" />
     <Content Include="config.example.json" />

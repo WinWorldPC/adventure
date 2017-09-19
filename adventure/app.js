@@ -2,7 +2,7 @@
     morgan = require("morgan"),
     bodyParser = require("body-parser"),
     marked = require("marked"),
-    mysql = require("mysql2"),
+    database = require("./database.js"),
     fs = require("fs"),
     path = require("path"),
     constants = require("./constants.js"),
@@ -12,7 +12,7 @@
 var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEFF/, ""));
 var sitePages = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titles.json"), "utf8").replace(/^\uFEFF/, ""));
 
-var connection = mysql.createConnection(config.mysql);
+database.createConnection(config.mysql);
 
 var server = express();
 
@@ -53,11 +53,11 @@ function libraryRoute(req, res) {
         tag = constants.tagMappings[req.params.tag] || null;
     }
     // HACK: I am not proud of this query
-    connection.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
+    database.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
         var pages = Math.ceil(count / config.perPage);
         // TODO: Break up these queries, BADLY
-        connection.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+        database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
             // truncate and markdown
             var productsFormatted = prRes.map(function (x) {
                 x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
@@ -84,12 +84,12 @@ server.get("/library", function (req, res) {
 });
 
 server.get("/product/:product", function (req, res) {
-    connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
+    database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) {
             return res.sendStatus(404);
         } else if (product.DefaultRelease) {
-            connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `ReleaseUUID` = ?", [product.ProductUUID, product.DefaultRelease], function (reErr, reRes, reFields) {
+            database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `ReleaseUUID` = ?", [product.ProductUUID, product.DefaultRelease], function (reErr, reRes, reFields) {
                 var release = reRes[0] || null;
                 if (release) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
@@ -98,7 +98,7 @@ server.get("/product/:product", function (req, res) {
                 }
             });
         } else {
-            connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
+            database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
                 var release = rlRes[0] || null;
                 if (release) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
@@ -111,19 +111,19 @@ server.get("/product/:product", function (req, res) {
 });
 
 server.get("/product/:product/:release", function (req, res) {
-    connection.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
+    database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) return res.sendStatus(404);
-        connection.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
+        database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
             if (rlRes == null || rlRes.length == 0) return res.sendStatus(404);
             var release = rlRes.find(function (x) {
                 if (x.Slug == req.params.release)
                     return x;
             });
             if (release == null) return res.sendStatus(404);
-            connection.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
-                connection.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
-                    connection.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
+            database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
+                database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
+                    database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
                         release.InstallInstructions = marked(release.InstallInstructions || "");
                         release.Notes = marked(release.Notes || "");
                         product.Notes = marked(product.Notes || "");
@@ -163,10 +163,10 @@ server.get("/download/:download", function (req, res) {
     // TODO: UUID compatiability
     // UUID format is like 60944f2b-4520-11e4-8d58-7054d21a8599/from/630d4e90-3d33-11e6-977e-525400b25447
     var uuidAsBuf = Buffer.from(req.params.download, "hex");
-    connection.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
+    database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
         var download = dlRes[0] || null;
-        connection.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
-            connection.execute("SELECT * FROM `DownloadMirrors` WHERE `IsOnline` = True", null, function (miErr, miRes, miFields) {
+        database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
+            database.execute("SELECT * FROM `DownloadMirrors` WHERE `IsOnline` = True", null, function (miErr, miRes, miFields) {
                 // filter out mirrors that aren't online and have the file
                 // HACK: arrays are NOT comparable, so turn them into strings
                 var mirrors = miRes.filter(function (x) {
@@ -216,19 +216,19 @@ server.get("/download/:download/from/:mirror", function (req, res) {
     var uuidAsBuf = Buffer.from(req.params.download, "hex");
     var mirrorUuidAsBuf = Buffer.from(req.params.mirror, "hex");
     // check how many downloads where hit (no user/session just yet)
-    connection.execute("SELECT * FROM `DownloadHits` WHERE IPAddress = ? AND DownloadTime > CURDATE()", [req.ip], function (idhErr, idhRes, idhFields) {
+    database.execute("SELECT * FROM `DownloadHits` WHERE IPAddress = ? AND DownloadTime > CURDATE()", [req.ip], function (idhErr, idhRes, idhFields) {
         //  25 for now is a reasonable limit
         if (idhRes.length > 25) {
             return res.sendStatus(429);
         }
-        connection.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
+        database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
             var download = dlRes[0] || null;
-            connection.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
-                connection.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
+            database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
+                database.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
                     var mirror = miRes[0] || null;
                     // TODO: I think escape sequences may need to be replaced too?
                     var downloadPath = "http://" + mirror.Hostname + "/" + download.DownloadPath;//.replace("&", "+");
-                    connection.execute("INSERT INTO `DownloadHits` (DownloadUUID, MirrorUUID, IPAddress) VALUES (?, ?, ?)", [uuidAsBuf, mirrorUuidAsBuf, req.ip], function (dhErr, dhRes, dhFields) {
+                    database.execute("INSERT INTO `DownloadHits` (DownloadUUID, MirrorUUID, IPAddress) VALUES (?, ?, ?)", [uuidAsBuf, mirrorUuidAsBuf, req.ip], function (dhErr, dhRes, dhFields) {
                         return res.redirect(downloadPath);
                     });
                 });
@@ -244,12 +244,12 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     var file = req.body.file;
     var uuid = Buffer.from(file, "hex");
     var ip = req.body.ip;
-    connection.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` =", [ip, file], function (dhErr, dhRes, dhFields) {
+    database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` =", [ip, file], function (dhErr, dhRes, dhFields) {
         var dl = dhRes[0] || null;
         if (dl == null) {
             return res.send("false");
         }
-        connection.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
+        database.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
             return res.send(dhRes.length ? "true" : "false");
         });
     });
