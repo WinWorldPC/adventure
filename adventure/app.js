@@ -273,11 +273,13 @@ server.get("/:page", function (req, res) {
                 }
                 var page = marked(contents);
                 var title = sitePages[req.params.page].title;
+                var supressTitle = sitePages[req.params.page].supressTitle || false;
                 return res.render("page", {
                     sitePages: sitePages,
                     
                     page: page,
                     title: title,
+                    supressTitle: supressTitle
                 });
             });
         }
