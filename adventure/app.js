@@ -281,6 +281,8 @@ server.get("/:page", function (req, res) {
                 });
             });
         }
+    } else {
+        return res.sendStatus(404);
     }
 });
 server.get("/", function (req, res) {
