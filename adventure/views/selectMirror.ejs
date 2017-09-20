@@ -1,8 +1,43 @@
 ﻿<%- include("head", {title: download.Name, sitePages: sitePages}) %>
-<h2>Mirrors</h2>
-<ul id="mirrorsList">
-    <% mirrors.forEach(function(i, n, a) {%>
-        <li><a href="/download/<%= download.DLUUID.toString('hex') %>/from/<%= i.MirrorUUID.toString('hex') %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
-    <% }); %>
-</ul>
-<%- include("foot") %>
+<div class="row">
+    <div id="descriptionColumn" class="col-sm-9">
+        <h1>
+            <%= download.Name %>
+            <span class="downloadTagPrerelease badge badge-warning"><%= download.RTM == "True" ? "" : "Prerelease" %></span>
+            <span class="downloadTagUpgrade badge badge-secondary"><%= download.Upgrade == "True" ? "Upgrade" : "" %></span>
+        </h1>
+        <% if (download.Information) { %>
+        <%= download.Information %>
+        <% } %>
+        <h2>Mirrors</h2>
+        <ul id="mirrorsList">
+            <% mirrors.forEach(function(i, n, a) {%>
+            <li><a href="/download/<%= download.DLUUID.toString('hex') %>/from/<%= i.MirrorUUID.toString('hex') %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
+            <% }); %>
+        </ul>
+    </div>
+    <div class="col-sm">
+        <div id="fileInfoSheet" class="card">
+            <div class="card-header" role="tab" id="fileInfoheader">
+                <h2 class="mb-0 h6">
+                    File Information
+                </h2>
+            </div>
+            <dl class="card-body" role="tabpanel" aria-labelledby="fileInfoheader">
+                <dt>Version</dt>
+                <dd><%= download.Version %></dd>
+                <dt>Language</dt>
+                <dd><%= download.Language %></dd>
+                <dt>Processor architecture</dt>
+                <dd><%= download.Arch %></dd>
+                <dt>File type</dt>
+                <dd><%= download.ImageType %></dd>
+                <dt>File size</dt>
+                <dd><%= download.FileSize %></dd>
+                <dt>SHA1 checksum</dt>
+                <dd><tt><%= download.SHA1Sum.toString("hex") %></tt></dd>
+            </dl>
+         </div>
+     </div>
+</div>
+        <%- include("foot") %>

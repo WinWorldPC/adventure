@@ -174,6 +174,11 @@ server.get("/download/:download", function (req, res) {
                         return y.MirrorUUID.toString("hex");
                     }).indexOf(x.MirrorUUID.toString("hex")) > -1;
                 });
+                if (download.Information) {
+                    download.Information - marked(download.Information);
+                }
+                download.ImageType = constants.fileTypeMappings[download.ImageType];
+                download.FileSize = formatting.formatBytes(download.FileSize);
                 res.render("selectMirror", {
                     sitePages: sitePages,
 

@@ -34,7 +34,7 @@
                         <%# Lazy load images %>
                         <a href="<%= i.ScreenshotFile %>">
                             <%# Carousel captions suck a bit IMHO, so just embrace the hovertext %>
-                            <img class="d-block w-100" <%= n ? 'data-src' : 'src' %>="<%= i.ScreenshotFile %>" alt="<%= i.ScreenshotTitle %>" title="<%= i.ScreenshotTitle %>">
+                            <img class="d-block w-100" <%= n ? 'data-src' : 'src' %>="<%= i.ScreenshotFile %>" alt="<%= i.ScreenshotTitle %>" title="<%= i.ScreenshotTitle %>" />
                         </a>
                     </div>
                     <% }); %>
