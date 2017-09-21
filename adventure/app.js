@@ -18,7 +18,10 @@ var server = express();
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 server.use(morgan(config.morganLogFormat));
-server.use("/res", express.static(config.resDirectory));
+// if it's not there, don't use it - theoretically then, nginx could be handling it
+if (config.resDirectory) {
+    server.use("/res", express.static(config.resDirectory));
+}
 server.set("views", config.viewDirectory);
 server.set("view engine", 'ejs');
 if (config.runBehindProxy) {
