@@ -12,7 +12,7 @@
         <h2>Mirrors</h2>
         <ul id="mirrorsList">
             <% mirrors.forEach(function(i, n, a) {%>
-            <li><a href="/download/<%= download.DLUUID.toString('hex') %>/from/<%= i.MirrorUUID.toString('hex') %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
+            <li><a href="/download/<%= download.DLUUID %>/from/<%= i.MirrorUUID %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
             <% }); %>
         </ul>
     </div>

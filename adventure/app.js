@@ -136,6 +136,7 @@ server.get("/product/:product/:release", function (req, res) {
                         var downloads = dlRes.map(function (x) {
                             x.FileSize = formatting.formatBytes(x.FileSize);
                             x.ImageType = constants.fileTypeMappings[x.ImageType];
+                            x.DLUUID = formatting.binToHex(x.DLUUID);
                             return x;
                         });
                         var screenshots = scRes == null ? null : scRes.map(function (x) {
@@ -165,23 +166,30 @@ server.get("/download/:download", function (req, res) {
     }
     // TODO: UUID compatiability
     // UUID format is like 60944f2b-4520-11e4-8d58-7054d21a8599/from/630d4e90-3d33-11e6-977e-525400b25447
-    var uuidAsBuf = Buffer.from(req.params.download, "hex");
+    var uuidAsBuf = formatting.hexToBin(req.params.download);
     database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
         var download = dlRes[0] || null;
         database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
             database.execute("SELECT * FROM `DownloadMirrors` WHERE `IsOnline` = True", null, function (miErr, miRes, miFields) {
                 // filter out mirrors that aren't online and have the file
                 // HACK: arrays are NOT comparable, so turn them into strings
+                // then munge the buffer into an MU compatible UUID string
                 var mirrors = miRes.filter(function (x) {
                     return mrRes.map(function (y) {
                         return y.MirrorUUID.toString("hex");
                     }).indexOf(x.MirrorUUID.toString("hex")) > -1;
-                });
+                }).map(function (x) {
+                    x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
+                    return x;
+                });;
+
                 if (download.Information) {
                     download.Information - marked(download.Information);
                 }
                 download.ImageType = constants.fileTypeMappings[download.ImageType];
                 download.FileSize = formatting.formatBytes(download.FileSize);
+                // turn these into the proper links
+                download.DLUUID = formatting.binToHex(download.DLUUID);
                 res.render("selectMirror", {
                     sitePages: sitePages,
 
@@ -221,8 +229,8 @@ server.get("/download/:download/from/:mirror", function (req, res) {
     }
     // TODO: UUID compatiability
     // UUID format is like 60944f2b-4520-11e4-8d58-7054d21a8599/from/630d4e90-3d33-11e6-977e-525400b25447
-    var uuidAsBuf = Buffer.from(req.params.download, "hex");
-    var mirrorUuidAsBuf = Buffer.from(req.params.mirror, "hex");
+    var uuidAsBuf = formatting.hexToBin(req.params.download);
+    var mirrorUuidAsBuf = formatting.hexToBin(req.params.mirror);
     // check how many downloads where hit (no user/session just yet)
     database.execute("SELECT * FROM `DownloadHits` WHERE IPAddress = ? AND DownloadTime > CURDATE()", [req.ip], function (idhErr, idhRes, idhFields) {
         //  25 for now is a reasonable limit
@@ -250,7 +258,7 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
         return res.sendStatus(400);
     }
     var file = req.body.file;
-    var uuid = Buffer.from(file, "hex");
+    var uuid = formatting.hexToBin(file);
     var ip = req.body.ip;
     database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` =", [ip, file], function (dhErr, dhRes, dhFields) {
         var dl = dhRes[0] || null;
