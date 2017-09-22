@@ -21,6 +21,15 @@
     },
 
     isHexString: function (string) {
-        return /^[0-9A-Fa-f]{32}$/.test(string);
+        return /^[0-9A-Fa-f-]{32,}$/.test(string);
+    },
+
+    hexToBin: function (hex) {
+        return Buffer.from(hex.replace(/-/g, ""), "hex");
+    },
+
+    binToHex: function (bin) {
+        var s = bin.toString("hex");
+        return s.substr(0, 8) + "-" + s.substr(8, 4) + "-" + s.substr(12, 4) + "-" + s.substr(16, 4) + "-" + s.substr(-12);
     }
 };
