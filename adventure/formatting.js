@@ -17,7 +17,7 @@
 
     truncateToFirstParagraph: function (string) {
         // Handle Unix and Windows newlines
-        return string.replace(/(.*)\r?\n.*/g, "$1");
+        return string.replace(/(.*)\r?\n\r?\n.*/g, "$1");
     },
 
     isHexString: function (string) {
