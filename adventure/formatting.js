@@ -21,7 +21,7 @@
     },
 
     isHexString: function (string) {
-        return /^[0-9A-Fa-f-]{36}$/.test(string);
+        return /^[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}$/.test(string);
     },
 
     hexToBin: function (hex) {
