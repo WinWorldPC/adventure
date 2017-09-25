@@ -1,4 +1,5 @@
 ﻿<%- include("head", {title: "Library", sitePages: sitePages}) %>
+<!-- TODO: some kind of drill-down? -->
 <table id="filesTable" class="table table-striped table-sm table-responsive">
     <thead>
         <tr>
@@ -13,7 +14,11 @@
     <tbody>
         <% (files || []).forEach(function(i, n, a) {%>
         <tr>
-            <td><a href="/download/<%= i.DLUUID %>"><%= i.FileName %></a></td>
+            <td>
+                <a href="/download/<%= i.DLUUID %>"><%= i.FileName %></a>
+                <br/>
+                <a href="/release/<%= i.ReleaseUUID %>" class="text-secondary"><%= i.Name %></a>
+            </td>
             <td>
                 <%= i.Version %>
                 <span class="downloadTagPrerelease badge badge-warning"><%= i.RTM == "True" ? "" : "Prerelease" %></span>

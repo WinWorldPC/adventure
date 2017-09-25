@@ -90,6 +90,7 @@ server.get("/library", function (req, res) {
 function filesRoute(req, res) {
     var page = req.query.page || 1;
     
+    // Downloads without releases associated are essentially orphans that should be GCed
     database.execute("SELECT COUNT(*) FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL", function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
         var pages = Math.ceil(count / config.perPage);
@@ -98,6 +99,7 @@ function filesRoute(req, res) {
                 x.FileSize = formatting.formatBytes(x.FileSize);
                 x.ImageType = constants.fileTypeMappings[x.ImageType];
                 x.DLUUID = formatting.binToHex(x.DLUUID);
+                x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
                 return x;
             });
             res.render("files", {
@@ -187,6 +189,21 @@ server.get("/product/:product/:release", function (req, res) {
             });
         });
     });
+});
+
+server.get("/release/:id", function (req, res) {
+    if (formatting.isHexString(req.params.id)) {
+        var uuid = formatting.hexToBin(req.params.id);
+        database.execute("SELECT `ReleaseUUID`,`Slug`,`ProductUUID` FROM `Releases` WHERE `ReleaseUUID` = ?", [uuid], function (rlErr, rlRes, rlFields) {
+            var release = rlRes[0] || null;
+            database.execute("SELECT `Slug`,`ProductUUID` FROM `Products` WHERE `ProductUUID` = ?", [release.ProductUUID], function (prErr, prRes, prFields) {
+                var product = prRes[0] || null;
+                res.redirect("/product/" + product.Slug + "/" + release.Slug);
+            });
+        });
+    } else {
+        return res.sendStatus(400);
+    }
 });
 
 server.get("/download/:download", function (req, res) {
