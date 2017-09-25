@@ -1,5 +1,6 @@
 ﻿{
   "runBehindProxy": false,
+  "enableExperimentalFeatures":  true,
   "morganLogFormat":  "dev",
   "mysql": {
     "database": "winworld",

@@ -86,6 +86,35 @@ server.get("/library", function (req, res) {
     return res.redirect("/library/operating-systems");
 });
 
+// TODO: Experimental view; do not use in production! Set config to disable it.
+function filesRoute(req, res) {
+    var page = req.query.page || 1;
+    
+    database.execute("SELECT COUNT(*) FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL", function (cErr, cRes, cFields) {
+        var count = cRes[0]["COUNT(*)"];
+        var pages = Math.ceil(count / config.perPage);
+        database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL ORDER BY `FileName` LIMIT ?,?", [(page - 1) * config.perPage, config.perPage], function (fiErr, fiRes, fiFields) {
+            var files = fiRes.map(function (x) {
+                x.FileSize = formatting.formatBytes(x.FileSize);
+                x.ImageType = constants.fileTypeMappings[x.ImageType];
+                x.DLUUID = formatting.binToHex(x.DLUUID);
+                return x;
+            });
+            res.render("files", {
+                sitePages: sitePages,
+                
+                page: page,
+                pages: pages,
+                pageBounds: config.perPageBounds,
+                files: files
+            });
+        });
+    });
+}
+if (config.enableExperimentalFeatures) {
+    server.get("/files/", filesRoute);
+}
+
 server.get("/product/:product", function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;

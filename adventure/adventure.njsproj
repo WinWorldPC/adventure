@@ -46,6 +46,7 @@
     <Content Include="res\css\stickyFooter.css" />
     <Content Include="views\foot.ejs" />
     <Content Include="views\head.ejs" />
+    <Content Include="views\files.ejs" />
     <Content Include="views\library.ejs" />
     <Content Include="views\page.ejs" />
     <Content Include="views\selectMirror.ejs" />
