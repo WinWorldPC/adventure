@@ -316,11 +316,11 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` = ?", [file], function (dhErr, dhRes, dhFields) {
         var dl = dhRes[0] || null;
         if (dl == null) {
-            console.log("check-x-sendfile: false for/on " + file + "/" + ip)
+            console.log("[ERR] check-x-sendfile failed, null download! false for/on " + file + "/" + ip);
             return res.send("false");
         }
         database.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
-            console.log("check-x-sendfile: " + dhRes.length ? "true" : "false" + " for/on " + file + "/" + ip)
+            console.log("check-x-sendfile: " + dhRes.length ? "true" : "false" + " for/on " + file + " (" + formatting.binToHex(dl.DLUUID) + ")/" + ip);
             return res.send(dhRes.length ? "true" : "false");
         });
     });
