@@ -74,23 +74,33 @@ server.get("/login/", function (req, res) {
         return res.render("login", {
             sitePages: sitePages,
             user: req.user,
+
+            message: null
         });
     }
 });
 
 server.post("/login", urlencodedParser, function (req, res) {
     passport.authenticate("local", function (err, user, info) {
-        if (err) { return console.log(err) }
+        if (err) {
+            console.log(err);
+            return res.sendStatus(500);
+        }
         // if user is not found due to wrong username or password
         if (!user) {
             return res.render("login", {
                 sitePages: sitePages,
                 user: req.user,
+
+                message: "Invalid username or password."
             });
         }
         //passport.js has a logIn user method
         req.logIn(user, function (err) {
-            if (err) { return console.log(err); }
+            if (err) {
+                console.log(err);
+                return res.sendStatus(500);
+            }
             
             return res.redirect("/home");
         });

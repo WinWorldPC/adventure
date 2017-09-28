@@ -16,7 +16,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav mr-auto">
                 <%# Hardcode non-pages %>
                 <li class="nav-item">
                     <a class="nav-link" href="/library">Library</a>
@@ -29,8 +29,23 @@
                 <% } %>
                 <% }); %>
             </ul>
+            <ul class="nav navbar-nav">
+                <% if (user) { %>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <%= user.Name %>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="userMenuLink">
+                        <a class="dropdown-item" href="/logout">Log out</a>
+                    </div>
+                </li>
+                <% } else { %>
+                <li>
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+                <% } %>
+            </ul>
         </div>
     </nav>
     <div class="container mt-2">
-        <div class="alert alert-info">Hello <%= user != null ? user.Name : "no one" %></div>
     <!-- h1 with title used to go here -->

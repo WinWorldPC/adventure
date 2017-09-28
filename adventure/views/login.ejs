@@ -1,5 +1,10 @@
 ﻿<%- include("head", {title: "Login", sitePages: sitePages, user: user}) %>
 <h1>Login</h1>
+<% if (message) { %>
+<div class="alert alert-warning">
+    <%= message %>
+</div>
+<% } %>
 <form method="post" action="/login">
     <div class="form-group">
         <label for="username">Email address</label>
