@@ -15,4 +15,7 @@ database.execute(downloadHitsQuery, [], function (dhErr, dhRes, dhFields) {
     } else {
         console.log("Deleted stable download hits");
     }
+    return;
 });
+
+console.log("Finished GC run.");
