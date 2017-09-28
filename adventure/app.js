@@ -313,7 +313,9 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     }
     var file = req.body.file;
     var ip = req.body.ip;
-    database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` = ?", [file], function (dhErr, dhRes, dhFields) {
+    // mirror thing striped the initial ./ sometimes, concat a "%" and use LIKE to grab it
+    // TODO: maybe thats a bit overzealous
+    database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` LIKE CONCAT(\"%\", ?)", [file], function (dhErr, dhRes, dhFields) {
         var dl = dhRes[0] || null;
         if (dl == null) {
             console.log("[ERR] check-x-sendfile failed, null download! false for/on " + file + "/" + ip);
