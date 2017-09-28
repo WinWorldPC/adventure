@@ -1,6 +1,7 @@
 ﻿// Garbage collection script
 
-var database = require("./database.js");
+var fs = require("fs"),
+    database = require("./database.js");
 
 var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEFF/, ""));
 
