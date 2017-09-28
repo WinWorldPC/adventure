@@ -283,8 +283,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
     var mirrorUuidAsBuf = formatting.hexToBin(req.params.mirror);
     // check how many downloads where hit (no user/session just yet)
     database.execute("SELECT * FROM `DownloadHits` WHERE IPAddress = ? AND DownloadTime > CURDATE()", [req.ip], function (idhErr, idhRes, idhFields) {
-        //  25 for now is a reasonable limit
-        if (idhRes.length > 25) {
+        if (idhRes.length > config.downloadMax || 25) {
             return res.sendStatus(429);
         }
         database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
@@ -320,6 +319,7 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
             return res.send("false");
         }
         database.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
+            console.log("check-x-sendfile: " + dhRes.length ? "true" : "false" + " for/on " + file + "/" + ip)
             return res.send(dhRes.length ? "true" : "false");
         });
     });
