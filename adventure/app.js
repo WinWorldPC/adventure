@@ -288,6 +288,9 @@ server.get("/download/:download/from/:mirror", function (req, res) {
             database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
                 database.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
                     var mirror = miRes[0] || null;
+                    if (miErr || mirror == null) {
+                        return res.sendStatus(500);
+                    }
                     // TODO: I think escape sequences may need to be replaced too?
                     var downloadPath = "http://" + mirror.Hostname + "/" + download.DownloadPath;//.replace("&", "+");
                     database.execute("INSERT INTO `DownloadHits` (DownloadUUID, MirrorUUID, IPAddress) VALUES (?, ?, ?)", [uuidAsBuf, mirrorUuidAsBuf, req.ip], function (dhErr, dhRes, dhFields) {
