@@ -12,9 +12,9 @@ const downloadHitsQuery = "DELETE FROM DownloadHits WHERE DATE_SUB(DownloadTime,
 database.execute(downloadHitsQuery, [], function (dhErr, dhRes, dhFields) {
     if (dhErr) {
         console.log(dhErr);
+        process.exit(1);
     } else {
         console.log("Deleted stable download hits");
+        process.exit(0);
     }
-    return;
 });
-process.exit();
