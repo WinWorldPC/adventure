@@ -28,6 +28,11 @@ if (config.runBehindProxy) {
     server.set("trust proxy", "127.0.0.1"); // don't hardcode?
 }
 
+// Robots.txt and other such stuff
+server.get("/robots.txt", function (req, res) {
+    return res.sendFile(path.join(config.resDirectory, "robots.txt"));
+});
+
 function libraryRoute(req, res) {
     var page = req.query.page || 1;
     var category = "%"; // % for everything
