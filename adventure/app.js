@@ -308,6 +308,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
 
 server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     if (req.body.ip == null || req.body.file == null || !formatting.isHexString(req.body.file)) {
+        console.log("[ERR] check-x-sendfile failed! ip: " + req.body.ip + " file: " + req.body.file)
         return res.sendStatus(400);
     }
     var file = req.body.file;
