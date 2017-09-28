@@ -215,8 +215,6 @@ server.get("/download/:download", function (req, res) {
     if (!formatting.isHexString(req.params.download)) {
         return res.sendStatus(400);
     }
-    // TODO: UUID compatiability
-    // UUID format is like 60944f2b-4520-11e4-8d58-7054d21a8599/from/630d4e90-3d33-11e6-977e-525400b25447
     var uuidAsBuf = formatting.hexToBin(req.params.download);
     database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
         var download = dlRes[0] || null;
@@ -275,9 +273,6 @@ server.get("/download/:download", function (req, res) {
  */
 // IP addresses are stored as strings now, and session UUIDs are nullable (and
 // not keyed, because the sessions table has been dropped for now)
-
-//  Garbage collection scriot:
-//     DELETE FROM DownloadHits WHERE DATE_SUB(DownloadTime,INTERVAL 1 DAY) > CURDATE()
 server.get("/download/:download/from/:mirror", function (req, res) {
     if (!(formatting.isHexString(req.params.download) && formatting.isHexString(req.params.mirror))) {
         return res.sendStatus(400);
