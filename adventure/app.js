@@ -1,10 +1,15 @@
 ﻿var express = require("express"),
     morgan = require("morgan"),
     bodyParser = require("body-parser"),
+    cookieParser = require("cookie-parser"),
+    sessionParser = require("express-session"),
+    passport = require("passport"),
+    localStrategy = require("passport-local").Strategy,
     marked = require("marked"),
     database = require("./database.js"),
     fs = require("fs"),
     path = require("path"),
+    crypto = require("crypto"),
     constants = require("./constants.js"),
     formatting = require("./formatting.js");
 
@@ -14,9 +19,37 @@ var sitePages = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titl
 
 database.createConnection(config.mysql);
 
+// Init passport
+passport.use("local", new localStrategy({ usernameField: "username", passwordField: "password" }, function (username, password, cb) {
+    console.log(username);
+    console.log(password);
+    database.userByEmail(username, function (err, user) {
+        if (err) { return cb(err); }
+        if (!user) { return cb(null, false); }
+        // wtf
+        if (user.Password != crypto.createHash("sha256").update(password).digest("hex")) { return cb(null, false); }
+        return cb(null, user);
+    });
+}));
+passport.serializeUser(function (user, cb) {
+    // UInt8Arrays don't take to the DB well, so mangle first
+    cb(null, user.UserID.toString("hex"));
+});
+passport.deserializeUser(function (id, cb) {
+    database.userById(formatting.hexToBin(id), function (err, user) {
+        if (err) { return cb(err); }
+        cb(null, user);
+    });
+});
+
+// Init server and middleware
 var server = express();
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
+server.use(cookieParser());
+server.use(sessionParser({ secret: config.sessionSecret || "hello world", resave: false, saveUninitialized: false }));
+server.use(passport.initialize());
+server.use(passport.session());
 server.use(morgan(config.morganLogFormat));
 // if it's not there, don't use it - theoretically then, nginx could be handling it
 if (config.resDirectory) {
@@ -33,6 +66,43 @@ server.get("/robots.txt", function (req, res) {
     return res.sendFile(path.join(config.resDirectory, "robots.txt"));
 });
 
+// Auth routes
+server.get("/login/", function (req, res) {
+    if (req.user) {
+        return res.redirect(req.get("Referrer") || "/home");
+    } else {
+        return res.render("login", {
+            sitePages: sitePages,
+            user: req.user,
+        });
+    }
+});
+
+server.post("/login", urlencodedParser, function (req, res) {
+    passport.authenticate("local", function (err, user, info) {
+        if (err) { return console.log(err) }
+        // if user is not found due to wrong username or password
+        if (!user) {
+            return res.render("login", {
+                sitePages: sitePages,
+                user: req.user,
+            });
+        }
+        //passport.js has a logIn user method
+        req.logIn(user, function (err) {
+            if (err) { return console.log(err); }
+            
+            return res.redirect("/home");
+        });
+    })(req, res);
+});
+
+server.get("/logout", function (req, res) {
+    req.logout();
+    return res.redirect("/home");
+});
+
+// Library routes
 function libraryRoute(req, res) {
     var page = req.query.page || 1;
     var category = "%"; // % for everything
@@ -74,6 +144,7 @@ function libraryRoute(req, res) {
             // TODO: Special-case OS for rendering the old custom layout
             res.render("library", {
                 sitePages: sitePages,
+                user: req.user,
 
                 products: productsFormatted,
                 page: page,
@@ -109,6 +180,7 @@ function filesRoute(req, res) {
             });
             res.render("files", {
                 sitePages: sitePages,
+                user: req.user,
                 
                 page: page,
                 pages: pages,
@@ -181,6 +253,7 @@ server.get("/product/:product/:release", function (req, res) {
                         });
                         res.render("release", {
                             sitePages: sitePages,
+                            user: req.user,
 
                             product: product,
                             releases: rlRes,
@@ -245,6 +318,7 @@ server.get("/download/:download", function (req, res) {
                 download.DLUUID = formatting.binToHex(download.DLUUID);
                 res.render("selectMirror", {
                     sitePages: sitePages,
+                    user: req.user,
 
                     download: download, mirrors: mirrors
                 });
@@ -348,6 +422,7 @@ server.get("/:page", function (req, res) {
                 var supressTitle = sitePages[req.params.page].supressTitle || false;
                 return res.render("page", {
                     sitePages: sitePages,
+                    user: req.user,
                     
                     page: page,
                     title: title,

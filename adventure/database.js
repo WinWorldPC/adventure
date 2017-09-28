@@ -32,7 +32,19 @@ module.exports = {
                 callback(null, results, fields);
             });
         });
-    }
+    },
 
     // TODO: Turn raw queries from routes into more usable functions (abstract away SQL)
+    
+    // TODO: UserFlagHolders
+    userByEmail: function (email, cb) {
+        this.execute("SELECT * FROM `Users` WHERE `Email` = ?", [email], function (uErr, uRes, uFields) {
+                return cb(uErr, uRes[0] || null);
+        });
+    },
+    userById: function (id, cb) {
+        this.execute("SELECT * FROM `Users` WHERE `UserID` = ?", [id], function (uErr, uRes, uFields) {
+            return cb(uErr, uRes[0] || null);
+        });
+    },
 };

@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: "Library", sitePages: sitePages}) %>
+﻿<%- include("head", {title: "Library", sitePages: sitePages, user: user}) %>
 <nav id="libraryCategorySelection" class="nav nav-pills mb-2">
     <a class="nav-link <%= category == 'operating-systems' ? 'active' : '' %>" href="/library/operating-systems">OSes and Shells</a>
     <a class="nav-link <%= category == 'applications' ? 'active' : '' %>" href="/library/applications">Applications</a>
