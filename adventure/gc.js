@@ -17,5 +17,4 @@ database.execute(downloadHitsQuery, [], function (dhErr, dhRes, dhFields) {
     }
     return;
 });
-
-console.log("Finished GC run.");
+process.exit();
