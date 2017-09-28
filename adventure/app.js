@@ -216,7 +216,7 @@ server.get("/download/:download", function (req, res) {
     database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
         var download = dlRes[0] || null;
         if (dlErr || download == null) {
-            console.log(dlErr || "download was null! " + req.params.download);
+            console.log(dlErr || "[ERR] download was null! /download/" + req.params.download + " refererr: " + req.get("Referrer"));
             return res.sendStatus(500);
         }
         database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
@@ -293,7 +293,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
                 database.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
                     var mirror = miRes[0] || null;
                     if (miErr || mirror == null) {
-                        console.log(miErr || "mirror was null! " + req.params.mirror);
+                        console.log(miErr || "[ERR] mirror was null! /download/" + "req.params.download" + "/from/" + req.params.mirror + " refererr: " + req.get("Referrer"));
                         return res.sendStatus(500);
                     }
                     // TODO: I think escape sequences may need to be replaced too?
