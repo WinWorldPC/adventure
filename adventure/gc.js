@@ -14,7 +14,7 @@ database.execute(downloadHitsQuery, [], function (dhErr, dhRes, dhFields) {
         console.log(dhErr);
         process.exit(1);
     } else {
-        console.log("Deleted stable download hits");
+        console.log("Deleted stale download hits");
         process.exit(0);
     }
 });
