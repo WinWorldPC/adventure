@@ -283,7 +283,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
     var mirrorUuidAsBuf = formatting.hexToBin(req.params.mirror);
     // check how many downloads where hit (no user/session just yet)
     database.execute("SELECT * FROM `DownloadHits` WHERE IPAddress = ? AND DownloadTime > CURDATE()", [req.ip], function (idhErr, idhRes, idhFields) {
-        if (idhRes.length > config.downloadMax || 25) {
+        if (idhRes.length > (config.downloadMax || 25)) {
             return res.sendStatus(429);
         }
         database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
