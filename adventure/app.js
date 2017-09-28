@@ -312,7 +312,6 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
         return res.sendStatus(400);
     }
     var file = req.body.file;
-    var uuid = formatting.hexToBin(file);
     var ip = req.body.ip;
     database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` = ?", [file], function (dhErr, dhRes, dhFields) {
         var dl = dhRes[0] || null;
