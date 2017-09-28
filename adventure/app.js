@@ -25,7 +25,7 @@ if (config.resDirectory) {
 server.set("views", config.viewDirectory);
 server.set("view engine", 'ejs');
 if (config.runBehindProxy) {
-    server.set("trust proxy", "true")
+    server.set("trust proxy", "127.0.0.1"); // don't hardcode?
 }
 
 function libraryRoute(req, res) {
