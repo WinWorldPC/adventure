@@ -215,6 +215,10 @@ server.get("/download/:download", function (req, res) {
     var uuidAsBuf = formatting.hexToBin(req.params.download);
     database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
         var download = dlRes[0] || null;
+        if (dlErr || download == null) {
+            console.log(dlErr || "download was null! " + req.params.download);
+            return res.sendStatus(500);
+        }
         database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
             database.execute("SELECT * FROM `DownloadMirrors` WHERE `IsOnline` = True", null, function (miErr, miRes, miFields) {
                 // filter out mirrors that aren't online and have the file
@@ -289,6 +293,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
                 database.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
                     var mirror = miRes[0] || null;
                     if (miErr || mirror == null) {
+                        console.log(miErr || "mirror was null! " + req.params.mirror);
                         return res.sendStatus(500);
                     }
                     // TODO: I think escape sequences may need to be replaced too?
