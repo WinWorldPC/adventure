@@ -292,7 +292,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
                 database.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
                     var mirror = miRes[0] || null;
                     if (miErr || mirror == null) {
-                        console.log(miErr || "[ERR] mirror was null! /download/" + "req.params.download" + "/from/" + req.params.mirror + " refererr: " + req.get("Referrer"));
+                        console.log(miErr || "[ERR] mirror was null! /download/" + req.params.download + "/from/" + req.params.mirror + " refererr: " + req.get("Referrer"));
                         return res.sendStatus(500);
                     }
                     // TODO: I think escape sequences may need to be replaced too?
