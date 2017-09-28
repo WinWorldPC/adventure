@@ -313,9 +313,10 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     var file = req.body.file;
     var uuid = formatting.hexToBin(file);
     var ip = req.body.ip;
-    database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` =", [ip, file], function (dhErr, dhRes, dhFields) {
+    database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` = ?", [file], function (dhErr, dhRes, dhFields) {
         var dl = dhRes[0] || null;
         if (dl == null) {
+            console.log("check-x-sendfile: false for/on " + file + "/" + ip)
             return res.send("false");
         }
         database.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
