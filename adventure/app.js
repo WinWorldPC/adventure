@@ -304,6 +304,18 @@ server.get("/release/:id", function (req, res) {
     }
 });
 
+server.get("/download/test/", function (req, res) {
+    database.execute("SELECT * FROM `DownloadMirrors` WHERE `IsOnline` = True", null, function (miErr, miRes, miFields) {
+        res.render("test", {
+            sitePages: sitePages,
+            user: req.user,
+
+            ip: req.ip,
+            mirrors: miRes
+        });
+    });
+});
+
 server.get("/download/:download", function (req, res) {
     if (!formatting.isHexString(req.params.download)) {
         return res.sendStatus(400);

@@ -54,6 +54,7 @@
     <Content Include="views\page.ejs" />
     <Content Include="views\selectMirror.ejs" />
     <Content Include="views\release.ejs" />
+    <Content Include="views\test.ejs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="deploy\" />
