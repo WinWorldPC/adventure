@@ -1,4 +1,5 @@
-﻿var mysql = require("mysql2");
+﻿var mysql = require("mysql2"),
+    formatting = require("./formatting.js");
 
 var pool = null;
 
@@ -36,15 +37,39 @@ module.exports = {
 
     // TODO: Turn raw queries from routes into more usable functions (abstract away SQL)
     
-    // TODO: UserFlagHolders
+    userFlags: [],
+    userGetFlags: function (id, cb) {
+        this.execute("SELECT DISTINCT `FlagUUID`,`UserUUID` FROM `UserFlagHolders` WHERE `UserUUID` = ?", [formatting.hexToBin(id)], function (fhErr, fhRes, fhFields) {
+            var flags = fhRes.map(function (x) {
+                return module.exports.userFlags.find(function (z) { return z.FlagUUID.toString("hex") == x.FlagUUID.toString("hex") });
+            });
+            return cb(fhErr, flags);
+        });
+    },
     userByEmail: function (email, cb) {
         this.execute("SELECT * FROM `Users` WHERE `Email` = ?", [email], function (uErr, uRes, uFields) {
-                return cb(uErr, uRes[0] || null);
+            var user = uRes[0] || null;
+            if (uErr || user == null) {
+                return cb(uErr, null);
+            } else {
+                module.exports.userGetFlags(user.UserID.toString("hex"), function (err, flags) {
+                    user.UserFlags = flags;
+                    return cb(null, user);
+                });
+            }
         });
     },
     userById: function (id, cb) {
         this.execute("SELECT * FROM `Users` WHERE `UserID` = ?", [id], function (uErr, uRes, uFields) {
-            return cb(uErr, uRes[0] || null);
+            var user = uRes[0] || null;
+            if (uErr || user == null) {
+                return cb(uErr, null);
+            } else {
+                module.exports.userGetFlags(user.UserID.toString("hex"), function (err, flags) {
+                    user.UserFlags = flags;
+                    return cb(null, user);
+                });
+            }
         });
     },
 };

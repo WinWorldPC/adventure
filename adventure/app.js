@@ -20,9 +20,11 @@ var sitePages = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titl
 database.createConnection(config.mysql);
 
 // Init passport
+database.execute("SELECT * FROM `UserFlags`", [], function (ufErr, ufRes, ufFields) {
+    // first, init userFlags
+    database.userFlags = ufRes;
+});
 passport.use("local", new localStrategy({ usernameField: "username", passwordField: "password" }, function (username, password, cb) {
-    console.log(username);
-    console.log(password);
     database.userByEmail(username, function (err, user) {
         if (err) { return cb(err); }
         if (!user) { return cb(null, false); }
