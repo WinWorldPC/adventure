@@ -410,6 +410,8 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
         return res.sendStatus(400);
     }
     var file = req.body.file;
+    console.log("[INFO] check-x-sendfile: url encoded and decoded are " + file + " and " + decodeURIComponent(file));
+    file = decodeURIComponent(file);
     var ip = req.body.ip;
     // mirror thing striped the initial ./ sometimes, concat a "%" and use LIKE to grab it
     // TODO: maybe thats a bit overzealous
