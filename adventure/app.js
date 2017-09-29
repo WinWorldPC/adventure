@@ -151,11 +151,11 @@ function libraryRoute(req, res) {
         tag = constants.tagMappings[req.params.tag] || null;
     }
     // HACK: I am not proud of this query
-    database.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
+    database.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
         var pages = Math.ceil(count / config.perPage);
         // TODO: Break up these queries, BADLY
-        database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+        database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
             // truncate and markdown
             var productsFormatted = prRes.map(function (x) {
                 x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
