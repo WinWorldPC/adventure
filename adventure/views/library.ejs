@@ -23,6 +23,7 @@
     <% }); %>
 </dl>
 <nav aria-label="Page navigation">
+    <% if (pages > 1) { %>
     <ul id="libraryPagination" class="pagination">
         <%# HACK: How the hell does EJS get a string when we passed a number? %>
         <% page = Number(page) %>
@@ -61,5 +62,17 @@
                 </li>
         <% } %>
     </ul>
+    <% } %>
+
+    <div id="tagDropdown" class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="tagDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Tags...
+        </button>
+        <div class="dropdown-menu" aria-labelledby="tagDropdownButton">
+            <% for (var i in tagMappingsInverted) { %>
+            <a class="dropdown-item" href="/library/applications/<%= tagMappingsInverted[i] %>"><%= i %></a>
+            <% }     %>
+        </div>
+    </div>
 </nav>
 <%- include("foot") %>
