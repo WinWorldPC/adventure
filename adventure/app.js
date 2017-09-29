@@ -406,6 +406,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
 
 server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     if (req.body.ip == null || req.body.file == null) {
+        console.log("[ERR] check-x-sendfile failed! ip: " + req.body.ip + " file: " + req.body.file)
         return res.sendStatus(400);
     }
     var file = req.body.file;
@@ -415,9 +416,11 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` LIKE CONCAT(\"%\", ?)", [file], function (dhErr, dhRes, dhFields) {
         var dl = dhRes[0] || null;
         if (dl == null) {
+            console.log("[ERR] check-x-sendfile failed, null download! false for/on " + file + "/" + ip);
             return res.send("false");
         }
         database.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
+            console.log("check-x-sendfile: " + dhRes.length ? "true" : "false" + " for/on " + file + " (" + formatting.binToHex(dl.DLUUID) + ")/" + ip);
             return res.send(dhRes.length ? "true" : "false");
         });
     });
