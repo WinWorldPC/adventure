@@ -286,6 +286,8 @@ server.get("/product/:product/:release", function (req, res) {
                             serials: seRes,
                             screenshots: screenshots,
                             downloads: downloads,
+
+                            tagMappingsInverted: constants.tagMappingsInverted
                         });
                     });
                 });

@@ -89,7 +89,9 @@
                     %>
                     <a href="/library/<%= typeLink %>"><%= product.Type %></a>
                     <% if (product.Type == "Application" && product.ApplicationTags) { %>
-                    (<%= product.ApplicationTags.split(",").join(", ") %>)
+                        <% product.ApplicationTags.split(",").forEach(function(i, n, a) { %>
+                        <a class="badge badge-secondary" href="/library/applications/<%= tagMappingsInverted[i] %>"><%= i %></a>
+                        <% }) %>
                     <% } %>
                 </dd>
 
