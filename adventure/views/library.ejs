@@ -64,6 +64,7 @@
     </ul>
     <% } %>
 
+    <% if (category == 'applications') { %>
     <div id="tagDropdown" class="dropdown">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="tagDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Tags...
@@ -74,5 +75,6 @@
             <% }     %>
         </div>
     </div>
+    <% } %>
 </nav>
 <%- include("foot") %>
