@@ -1,4 +1,5 @@
 ﻿var express = require("express"),
+    favicon = require("serve-favicon"),
     morgan = require("morgan"),
     bodyParser = require("body-parser"),
     cookieParser = require("cookie-parser"),
@@ -64,6 +65,11 @@ if (config.runBehindProxy) {
 }
 
 // Robots.txt and other such stuff
+var faviconPath = path.join(config.resDirectory, "img", "favicon.ico");
+if (fs.existsSync(faviconPath)) {
+    server.use(favicon(faviconPath));
+}
+
 server.get("/robots.txt", function (req, res) {
     return res.sendFile(path.join(config.resDirectory, "robots.txt"));
 });

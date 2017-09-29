@@ -38,6 +38,7 @@
     <Compile Include="database.js" />
     <Compile Include="formatting.js" />
     <Compile Include="gc.js" />
+    <Content Include="res\img\favicon.ico" />
     <Content Include="res\js\lazyCarousel.js" />
     <Content Include="config.example.json" />
     <Content Include="deploy\adventure.example.service" />
@@ -60,6 +61,7 @@
     <Folder Include="pages\" />
     <Folder Include="res\js\" />
     <Folder Include="res\css\" />
+    <Folder Include="res\img\" />
     <Folder Include="views\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
