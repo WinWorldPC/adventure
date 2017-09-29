@@ -22,7 +22,7 @@
                 </ul>
             </nav>
             <% if (screenshots && screenshots.length > 0) { %>
-            <div id="screenshotPanel" class="carousel slide lazy mb-2 w-75 mx-auto" data-ride="carousel">
+            <div id="screenshotPanel" class="carousel slide lazy mb-2 w-75 mx-auto" data-ride="carousel" data-interval="false">
                 <ol class="carousel-indicators">
                     <% screenshots.forEach(function (i, n, a) { %>
                     <li data-target="#screenshotPanel" data-slide-to="<%= n %>" class="<%= n ? '' : 'active' %>"></li>
