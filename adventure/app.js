@@ -182,37 +182,41 @@ server.get("/library", function (req, res) {
     return res.redirect("/library/operating-systems");
 });
 
-// TODO: Experimental view; do not use in production! Set config to disable it.
+// TODO: Experimental view; VIPs only for now now that auth works
 function filesRoute(req, res) {
     var page = req.query.page || 1;
     
-    // Downloads without releases associated are essentially orphans that should be GCed
-    database.execute("SELECT COUNT(*) FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL", function (cErr, cRes, cFields) {
-        var count = cRes[0]["COUNT(*)"];
-        var pages = Math.ceil(count / config.perPage);
-        database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL ORDER BY `FileName` LIMIT ?,?", [(page - 1) * config.perPage, config.perPage], function (fiErr, fiRes, fiFields) {
-            var files = fiRes.map(function (x) {
-                x.FileSize = formatting.formatBytes(x.FileSize);
-                x.ImageType = constants.fileTypeMappings[x.ImageType];
-                x.DLUUID = formatting.binToHex(x.DLUUID);
-                x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
-                return x;
-            });
-            res.render("files", {
-                sitePages: sitePages,
-                user: req.user,
-                
-                page: page,
-                pages: pages,
-                pageBounds: config.perPageBounds,
-                files: files
+    if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "vip"; })) {
+        // Downloads without releases associated are essentially orphans that should be GCed
+        database.execute("SELECT COUNT(*) FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL", function (cErr, cRes, cFields) {
+            var count = cRes[0]["COUNT(*)"];
+            var pages = Math.ceil(count / config.perPage);
+            database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL ORDER BY `FileName` LIMIT ?,?", [(page - 1) * config.perPage, config.perPage], function (fiErr, fiRes, fiFields) {
+                var files = fiRes.map(function (x) {
+                    x.FileSize = formatting.formatBytes(x.FileSize);
+                    x.ImageType = constants.fileTypeMappings[x.ImageType];
+                    x.DLUUID = formatting.binToHex(x.DLUUID);
+                    x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
+                    return x;
+                });
+                res.render("files", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    page: page,
+                    pages: pages,
+                    pageBounds: config.perPageBounds,
+                    files: files
+                });
             });
         });
-    });
+    } else if (req.user) {
+        return res.sendStatus(403);
+    } else {
+        return res.redirect("/login");
+    }
 }
-if (config.enableExperimentalFeatures) {
-    server.get("/files/", filesRoute);
-}
+server.get("/files/", filesRoute);
 
 server.get("/product/:product", function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
@@ -389,7 +393,18 @@ server.get("/download/:download/from/:mirror", function (req, res) {
     var mirrorUuidAsBuf = formatting.hexToBin(req.params.mirror);
     // check how many downloads where hit (no user/session just yet)
     database.execute("SELECT * FROM `DownloadHits` WHERE IPAddress = ? AND DownloadTime > CURDATE()", [req.ip], function (idhErr, idhRes, idhFields) {
-        if (idhRes.length > (config.downloadMax || 25)) {
+        const anonymousMax = config.downloadMax || 25;
+        var max = anonymousMax;
+        if (req.user) {
+            // Authenicated users get double
+            max *= 2;
+            if (req.user.UserFlags.some(function (x) { return x.FlagName == "vip"; })) {
+                // VIPs get a LOT more (is this reasonable?)
+                //max = Number.MAX_SAFE_INTEGER; // maybe not
+                max *= 4;
+            }
+        }
+        if (idhRes.length > max) {
             return res.sendStatus(429);
         }
         database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
