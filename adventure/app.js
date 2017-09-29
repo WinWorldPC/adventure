@@ -141,6 +141,8 @@ function libraryRoute(req, res) {
         case "applications":
             category = "Application";
             break;
+        default:
+            return res.sendStatus(400);
     }
     var tag = null;
     // TODO: Support richer tag queries than the bare-minimum compat we have
