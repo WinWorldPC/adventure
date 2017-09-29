@@ -234,7 +234,7 @@ server.get("/product/:product", function (req, res) {
                 }
             });
         } else {
-            database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
+            database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseDate`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
                 var release = rlRes[0] || null;
                 if (release) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
@@ -250,7 +250,7 @@ server.get("/product/:product/:release", function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) return res.sendStatus(404);
-        database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseOrder`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
+        database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseDate`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
             if (rlRes == null || rlRes.length == 0) return res.sendStatus(404);
             var release = rlRes.find(function (x) {
                 if (x.Slug == req.params.release)
