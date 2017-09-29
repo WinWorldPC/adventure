@@ -155,7 +155,7 @@ function libraryRoute(req, res) {
         var count = cRes[0]["COUNT(*)"];
         var pages = Math.ceil(count / config.perPage);
         // TODO: Break up these queries, BADLY
-        database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+        database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type` FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE ?, TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
             // truncate and markdown
             var productsFormatted = prRes.map(function (x) {
                 x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
@@ -171,7 +171,8 @@ function libraryRoute(req, res) {
                 pages: pages,
                 pageBounds: config.perPageBounds,
                 category: req.params.category,
-                tag: req.params.tag
+                tag: req.params.tag,
+                tagMappings: constants.tagMappings
             });
         });
     });

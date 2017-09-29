@@ -12,7 +12,11 @@
         <dt>
             <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
             <% if (i.Type == "Application" && i.ApplicationTags) { %>
-                (<%= i.ApplicationTags %>)
+                <% i.ApplicationTags.split(",").forEach(function(j, n, a) { %>
+                <span class="badge badge-secondary">
+                    <%= j %>
+                </span>
+                <% }) %>
             <% } %>
         </dt>
         <dd>
