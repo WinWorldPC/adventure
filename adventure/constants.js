@@ -1,31 +1,42 @@
-﻿// These are fixed values that aren't useful to be configurable.
+﻿function invert(o) {
+    return Object.keys(o).reduce(function (obj, key) {
+        obj[ o[key] ] = key;
+        return obj;
+    }, {});
+}
+
+var tagMappings = {
+    'tag-word-processor': 'Word Processor',
+    'tag-spreadsheet': 'Spreadsheet',
+    'tag-database': 'Database',
+    'tag-presentations': 'Presentations',
+    'tag-browser': 'Web Browser',
+    'tag-chat': 'Chat',
+    'tag-utility': 'Utility',
+    'tag-graphics': 'Graphics',
+    'tag-publishing': 'Publishing',
+    'tag-financial': 'Financial',
+    'tag-reference': 'Reference',
+    'tag-editor': 'Editor',
+    'tag-communications': 'Communications',
+    'tag-novelty': 'Novelty',
+    'tag-pim': 'PIM',
+    'tag-video': 'Video',
+    'tag-audio': 'Audio',
+    'tag-document': 'Document',
+    'tag-media-player': 'Media Player',
+    'tag-virtualization': 'Virtualization',
+    'tag-archive': 'Archive',
+    'tag-other': 'Other',
+    'tag-server': 'Server'
+};
+var tagMappingsInverted = invert(tagMappings);
+
+// These are fixed values that aren't useful to be configurable.
 module.exports = {
     // Compat with old WW routes
-    tagMappings: {
-        'tag-word-processor': 'Word Processor',
-        'tag-spreadsheet': 'Spreadsheet',
-        'tag-database': 'Database',
-        'tag-presentations': 'Presentations',
-        'tag-browser': 'Web Browser',
-        'tag-chat': 'Chat',
-        'tag-utility': 'Utility',
-        'tag-graphics': 'Graphics',
-        'tag-publishing': 'Publishing',
-        'tag-financial': 'Financial',
-        'tag-reference': 'Reference',
-        'tag-editor': 'Editor',
-        'tag-communications': 'Communications',
-        'tag-novelty': 'Novelty',
-        'tag-pim': 'PIM',
-        'tag-video': 'Video',
-        'tag-audio': 'Audio',
-        'tag-document': 'Document',
-        'tag-media-player': 'Media Player',
-        'tag-virtualization': 'Virtualization',
-        'tag-archive': 'Archive',
-        'tag-other': 'Other',
-        'tag-server': 'Server'
-    },
+    tagMappings: tagMappings,
+    tagMappingsInverted: tagMappingsInverted,
     // TODO: These could be localizable one day?
     fileTypeMappings: {
         "Archive": "Archive",

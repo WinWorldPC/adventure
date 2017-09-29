@@ -13,9 +13,7 @@
             <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
             <% if (i.Type == "Application" && i.ApplicationTags) { %>
                 <% i.ApplicationTags.split(",").forEach(function(j, n, a) { %>
-                <span class="badge badge-secondary">
-                    <%= j %>
-                </span>
+                    <a class="badge badge-secondary" href="/library/applications/<%= tagMappingsInverted[j] %>"><%= j %></a>
                 <% }) %>
             <% } %>
         </dt>

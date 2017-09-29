@@ -172,7 +172,7 @@ function libraryRoute(req, res) {
                 pageBounds: config.perPageBounds,
                 category: req.params.category,
                 tag: req.params.tag,
-                tagMappings: constants.tagMappings
+                tagMappingsInverted: constants.tagMappingsInverted
             });
         });
     });
