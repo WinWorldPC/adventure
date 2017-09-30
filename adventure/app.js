@@ -267,7 +267,7 @@ server.get("/product/:product/:release", function (req, res) {
             if (release == null) return res.sendStatus(404);
             database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
                 database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
-                    database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
+                    database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? ORDER BY `Name`", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
                         release.InstallInstructions = marked(release.InstallInstructions || "");
                         release.Notes = marked(release.Notes || "");
                         product.Notes = marked(product.Notes || "");
