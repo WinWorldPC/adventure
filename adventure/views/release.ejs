@@ -127,7 +127,10 @@
                 <% if (release.Platform) { %>
                 <dt>Platform</dt>
                 <dd>
-                    <%= release.Platform.split(",").join(", ") %>
+                <%# Keep items unique by using Set %>
+                <% new Set(release.Platform.split(",")).forEach(function(j) { %>
+                    <a class="badge badge-info" href="/library/<%= typeLink %>/<%= platformMappingsInverted[j] %>"><%= j %></a>
+                <% }) %>
                 </dd>
                 <% } %>
             </dl>

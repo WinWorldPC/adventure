@@ -295,7 +295,8 @@ server.get("/product/:product/:release", function (req, res) {
                             screenshots: screenshots,
                             downloads: downloads,
 
-                            tagMappingsInverted: constants.tagMappingsInverted
+                            tagMappingsInverted: constants.tagMappingsInverted,
+                            platformMappingsInverted: constants.platformMappingsInverted
                         });
                     });
                 });

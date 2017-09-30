@@ -89,7 +89,7 @@
         </button>
         <div class="dropdown-menu" aria-labelledby="platformDropdownButton">
             <% for (var i in platformMappingsInverted) { %>
-            <a class="dropdown-item" href="/library/applications/<%= platformMappingsInverted[i] %>"><%= i %></a>
+            <a class="dropdown-item" href="/library/<%= category %>/<%= platformMappingsInverted[i] %>"><%= i %></a>
             <% }     %>
         </div>
     </div>
