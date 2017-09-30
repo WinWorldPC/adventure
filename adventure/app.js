@@ -145,17 +145,24 @@ function libraryRoute(req, res) {
             return res.sendStatus(400);
     }
     var tag = null;
+    var platform = null;
     // TODO: Support richer tag queries than the bare-minimum compat we have
     // with old site (because library pages link to tags in descriptions)
     if (req.params.tag != null) {
-        tag = constants.tagMappings[req.params.tag] || null;
+        if (req.params.tag.indexOf("tag-") == 0) {
+            tag = constants.tagMappings[req.params.tag] || null;
+        } else if (req.params.tag.indexOf("platform-") == 0) {
+            platform = constants.platformMappings[req.params.tag] || null;
+        }
     }
-    // HACK: I am not proud of this query
-    database.execute("SELECT COUNT(*) FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE)", [category, tag, tag], function (cErr, cRes, cFields) {
+    // HACK: I am EXTREMELY not proud of ANY of these queries
+    // they need UDFs and building on demand BADLY
+    const productPlatforms = "(SELECT GROUP_CONCAT(DISTINCT Platform) FROM Releases WHERE ProductUUID = Products.ProductUUID)";
+    database.execute("SELECT COUNT(*)," + productPlatforms + " AS Platform FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', " + productPlatforms + " LIKE CONCAT(\"%\", ?, \"%\"), TRUE)", [category, tag, tag, platform, platform], function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
         var pages = Math.ceil(count / config.perPage);
         // TODO: Break up these queries, BADLY
-        database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type`,(SELECT GROUP_CONCAT(DISTINCT Platform) FROM Releases WHERE ProductUUID = Products.ProductUUID) AS Platform FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+        database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type`," + productPlatforms + " AS Platform FROM `Products` HAVING `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', Platform LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, platform, platform, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
             // truncate and markdown
             var productsFormatted = prRes.map(function (x) {
                 x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
@@ -172,7 +179,8 @@ function libraryRoute(req, res) {
                 pageBounds: config.perPageBounds,
                 category: req.params.category,
                 tag: req.params.tag,
-                tagMappingsInverted: constants.tagMappingsInverted
+                tagMappingsInverted: constants.tagMappingsInverted,
+                platformMappingsInverted: constants.platformMappingsInverted
             });
         });
     });

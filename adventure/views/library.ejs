@@ -16,6 +16,12 @@
                     <a class="badge badge-secondary" href="/library/applications/<%= tagMappingsInverted[j] %>"><%= j %></a>
                 <% }) %>
             <% } %>
+            <% if (i.Type != "OS" && i.Platform) { %>
+                <%# Keep items unique by using Set %>
+                <% new Set(i.Platform.split(",")).forEach(function(j, n, a) { %>
+                    <a class="badge badge-info" href="/library/<%= category %>/<%= platformMappingsInverted[j] %>"><%= j %></a>
+                <% }) %>
+            <% } %>
         </dt>
         <dd>
             <%- i.Notes %>
@@ -72,6 +78,18 @@
         <div class="dropdown-menu" aria-labelledby="tagDropdownButton">
             <% for (var i in tagMappingsInverted) { %>
             <a class="dropdown-item" href="/library/applications/<%= tagMappingsInverted[i] %>"><%= i %></a>
+            <% }     %>
+        </div>
+    </div>
+    <% } %>
+    <% if (category != 'operating-systems') { %>
+    <div id="platformDropdown" class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="platformDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Platforms...
+        </button>
+        <div class="dropdown-menu" aria-labelledby="platformDropdownButton">
+            <% for (var i in platformMappingsInverted) { %>
+            <a class="dropdown-item" href="/library/applications/<%= platformMappingsInverted[i] %>"><%= i %></a>
             <% }     %>
         </div>
     </div>
