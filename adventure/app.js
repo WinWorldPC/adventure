@@ -75,7 +75,7 @@ server.get("/robots.txt", function (req, res) {
 });
 
 // Auth routes
-server.get("/login/", function (req, res) {
+server.get("/user/login", function (req, res) {
     if (req.user) {
         return res.redirect(req.get("Referrer") || "/home");
     } else {
@@ -88,7 +88,7 @@ server.get("/login/", function (req, res) {
     }
 });
 
-server.post("/login", urlencodedParser, function (req, res) {
+server.post("/user/login", urlencodedParser, function (req, res) {
     passport.authenticate("local", function (err, user, info) {
         if (err) {
             console.log(err);
@@ -115,7 +115,7 @@ server.post("/login", urlencodedParser, function (req, res) {
     })(req, res);
 });
 
-server.get("/logout", function (req, res) {
+server.get("/user/logout", function (req, res) {
     req.logout();
     return res.redirect("/home");
 });

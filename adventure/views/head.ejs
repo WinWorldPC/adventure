@@ -36,12 +36,17 @@
                         <%= user.Name %>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="userMenuLink">
-                        <a class="dropdown-item" href="/logout">Log out</a>
+                        <a class="dropdown-item" href="/user/logout">Log out</a>
                     </div>
                 </li>
                 <% } else { %>
-                <li>
-                    <a class="nav-link" href="/login">Login</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Not logged in
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="userMenuLink">
+                        <a class="dropdown-item" href="/user/login">Log in</a>
+                    </div>
                 </li>
                 <% } %>
             </ul>
