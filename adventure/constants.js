@@ -31,12 +31,26 @@ var tagMappings = {
     'tag-server': 'Server'
 };
 var tagMappingsInverted = invert(tagMappings);
+var platformMappings = {
+    'platform-dos': 'DOS',
+    'platform-cpm': 'CPM',
+    'platform-windows': 'Windows',
+    'platform-os2': 'OS2',
+    'platform-unix': 'Unix',
+    'platform-linux': 'Linux',
+    'platform-macos': 'MacOS',
+    'platform-macosx': 'Mac OS X',
+    'platform-other': 'Other'
+}
+var platformMappingsInverted = invert(platformMappings);
 
 // These are fixed values that aren't useful to be configurable.
 module.exports = {
     // Compat with old WW routes
     tagMappings: tagMappings,
     tagMappingsInverted: tagMappingsInverted,
+    platformMappings: platformMappings,
+    platformMappingsInverted: platformMappingsInverted,
     // TODO: These could be localizable one day?
     fileTypeMappings: {
         "Archive": "Archive",
