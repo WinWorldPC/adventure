@@ -70,26 +70,28 @@
     </ul>
     <% } %>
 
-    <% if (category == 'applications') { %>
-    <div id="tagDropdown" class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="tagDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Tags...
-        </button>
-        <div class="dropdown-menu" aria-labelledby="tagDropdownButton">
-            <% for (var i in tagMappingsInverted) { %>
-            <a class="dropdown-item" href="/library/applications/<%= tagMappingsInverted[i] %>"><%= i %></a>
-            <% }     %>
+    <div class="btn-group">
+        <% if (category == 'applications') { %>
+        <div id="tagDropdown" class="dropdown btn-group">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="tagDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Browse by Tag...
+            </button>
+            <div class="dropdown-menu" aria-labelledby="tagDropdownButton">
+                <% for (var i in tagMappingsInverted) { %>
+                <a class="dropdown-item" href="/library/applications/<%= tagMappingsInverted[i] %>"><%= i %></a>
+                <% }     %>
+            </div>
         </div>
-    </div>
-    <% } %>
-    <div id="platformDropdown" class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="platformDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Platforms...
-        </button>
-        <div class="dropdown-menu" aria-labelledby="platformDropdownButton">
-            <% for (var i in platformMappingsInverted) { %>
-            <a class="dropdown-item" href="/library/<%= category %>/<%= platformMappingsInverted[i] %>"><%= i %></a>
-            <% }     %>
+        <% } %>
+        <div id="platformDropdown" class="dropdown btn-group">
+            <button class="btn btn-info dropdown-toggle" type="button" id="platformDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Browse by Platform...
+            </button>
+            <div class="dropdown-menu" aria-labelledby="platformDropdownButton">
+                <% for (var i in platformMappingsInverted) { %>
+                <a class="dropdown-item" href="/library/<%= category %>/<%= platformMappingsInverted[i] %>"><%= i %></a>
+                <% }     %>
+            </div>
         </div>
     </div>
 </nav>
