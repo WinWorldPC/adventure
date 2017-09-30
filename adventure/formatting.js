@@ -1,4 +1,6 @@
-﻿module.exports = {
+﻿var crypto = require("crypto");
+
+module.exports = {
     roundToPrecision: function(number, precision) {
         var factor = Math.pow(10, precision);
         var tempNumber = number * factor;
@@ -31,5 +33,9 @@
     binToHex: function (bin) {
         var s = bin.toString("hex");
         return s.substr(0, 8) + "-" + s.substr(8, 4) + "-" + s.substr(12, 4) + "-" + s.substr(16, 4) + "-" + s.substr(-12);
+    },
+
+    sha256: function (toHash) {
+        return crypto.createHash("sha256").update(toHash).digest("hex");
     }
 };

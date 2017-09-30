@@ -10,7 +10,6 @@
     database = require("./database.js"),
     fs = require("fs"),
     path = require("path"),
-    crypto = require("crypto"),
     constants = require("./constants.js"),
     formatting = require("./formatting.js");
 
@@ -30,7 +29,7 @@ passport.use("local", new localStrategy({ usernameField: "username", passwordFie
         if (err) { return cb(err); }
         if (!user) { return cb(null, false); }
         // wtf
-        if (user.Password != crypto.createHash("sha256").update(password).digest("hex")) { return cb(null, false); }
+        if (user.Password != formatting.sha256(password)) { return cb(null, false); }
         return cb(null, user);
     });
 }));
@@ -118,6 +117,66 @@ server.post("/user/login", urlencodedParser, function (req, res) {
 server.get("/user/logout", function (req, res) {
     req.logout();
     return res.redirect("/home");
+});
+
+// TODO: Refactor for admins to edit other profiles, for now, get it working
+server.get("/user/edit", function (req, res) {
+    return res.render("editProfile", {
+        sitePages: sitePages,
+        user: req.user,
+        
+        message: null,
+        messageColour: null,
+    });
+});
+
+server.post("/user/changepw", urlencodedParser, function (req, res) {
+    if (req.user) {
+        if (formatting.sha256(req.body.password) == req.user.Password) {
+            if (req.body.newPassword == req.body.newPasswordR) {
+                var newPassword = formatting.sha256(req.body.newPassword);
+                // HACK: nasty way to demangle UInt8Array
+                var id = formatting.hexToBin(req.user.UserID.toString("hex"));
+                database.execute("UPDATE Users SET Password = ? WHERE UserID = ?", [newPassword, id] , function (pwErr, pwRes, pwFields) {
+                    if (pwErr) {
+                        return res.render("editProfile", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error changing your password.",
+                            messageColour: "alert-danger",
+                        });
+                    } else {
+                        return res.render("editProfile", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "Your password change was a success!",
+                            messageColour: "alert-success",
+                        });
+                    }
+                });
+            } else {
+                return res.render("editProfile", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "The new passwords don't match.",
+                    messageColour: "alert-danger",
+                });
+            }
+        } else {
+            return res.render("editProfile", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "The current password given was incorrect.",
+                messageColour: "alert-danger",
+            });
+        }
+    } else {
+        return res.redirect("/user/login");
+    }
 });
 
 // Library routes
@@ -222,7 +281,7 @@ function filesRoute(req, res) {
     } else if (req.user) {
         return res.sendStatus(403);
     } else {
-        return res.redirect("/login");
+        return res.redirect("/user/login");
     }
 }
 server.get("/files/", filesRoute);

@@ -1,0 +1,24 @@
+﻿<%- include("head", {title: "Login", sitePages: sitePages, user: user}) %>
+<h1>Edit profile</h1>
+<% if (message) { %>
+<div class="alert <%= messageColour %>">
+    <%= message %>
+</div>
+<% } %>
+<h2>Change password</h2>
+<form method="post" action="/user/changepw">
+    <div class="form-group">
+        <label for="password">Current password</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Current password">
+    </div>
+    <div class="form-group">
+        <label for="password">New password</label>
+        <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="New password">
+    </div>
+    <div class="form-group">
+        <label for="password">New password (repeat)</label>
+        <input type="password" class="form-control" id="newPasswordR" name="newPasswordR" placeholder="New password (repeat)">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<%- include("foot") %>
