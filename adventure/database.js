@@ -46,8 +46,8 @@ module.exports = {
             return cb(fhErr, flags);
         });
     },
-    userByEmail: function (email, cb) {
-        this.execute("SELECT * FROM `Users` WHERE `Email` = ?", [email], function (uErr, uRes, uFields) {
+    userByName: function (email, cb) {
+        this.execute("SELECT * FROM `Users` WHERE `ShortName` = ?", [email], function (uErr, uRes, uFields) {
             var user = uRes[0] || null;
             if (uErr || user == null) {
                 return cb(uErr, null);

@@ -25,7 +25,7 @@ database.execute("SELECT * FROM `UserFlags`", [], function (ufErr, ufRes, ufFiel
     database.userFlags = ufRes;
 });
 passport.use("local", new localStrategy({ usernameField: "username", passwordField: "password" }, function (username, password, cb) {
-    database.userByEmail(username, function (err, user) {
+    database.userByName(username, function (err, user) {
         if (err) { return cb(err); }
         if (!user) { return cb(null, false); }
         // wtf
