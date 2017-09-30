@@ -28,9 +28,9 @@
         </dd>
     <% }); %>
 </dl>
-<nav aria-label="Page navigation">
+<nav aria-label="Page navigation" class="d-flex flex-wrap">
     <% if (pages > 1) { %>
-    <ul id="libraryPagination" class="pagination">
+    <ul id="libraryPagination" class="pagination mr-auto">
         <%# HACK: How the hell does EJS get a string when we passed a number? %>
         <% page = Number(page) %>
         <%# Anyways, do bounds checking so we can make the pagination manageable. %>
@@ -70,11 +70,12 @@
     </ul>
     <% } %>
 
-    <div class="btn-group">
+    <!-- why does the button group get taller if we make this a formal group?-->
+    <div class="">
         <% if (category == 'applications') { %>
-        <div id="tagDropdown" class="dropdown btn-group">
+        <div id="tagDropdown" class="dropup btn-group">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="tagDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Browse by Tag...
+                Tags...
             </button>
             <div class="dropdown-menu" aria-labelledby="tagDropdownButton">
                 <% for (var i in tagMappingsInverted) { %>
@@ -83,9 +84,9 @@
             </div>
         </div>
         <% } %>
-        <div id="platformDropdown" class="dropdown btn-group">
+        <div id="platformDropdown" class="dropup btn-group">
             <button class="btn btn-info dropdown-toggle" type="button" id="platformDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Browse by Platform...
+                Platforms...
             </button>
             <div class="dropdown-menu" aria-labelledby="platformDropdownButton">
                 <% for (var i in platformMappingsInverted) { %>
