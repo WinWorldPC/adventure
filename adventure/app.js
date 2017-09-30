@@ -109,6 +109,12 @@ server.post("/user/login", urlencodedParser, function (req, res) {
                 return res.sendStatus(500);
             }
             
+            // Update LastSeenTime
+            var id = formatting.hexToBin(user.UserID.toString("hex"));
+            database.execute("UPDATE Users SET LastSeenTime = NOW() WHERE UserId = ?", [id], function (lsErr, lsRes, lsFields) {
+                // we can wait this one out
+            });
+
             return res.redirect("/home");
         });
     })(req, res);
