@@ -1,5 +1,6 @@
-﻿<%- include("head", {title: "Search results for " + q, sitePages: sitePages, user: user, q: q}) %>
-<!-- Put the following javascript before the closing  tag. -->
+﻿<%- include("head", {title: q ? "Search results for " + q : "Search", sitePages: sitePages, user: user, q: q}) %>
+<% if (q) { %>
+<noscript>If you don't see search results, turn on JavaScript or switch to a JavaScript capable browser.</noscript>
 <script>
 (function() {
   var cx = '<%= cx %>'; // Insert your own Custom Search engine ID here
@@ -8,8 +9,8 @@
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(gcse, s);
 })();
 </script>
-
-<!-- Place this tag where you want both of the search box and the search results to render -->
-<noscript>If you don't see search results, turn on JavaScript or switch to a JavaScript capable browser.</noscript>
 <gcse:searchresults-only></gcse:searchresults-only>
+<% } else { %>
+No search query given.
+<% } %>
 <%- include("foot") %>
