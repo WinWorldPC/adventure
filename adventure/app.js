@@ -125,7 +125,8 @@ server.get("/user/logout", function (req, res) {
     return res.redirect("/home");
 });
 
-// TODO: Refactor for admins to edit other profiles, for now, get it working
+// TODO: Refactor these routes for admins to edit other profiles
+// They could use SQL for now, but as we extend, that's infeasible
 server.get("/user/edit", function (req, res) {
     return res.render("editProfile", {
         sitePages: sitePages,
@@ -137,49 +138,82 @@ server.get("/user/edit", function (req, res) {
 });
 
 server.post("/user/changepw", urlencodedParser, function (req, res) {
-    if (req.user) {
-        if (formatting.sha256(req.body.password) == req.user.Password) {
-            if (req.body.newPassword == req.body.newPasswordR) {
-                var newPassword = formatting.sha256(req.body.newPassword);
-                // HACK: nasty way to demangle UInt8Array
-                var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-                database.execute("UPDATE Users SET Password = ? WHERE UserID = ?", [newPassword, id] , function (pwErr, pwRes, pwFields) {
-                    if (pwErr) {
-                        return res.render("editProfile", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
-                            message: "There was an error changing your password.",
-                            messageColour: "alert-danger",
-                        });
-                    } else {
-                        return res.render("editProfile", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
-                            message: "Your password change was a success!",
-                            messageColour: "alert-success",
-                        });
-                    }
+    if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
+        if (req.user) {
+            if (formatting.sha256(req.body.password) == req.user.Password) {
+                if (req.body.newPassword == req.body.newPasswordR) {
+                    var newPassword = formatting.sha256(req.body.newPassword);
+                    // HACK: nasty way to demangle UInt8Array
+                    var id = formatting.hexToBin(req.user.UserID.toString("hex"));
+                    database.execute("UPDATE Users SET Password = ? WHERE UserID = ?", [newPassword, id] , function (pwErr, pwRes, pwFields) {
+                        if (pwErr) {
+                            return res.render("editProfile", {
+                                sitePages: sitePages,
+                                user: req.user,
+                                
+                                message: "There was an error changing your password.",
+                                messageColour: "alert-danger",
+                            });
+                        } else {
+                            return res.render("editProfile", {
+                                sitePages: sitePages,
+                                user: req.user,
+                                
+                                message: "Your password change was a success!",
+                                messageColour: "alert-success",
+                            });
+                        }
+                    });
+                } else {
+                    return res.render("editProfile", {
+                        sitePages: sitePages,
+                        user: req.user,
+                        
+                        message: "The new passwords don't match.",
+                        messageColour: "alert-danger",
+                    });
+                }
+            } else {
+                return res.render("editProfile", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "The current password given was incorrect.",
+                    messageColour: "alert-danger",
+                });
+            }
+        } else {
+            return res.redirect("/user/login");
+        }
+    } else {
+        return res.sendStatus(400);
+    }
+});
+
+server.post("/user/edit", urlencodedParser, function (req, res) {
+    // TODO: Extend as we extend editable profile options (none for now)
+    if (req.user && req.body && req.body.email) {
+        // HACK: nasty way to demangle UInt8Array
+        var id = formatting.hexToBin(req.user.UserID.toString("hex"));
+        database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [req.body.email, id] , function (pwErr, pwRes, pwFields) {
+            if (pwErr) {
+                return res.render("editProfile", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error changing your profile.",
+                    messageColour: "alert-danger",
                 });
             } else {
                 return res.render("editProfile", {
                     sitePages: sitePages,
                     user: req.user,
                     
-                    message: "The new passwords don't match.",
-                    messageColour: "alert-danger",
+                    message: "Your profile change was a success!",
+                    messageColour: "alert-success",
                 });
             }
-        } else {
-            return res.render("editProfile", {
-                sitePages: sitePages,
-                user: req.user,
-                
-                message: "The current password given was incorrect.",
-                messageColour: "alert-danger",
-            });
-        }
+        });
     } else {
         return res.redirect("/user/login");
     }

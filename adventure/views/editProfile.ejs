@@ -6,18 +6,26 @@
 </div>
 <% } %>
 <h2>Change password</h2>
-<form method="post" action="/user/changepw">
+<form method="post" action="/user/changepw" class="mb-2">
     <div class="form-group">
         <label for="password">Current password</label>
         <input type="password" class="form-control" id="password" name="password" placeholder="Current password">
     </div>
     <div class="form-group">
-        <label for="password">New password</label>
+        <label for="newPassword">New password</label>
         <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="New password">
     </div>
     <div class="form-group">
-        <label for="password">New password (repeat)</label>
+        <label for="newPasswordR">New password (repeat)</label>
         <input type="password" class="form-control" id="newPasswordR" name="newPasswordR" placeholder="New password (repeat)">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<h2>Edit profile</h2>
+<form method="post" action="/user/edit" class="mb-2">
+    <div class="form-group">
+        <label for="email">Email adress</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="email" value="<%= user.Email %>">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
