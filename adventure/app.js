@@ -157,7 +157,7 @@ server.post("/user/changepw", urlencodedParser, function (req, res) {
                     var id = formatting.hexToBin(req.user.UserID.toString("hex"));
                     database.execute("UPDATE Users SET Password = ? WHERE UserID = ?", [newPassword, id] , function (pwErr, pwRes, pwFields) {
                         if (pwErr) {
-                            return res.render("editProfile", {
+                            return res.status(500).render("editProfile", {
                                 sitePages: sitePages,
                                 user: req.user,
                                 
@@ -175,7 +175,7 @@ server.post("/user/changepw", urlencodedParser, function (req, res) {
                         }
                     });
                 } else {
-                    return res.render("editProfile", {
+                    return res.status(400).render("editProfile", {
                         sitePages: sitePages,
                         user: req.user,
                         
@@ -184,7 +184,7 @@ server.post("/user/changepw", urlencodedParser, function (req, res) {
                     });
                 }
             } else {
-                return res.render("editProfile", {
+                return res.status(403).render("editProfile", {
                     sitePages: sitePages,
                     user: req.user,
                     
@@ -193,7 +193,7 @@ server.post("/user/changepw", urlencodedParser, function (req, res) {
                 });
             }
         } else {
-            return res.render("editProfile", {
+            return res.status(400).render("editProfile", {
                 sitePages: sitePages,
                 user: req.user,
                 
