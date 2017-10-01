@@ -53,6 +53,7 @@
     <Content Include="views\editProfile.ejs" />
     <Content Include="views\login.ejs" />
     <Content Include="views\page.ejs" />
+    <Content Include="views\searchCSE.ejs" />
     <Content Include="views\selectMirror.ejs" />
     <Content Include="views\release.ejs" />
     <Content Include="views\test.ejs" />

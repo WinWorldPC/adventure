@@ -290,6 +290,17 @@ server.get("/library", function (req, res) {
     return res.redirect("/library/operating-systems");
 });
 
+// TODO: non-CSE search
+server.get("/search", function (req, res) {
+    return res.render("searchCSE", {
+        sitePages: sitePages,
+        user: req.user,
+        
+        q: req.params.q,
+        cx: config.cseId
+    });
+});
+
 // TODO: Experimental view; VIPs only for now now that auth works
 function filesRoute(req, res) {
     var page = req.query.page || 1;
