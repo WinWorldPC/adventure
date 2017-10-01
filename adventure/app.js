@@ -296,7 +296,7 @@ server.get("/search", function (req, res) {
         sitePages: sitePages,
         user: req.user,
         
-        q: req.params.q,
+        q: req.query.q,
         cx: config.cseId
     });
 });
