@@ -148,8 +148,8 @@ server.get("/user/edit", function (req, res) {
 });
 
 server.post("/user/changepw", urlencodedParser, function (req, res) {
-    if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
-        if (req.user) {
+    if (req.user) {
+        if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
             if (formatting.sha256(req.body.password) == req.user.Password) {
                 if (req.body.newPassword == req.body.newPasswordR) {
                     var newPassword = formatting.sha256(req.body.newPassword);
@@ -193,10 +193,16 @@ server.post("/user/changepw", urlencodedParser, function (req, res) {
                 });
             }
         } else {
-            return res.redirect("/user/login");
+            return res.render("editProfile", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "The request was malformed.",
+                messageColour: "alert-danger",
+            });
         }
     } else {
-        return res.sendStatus(400);
+        return res.redirect("/user/login");
     }
 });
 
