@@ -91,7 +91,12 @@ server.post("/user/login", urlencodedParser, function (req, res) {
     passport.authenticate("local", function (err, user, info) {
         if (err) {
             console.log(err);
-            return res.sendStatus(500);
+            return res.status(500).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There was an error authenticating."
+            });
         }
         // if user is not found due to wrong username or password
         if (!user) {
@@ -106,7 +111,12 @@ server.post("/user/login", urlencodedParser, function (req, res) {
         req.logIn(user, function (err) {
             if (err) {
                 console.log(err);
-                return res.sendStatus(500);
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error authenticating."
+                });
             }
             
             // Update LastSeenTime
@@ -241,7 +251,12 @@ function libraryRoute(req, res) {
             category = "Application";
             break;
         default:
-            return res.sendStatus(400);
+            return res.status(400).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "The category given was invalid."
+            });
     }
     var tag = null;
     var platform = null;
@@ -330,7 +345,12 @@ function filesRoute(req, res) {
             });
         });
     } else if (req.user) {
-        return res.sendStatus(403);
+        return res.status(403).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "This feature is experimental and not allowed without VIP privileges."
+        });
     } else {
         return res.redirect("/user/login");
     }
@@ -341,14 +361,24 @@ server.get("/product/:product", function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) {
-            return res.sendStatus(404);
+            return res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There was no product."
+            });
         } else if (product.DefaultRelease) {
             database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `ReleaseUUID` = ?", [product.ProductUUID, product.DefaultRelease], function (reErr, reRes, reFields) {
                 var release = reRes[0] || null;
                 if (release) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
                 } else {
-                    return res.sendStatus(404);
+                    return res.status(404).render("error", {
+                        sitePages: sitePages,
+                        user: req.user,
+                        
+                        message: "The product has no releases."
+                    });
                 }
             });
         } else {
@@ -357,7 +387,12 @@ server.get("/product/:product", function (req, res) {
                 if (release) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
                 } else {
-                    return res.sendStatus(404);
+                    return res.status(404).render("error", {
+                        sitePages: sitePages,
+                        user: req.user,
+                        
+                        message: "The product has no releases."
+                    });
                 }
             });
         }
@@ -367,14 +402,36 @@ server.get("/product/:product", function (req, res) {
 server.get("/product/:product/:release", function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
-        if (product == null) return res.sendStatus(404);
+        if (product == null) {
+            return res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There was no product."
+            });
+        }
+
         database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseDate`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
-            if (rlRes == null || rlRes.length == 0) return res.sendStatus(404);
+            if (rlRes == null || rlRes.length == 0) {
+                return res.status(404).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was no release."
+                });
+            }
             var release = rlRes.find(function (x) {
                 if (x.Slug == req.params.release)
                     return x;
             });
-            if (release == null) return res.sendStatus(404);
+            if (release == null) {
+                return res.status(404).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was no release."
+                });
+            }
             database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
                 database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
                     database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? ORDER BY `Name`", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
@@ -420,13 +477,26 @@ server.get("/release/:id", function (req, res) {
         var uuid = formatting.hexToBin(req.params.id);
         database.execute("SELECT `ReleaseUUID`,`Slug`,`ProductUUID` FROM `Releases` WHERE `ReleaseUUID` = ?", [uuid], function (rlErr, rlRes, rlFields) {
             var release = rlRes[0] || null;
+            if (release == null) {
+                return res.status(404).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was no product."
+                });
+            }
             database.execute("SELECT `Slug`,`ProductUUID` FROM `Products` WHERE `ProductUUID` = ?", [release.ProductUUID], function (prErr, prRes, prFields) {
                 var product = prRes[0] || null;
                 res.redirect("/product/" + product.Slug + "/" + release.Slug);
             });
         });
     } else {
-        return res.sendStatus(400);
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The ID given was malformed."
+        });
     }
 });
 
@@ -444,14 +514,24 @@ server.get("/download/test/", function (req, res) {
 
 server.get("/download/:download", function (req, res) {
     if (!formatting.isHexString(req.params.download)) {
-        return res.sendStatus(400);
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The ID given was malformed."
+        });
     }
     var uuidAsBuf = formatting.hexToBin(req.params.download);
     database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
         var download = dlRes[0] || null;
         if (dlErr || download == null) {
             console.log(dlErr || "[ERR] download was null! /download/" + req.params.download + " refererr: " + req.get("Referrer"));
-            return res.sendStatus(500);
+            return res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There was no download."
+            });
         }
         database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
             database.execute("SELECT * FROM `DownloadMirrors` WHERE `IsOnline` = True", null, function (miErr, miRes, miFields) {
@@ -507,7 +587,12 @@ server.get("/download/:download", function (req, res) {
 // not keyed, because the sessions table has been dropped for now)
 server.get("/download/:download/from/:mirror", function (req, res) {
     if (!(formatting.isHexString(req.params.download) && formatting.isHexString(req.params.mirror))) {
-        return res.sendStatus(400);
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The ID given is malformed."
+        });
     }
     // TODO: UUID compatiability
     // UUID format is like 60944f2b-4520-11e4-8d58-7054d21a8599/from/630d4e90-3d33-11e6-977e-525400b25447
@@ -527,20 +612,35 @@ server.get("/download/:download/from/:mirror", function (req, res) {
             }
         }
         if (idhRes.length > max) {
-            return res.sendStatus(429);
+            return res.status(429).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "You are trying to download too many times. Wait a while, or log in if you haven't to access more."
+            });
         }
         database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
             var download = dlRes[0] || null;
             if (dlErr || download == null) {
                 console.log(dlErr || "[ERR] download was null! /download/" + req.params.download + "/from/" + req.params.mirror + " refererr: " + req.get("Referrer"));
-                return res.sendStatus(500);
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was no download."
+                });
             }
             database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
                 database.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [mirrorUuidAsBuf], function (miErr, miRes, miFields) {
                     var mirror = miRes[0] || null;
                     if (miErr || mirror == null) {
                         console.log(miErr || "[ERR] mirror was null! /download/" + req.params.download + "/from/" + req.params.mirror + " refererr: " + req.get("Referrer"));
-                        return res.sendStatus(500);
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "The was no mirror."
+                        });
                     }
                     // TODO: I think escape sequences may need to be replaced too?
                     var downloadPath = "http://" + mirror.Hostname + "/" + download.DownloadPath;//.replace("&", "+");
@@ -556,7 +656,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
 server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     if (req.body.ip == null || req.body.file == null) {
         console.log("[ERR] check-x-sendfile failed! ip: " + req.body.ip + " file: " + req.body.file)
-        return res.sendStatus(400);
+        return res.status(400).send("false");
     }
     var file = req.body.file;
     console.log("[INFO] check-x-sendfile: url encoded and decoded are " + file + " and " + decodeURIComponent(file));
@@ -568,7 +668,7 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
         var dl = dhRes[0] || null;
         if (dl == null) {
             console.log("[ERR] check-x-sendfile failed, null download! false for/on " + file + "/" + ip);
-            return res.send("false");
+            return res.status(403).send("false");
         }
         database.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
             console.log("check-x-sendfile: " + dhRes.length ? "true" : "false" + " for/on " + file + " (" + formatting.binToHex(dl.DLUUID) + ")/" + ip);
@@ -586,7 +686,12 @@ server.get("/:page", function (req, res) {
             var file = path.join(config.pageDirectory, req.params.page + ".md");
             fs.readFile(file, "utf8", function (err, contents) {
                 if (err) {
-                    return res.sendStatus(404);
+                    return res.status(400).render("error", {
+                        sitePages: sitePages,
+                        user: req.user,
+                        
+                        message: "The page could not be loaded."
+                    });
                 }
                 var page = marked(contents);
                 var title = sitePages[req.params.page].title;
@@ -602,7 +707,12 @@ server.get("/:page", function (req, res) {
             });
         }
     } else {
-        return res.sendStatus(404);
+        return res.status(404).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "There is no page by this name."
+        });
     }
 });
 server.get("/", function (req, res) {

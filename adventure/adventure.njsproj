@@ -49,6 +49,7 @@
     <Content Include="views\foot.ejs" />
     <Content Include="views\head.ejs" />
     <Content Include="views\files.ejs" />
+    <Content Include="views\error.ejs" />
     <Content Include="views\library.ejs" />
     <Content Include="views\editProfile.ejs" />
     <Content Include="views\login.ejs" />
