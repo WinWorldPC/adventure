@@ -17,7 +17,7 @@
                 <h3 class="text-primary media-heading">DOS &amp; CP/M</h3>
                 <ul class="list-inline">
                     <% dos.forEach(function (i, n, a) { %>
-                    <li>
+                    <li class="list-inline-item">
                         <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
                     </li>
                     <% }) %>
@@ -34,7 +34,7 @@
                 <h3 class="text-primary media-heading">Windows</h3>
                 <ul class="list-inline">
                     <% win.forEach(function (i, n, a) { %>
-                    <li>
+                    <li class="list-inline-item">
                         <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
                     </li>
                     <% }) %>
@@ -51,7 +51,7 @@
                 <h3 class="text-primary media-heading">Apple/Mac</h3>
                 <ul class="list-inline">
                     <% mac.forEach(function (i, n, a) { %>
-                    <li>
+                    <li class="list-inline-item">
                         <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
                     </li>
                     <% }) %>
@@ -68,7 +68,7 @@
                 <h3 class="text-primary media-heading">OS/2</h3>
                 <ul class="list-inline">
                     <% os2.forEach(function (i, n, a) { %>
-                    <li>
+                    <li class="list-inline-item">
                         <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
                     </li>
                     <% }) %>
@@ -77,8 +77,8 @@
         </div>
     </div>
 </div><br />
-<div class="row">
-    <div class="col-md-5 col-md-offset-2">
+<div class="row justify-content-center">
+    <div class="col-md-5">
         <div class="media">
             <a class="pull-left" href="#">
                 <img src="/res/img/linux.png" alt="" width="80px" />
@@ -88,7 +88,7 @@
                 <h3 class="text-primary media-heading">*nix</h3>
                 <ul class="list-inline">
                     <% nix.forEach(function (i, n, a) { %>
-                    <li>
+                    <li class="list-inline-item">
                         <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
                     </li>
                     <% }) %>
@@ -102,7 +102,7 @@
                 <h3 class="text-primary media-heading">Other OS and Shells</h3>
                 <ul class="list-inline">
                     <% other.forEach(function (i, n, a) { %>
-                    <li>
+                    <li class="list-inline-item">
                         <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
                     </li>
                     <% }) %>
