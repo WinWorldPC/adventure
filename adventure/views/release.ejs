@@ -23,11 +23,13 @@
             </nav>
             <% if (screenshots && screenshots.length > 0) { %>
             <div id="screenshotPanel" class="carousel slide lazy mb-2 w-75 mx-auto" data-ride="carousel" data-interval="false">
+                <% if (screenshots.length > 1) { %>
                 <ol class="carousel-indicators">
                     <% screenshots.forEach(function (i, n, a) { %>
                     <li data-target="#screenshotPanel" data-slide-to="<%= n %>" class="<%= n ? '' : 'active' %>"></li>
                     <% }); %>
                 </ol>
+                <% } %>
                 <div class="carousel-inner">
                     <% screenshots.forEach(function (i, n, a) { %>
                     <div class="carousel-item <%= n ? '' : 'active' %>">
@@ -40,6 +42,7 @@
                     <% }); %>
                     <!-- TODO: Truncate, link to page with more... -->
                 </div>
+                <% if (screenshots.length > 1) { %>
                 <a class="carousel-control-prev" href="#screenshotPanel" role="button" data-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span class="sr-only">Previous</span>
@@ -48,6 +51,7 @@
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     <span class="sr-only">Next</span>
                 </a>
+                <% } %>
             </div>
             <% } %>
             <%- release.Notes %>
