@@ -264,46 +264,88 @@ function libraryRoute(req, res) {
                 message: "The category given was invalid."
             });
     }
-    var tag = null;
-    var platform = null;
-    // TODO: Support richer tag queries than the bare-minimum compat we have
-    // with old site (because library pages link to tags in descriptions)
-    if (req.params.tag != null) {
-        if (req.params.tag.indexOf("tag-") == 0) {
-            tag = constants.tagMappings[req.params.tag] || null;
-        } else if (req.params.tag.indexOf("platform-") == 0) {
-            platform = constants.platformMappings[req.params.tag] || null;
-        }
-    }
-    // HACK: I am EXTREMELY not proud of ANY of these queries
-    // they need UDFs and building on demand BADLY
+    
     const productPlatforms = "(SELECT GROUP_CONCAT(DISTINCT Platform) FROM Releases WHERE ProductUUID = Products.ProductUUID)";
-    database.execute("SELECT COUNT(*)," + productPlatforms + " AS Platform FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', " + productPlatforms + " LIKE CONCAT(\"%\", ?, \"%\"), TRUE)", [category, tag, tag, platform, platform], function (cErr, cRes, cFields) {
-        var count = cRes[0]["COUNT(*)"];
-        var pages = Math.ceil(count / config.perPage);
-        // TODO: Break up these queries, BADLY
-        database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type`," + productPlatforms + " AS Platform FROM `Products` HAVING `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', Platform LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, platform, platform, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
-            // truncate and markdown
-            var productsFormatted = prRes.map(function (x) {
-                x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
+
+    if (category == "OS" && config.specialCaseLibraryOS) {
+        database.execute("SELECT `Name`,`Slug`," + productPlatforms + " AS Platform FROM `Products` WHERE `Type` LIKE 'OS'", [], function (prErr, prRes, prFields) {
+            var products = prRes.map(function (x) {
+                x.Platform = x.Platform.split(",");
                 return x;
-            })
-            // TODO: Special-case OS for rendering the old custom layout
-            res.render("library", {
+            });
+            
+            var dos = products.filter(function (x) {
+                return x.Platform.indexOf("DOS") > -1 || x.Platform.indexOf("CPM") > -1;
+            });
+            var nix = products.filter(function (x) {
+                return x.Platform.indexOf("Unix") > -1 || x.Platform.indexOf("Linux") > -1;
+            });
+            var mac = products.filter(function (x) {
+                return x.Platform.indexOf("MacOS") > -1 || x.Platform.indexOf("Mac OS X") > -1;
+            });
+            var win = products.filter(function (x) {
+                return x.Platform.indexOf("Windows") > -1;
+            });
+            var os2 = products.filter(function (x) {
+                return x.Platform.indexOf("OS2") > -1;
+            });
+            var other = products.filter(function (x) {
+                return x.Platform.indexOf("Other") > -1 || x.Platform.indexOf("DOSShell") > -1;
+            });
+
+            return res.render("libraryOS", {
                 sitePages: sitePages,
                 user: req.user,
 
-                products: productsFormatted,
-                page: page,
-                pages: pages,
-                pageBounds: config.perPageBounds,
-                category: req.params.category,
-                tag: req.params.tag,
-                tagMappingsInverted: constants.tagMappingsInverted,
-                platformMappingsInverted: constants.platformMappingsInverted
+                dos: dos,
+                nix: nix,
+                mac: mac,
+                win: win,
+                os2: os2,
+                other: other,
             });
         });
-    });
+    } else {
+        var tag = null;
+        var platform = null;
+        // TODO: Support richer tag queries than the bare-minimum compat we have
+        // with old site (because library pages link to tags in descriptions)
+        if (req.params.tag != null) {
+            if (req.params.tag.indexOf("tag-") == 0) {
+                tag = constants.tagMappings[req.params.tag] || null;
+            } else if (req.params.tag.indexOf("platform-") == 0) {
+                platform = constants.platformMappings[req.params.tag] || null;
+            }
+        }
+        // HACK: I am EXTREMELY not proud of ANY of these queries
+        // they need UDFs and building on demand BADLY
+        database.execute("SELECT COUNT(*)," + productPlatforms + " AS Platform FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', " + productPlatforms + " LIKE CONCAT(\"%\", ?, \"%\"), TRUE)", [category, tag, tag, platform, platform], function (cErr, cRes, cFields) {
+            var count = cRes[0]["COUNT(*)"];
+            var pages = Math.ceil(count / config.perPage);
+            // TODO: Break up these queries, BADLY
+            database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type`," + productPlatforms + " AS Platform FROM `Products` HAVING `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', Platform LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, platform, platform, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+                // truncate and markdown
+                var productsFormatted = prRes.map(function (x) {
+                    x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
+                    return x;
+                })
+                // TODO: Special-case OS for rendering the old custom layout
+                res.render("library", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    products: productsFormatted,
+                    page: page,
+                    pages: pages,
+                    pageBounds: config.perPageBounds,
+                    category: req.params.category,
+                    tag: req.params.tag,
+                    tagMappingsInverted: constants.tagMappingsInverted,
+                    platformMappingsInverted: constants.platformMappingsInverted
+                });
+            });
+        });
+    }
 }
 server.get("/library/:category", libraryRoute);
 server.get("/library/:category/:tag", libraryRoute);

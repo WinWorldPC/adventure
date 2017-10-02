@@ -1,0 +1,114 @@
+﻿<%- include("head", {title: "Library", sitePages: sitePages, user: user}) %>
+<nav id="libraryCategorySelection" class="nav nav-pills mb-2">
+    <a class="nav-link active" href="/library/operating-systems">OSes and Shells</a>
+    <a class="nav-link" href="/library/applications">Applications</a>
+    <a class="nav-link" href="/library/games">Games</a>
+    <a class="nav-link" href="/library/dev">Developer Tools</a>
+    <a class="nav-link" href="/library/sys">System Tools and Patches</a>
+    <!-- TODO: Tag selection-->
+</nav>
+<div class="row">
+    <div class="col-md-3">
+        <div class="media">
+            <a class="pull-left" href="#">
+                <img src="/res/img/dos.png" alt="" width="80px" />
+            </a>
+            <div class="media-body">
+                <h3 class="text-primary media-heading">DOS &amp; CP/M</h3>
+                <ul class="list-inline">
+                    <% dos.forEach(function (i, n, a) { %>
+                    <li>
+                        <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="media">
+            <a class="pull-left" href="#">
+                <img src="/res/img/windows-flag.png" alt="" width="80px" />
+            </a>
+            <div class="media-body">
+                <h3 class="text-primary media-heading">Windows</h3>
+                <ul class="list-inline">
+                    <% win.forEach(function (i, n, a) { %>
+                    <li>
+                        <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="media">
+            <a class="pull-left" href="#">
+                <img src="/res/img/apple-mac.png" alt="" width="80px" />
+            </a>
+            <div class="media-body">
+                <h3 class="text-primary media-heading">Apple/Mac</h3>
+                <ul class="list-inline">
+                    <% mac.forEach(function (i, n, a) { %>
+                    <li>
+                        <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 container">
+        <div class="media">
+            <a class="pull-left" href="#">
+                <img src="/res/img/os2.png" alt="" width="80px" />
+            </a>
+            <div class="media-body">
+                <h3 class="text-primary media-heading">OS/2</h3>
+                <ul class="list-inline">
+                    <% os2.forEach(function (i, n, a) { %>
+                    <li>
+                        <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div><br />
+<div class="row">
+    <div class="col-md-5 col-md-offset-2">
+        <div class="media">
+            <a class="pull-left" href="#">
+                <img src="/res/img/linux.png" alt="" width="80px" />
+                <img class="hidden-xs hidden-sm" src="/res/img/bsd.png" alt="" width="80px" />
+            </a>
+            <div class="media-body">
+                <h3 class="text-primary media-heading">*nix</h3>
+                <ul class="list-inline">
+                    <% nix.forEach(function (i, n, a) { %>
+                    <li>
+                        <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="media">
+            <div class="media-body">
+                <h3 class="text-primary media-heading">Other OS and Shells</h3>
+                <ul class="list-inline">
+                    <% other.forEach(function (i, n, a) { %>
+                    <li>
+                        <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include("foot") %>
