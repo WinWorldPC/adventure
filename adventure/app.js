@@ -796,7 +796,9 @@ server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencode
         var releaseDate = req.body.releaseDate ? new Date(req.body.releaseDate) : null;
         var endOfLife = req.body.endOfLife ? new Date(req.body.endOfLife) : null;
         var fuzzyDate = req.body.fuzzyDate ? "True" : "False";
-        var dbParams = [req.body.name, req.body.vendorName, req.body.slug, req.body.notes, req.body.installInstructions, platform, req.body.type, releaseDate, endOfLife, fuzzyDate, req.body.cpuRequirement, req.body.ramRequirement, req.body.diskSpaceRequired, formatting.hexToBin(uuid)];
+        var ramRequirement = req.body.ramRequirement || 0;
+        var diskSpaceRequired = req.body.diskSpaceRequired || 0;
+        var dbParams = [req.body.name, req.body.vendorName, req.body.slug, req.body.notes, req.body.installInstructions, platform, req.body.type, releaseDate, endOfLife, fuzzyDate, req.body.cpuRequirement, ramRequirement, diskSpaceRequired, formatting.hexToBin(uuid)];
         database.execute("UPDATE Releases SET Name = ?, VendorName = ?, Slug = ?, Notes = ?, InstallInstructions = ?, Platform = ?, Type = ?, ReleaseDate = ?, EndOfLife = ?, FuzzyDate = ?, CPURequirement = ?, RAMRequirement = ?, DiskSpaceRequired = ? WHERE ReleaseUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
