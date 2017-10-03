@@ -37,5 +37,9 @@ module.exports = {
 
     sha256: function (toHash) {
         return crypto.createHash("sha256").update(toHash).digest("hex");
+    },
+
+    createSalt: function () {
+        return crypto.randomBytes(32).toString("hex");
     }
 };

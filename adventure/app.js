@@ -28,7 +28,7 @@ passport.use("local", new localStrategy({ usernameField: "username", passwordFie
         if (err) { return cb(err); }
         if (!user) { return cb(null, false); }
         // wtf
-        if (user.Password != formatting.sha256(password)) { return cb(null, false); }
+        if (user.Password != formatting.sha256(password + (user.Salt || ""))) { return cb(null, false); }
         return cb(null, user);
     });
 }));
@@ -113,8 +113,18 @@ server.post("/user/login", urlencodedParser, function (req, res) {
             database.execute("UPDATE Users SET LastSeenTime = NOW() WHERE UserId = ?", [id], function (lsErr, lsRes, lsFields) {
                 // we can wait this one out
             });
-
-            return res.redirect("/home");
+            
+            // The user has an insecure password and should change it.
+            if (user.Salt) {
+                return res.redirect("/home");
+            } else {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>."
+                });
+            }
         });
     })(req, res);
 });
@@ -141,10 +151,11 @@ server.post("/user/changepw", urlencodedParser, function (req, res) {
         if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
             if (formatting.sha256(req.body.password) == req.user.Password) {
                 if (req.body.newPassword == req.body.newPasswordR) {
-                    var newPassword = formatting.sha256(req.body.newPassword);
+                    var salt = formatting.createSalt();
+                    var newPassword = formatting.sha256(req.body.newPassword + salt);
                     // HACK: nasty way to demangle UInt8Array
                     var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-                    database.execute("UPDATE Users SET Password = ? WHERE UserID = ?", [newPassword, id] , function (pwErr, pwRes, pwFields) {
+                    database.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, id] , function (pwErr, pwRes, pwFields) {
                         if (pwErr) {
                             return res.status(500).render("editProfile", {
                                 sitePages: sitePages,
