@@ -10,6 +10,36 @@
         <label for="slug">Slug</label>
         <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" value="<%= release.Slug %>">
     </div>
+    <%
+    // HACK: datetime-local != toISOString
+    function pad(number) {
+        if (number < 10) {
+            return '0' + number;
+        }
+        return number;
+    }
+    function shortIso(d) {
+        return d.getUTCFullYear() +
+        '-' + pad(d.getUTCMonth() + 1) +
+        '-' + pad(d.getUTCDate()) +
+        'T' + pad(d.getUTCHours()) +
+        ':' + pad(d.getUTCMinutes());
+    }
+    %>
+    <div class="form-group">
+        <label for="releaseDate">Release date</label>
+        <input type="datetime-local" class="form-control" id="releaseDate" name="releaseDate" placeholder="Release date" value="<%= release.ReleaseDate && release.ReleaseDate.getTime() ? shortIso(release.ReleaseDate) : '' %>">
+    </div>
+    <div class="form-group">
+        <label for="endOfLife">End of life  </label>
+        <input type="datetime-local" class="form-control" id="endOfLife" name="endOfLife" placeholder="End of life" value="<%= release.EndOfLife && release.EndOfLife.getTime() ? shortIso(release.EndOfLife) : '' %>">
+    </div>
+    <div class="form-check">
+        <label class="form-check-label">
+            <input class="form-check-input" name="fuzzyDate" type="checkbox" <%= release.FuzzyDate ? "checked" : "" %>>
+            Show only year
+        </label>
+    </div>
     <div class="form-group">
         <label for="notes">Notes</label>
         <textarea rows="5" class="form-control" id="notes" name="notes"><%= release.Notes %></textarea>

@@ -110,11 +110,11 @@
                 <dd><%= release.VendorName %></dd>
                 <% } %>
                 <!-- TODO: Should fuzzy date-->
-                <% if (release.ReleaseDate.getTime()) { %>
+                <% if (release.ReleaseDate && release.ReleaseDate.getTime()) { %>
                 <dt>Release date</dt>
                 <dd><%= release.FuzzyDate ? release.ReleaseDate.getFullYear() : release.ReleaseDate.toDateString() %></dd>
                 <% } %>
-                <% if (release.EndOfLife.getTime()) { %>
+                <% if (release.EndOfLife && release.EndOfLife.getTime()) { %>
                 <dt>End of life date</dt>
                 <dd><%= release.FuzzyDate ? release.EndOfLife.getFullYear() : release.EndOfLife.toDateString() %></dd>
                 <% } %>
