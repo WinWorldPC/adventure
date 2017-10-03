@@ -725,6 +725,38 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     });
 });
 
+// Admin routes
+function adminRoute(req, res, next) {
+    if (req.user) {
+        if (req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+            next();
+        } else {
+            return res.status(403).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "You aren't an admin."
+            });
+        }
+    } else {
+        return res.redirect("/user/login");
+    }
+}
+
+server.get("/sa/product/:product", adminRoute, function (req, res) {
+    database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
+        return res.send(prRes || prErr);
+    });
+});
+
+server.get("/sa/product/:product/:release", adminRoute, function (req, res) {
+    database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
+        database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ?", [prRes[0].ProductUUID], function (rlErr, rlRes, rlFields) {
+            return res.send(prRes || prErr);
+        });
+    });
+});
+
 // this will soak up anything without routes on root
 server.get("/:page", function (req, res) {
     if (sitePages[req.params.page]) {
