@@ -52,10 +52,16 @@
         <div class="form-group col">
             <label for="notes">Notes</label>
             <textarea rows="5" class="form-control" id="notes" name="notes"><%= release.Notes %></textarea>
+            <small class="form-text text-muted">
+                This field is formatted in Markdown
+            </small>
         </div>
         <div class="form-group col">
             <label for="installInstructions">Installation instructions</label>
             <textarea rows="5" class="form-control" id="installInstructions" name="installInstructions"><%= release.InstallInstructions %></textarea>
+            <small class="form-text text-muted">
+                This field is formatted in Markdown
+            </small>
         </div>
     </div>
     <div class="form-group">
@@ -79,12 +85,18 @@
             <input type="text" class="form-control" id="cpuRequirement" name="cpuRequirement" placeholder="Required CPU" value="<%= release.CPURequirement %>">
         </div>
         <div class="form-group col">
-            <label for="ramRequirement">Required RAM (bytes)</label>
-            <input type="number" class="form-control" id="ramRequirement" name="ramRequirement" placeholder="Required RAM (bytes)" value="<%= release.RAMRequirement %>">
+            <label for="ramRequirement">Required RAM</label>
+            <input required type="number" class="form-control" id="ramRequirement" name="ramRequirement" placeholder="Required RAM" value="<%= release.RAMRequirement %>">
+            <small class="form-text text-muted">
+                This field is converted to the most sensible human-readable byte size. Leave 0 to block.
+            </small>
         </div>
         <div class="form-group col">
-            <label for="diskSpaceRequired">Required free disk space (bytes)</label>
-            <input type="number" class="form-control" id="diskSpaceRequired" name="diskSpaceRequired" placeholder="Required free disk space (bytes)" value="<%= release.DiskSpaceRequired %>">
+            <label for="diskSpaceRequired">Required free disk space</label>
+            <input required type="number" class="form-control" id="diskSpaceRequired" name="diskSpaceRequired" placeholder="Required free disk space" value="<%= release.DiskSpaceRequired %>">
+            <small class="form-text text-muted">
+                This field is converted to the most sensible human-readable byte size. Leave 0 to block.
+            </small>
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
