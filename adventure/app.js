@@ -625,26 +625,6 @@ server.get("/download/:download", function (req, res) {
     });
 });
 
-// BREAKING: The DownloadHits schema has changed from the original WinWorld to
-// Adventure. The new schema is:
-/*
- * DROP TABLE IF EXISTS `DownloadHits`;
- * CREATE TABLE IF NOT EXISTS `DownloadHits` (
- *   `DownloadUUID` binary(16) NOT NULL,
- *   `MirrorUUID` binary(16) NOT NULL,
- *   `SessionUUID` binary(16) DEFAULT NULL,
- *   `UserUUID` binary(16) DEFAULT NULL,
- *   `IPAddress` varchar(46) COLLATE utf8_bin NOT NULL,
- *   `DownloadTime` timestamp NOT NULL DEFAULT current_timestamp(),
- *   KEY `DownloadUUID` (`DownloadUUID`),
- *   KEY `UserUUID` (`UserUUID`),
- *   KEY `MirrorUUID` (`MirrorUUID`),
- *   KEY `DownloadTime` (`DownloadTime`),
- *   KEY `IPAddress` (`IPAddress`)
- * ) ENGINE=Aria DEFAULT CHARSET=utf8 COLLATE=utf8_bin PAGE_CHECKSUM=1;
- */
-// IP addresses are stored as strings now, and session UUIDs are nullable (and
-// not keyed, because the sessions table has been dropped for now)
 server.get("/download/:download/from/:mirror", function (req, res) {
     if (!(formatting.isHexString(req.params.download) && formatting.isHexString(req.params.mirror))) {
         return res.status(400).render("error", {
