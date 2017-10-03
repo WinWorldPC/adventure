@@ -37,7 +37,7 @@
         <label for="applicationTags">Tags</label>
         <select multiple class="form-control" id="applicationTags" name="applicationTags">
             <% Object.keys(tagMappingsInverted).forEach(function (i, n, a) { %>
-            <option <%= product.ApplicationTags.indexOf(i) > -1 ? "selected" : "" %>><%= i %></option>
+            <option <%= product.ApplicationTags && product.ApplicationTags.indexOf(i) > -1 ? "selected" : "" %>><%= i %></option>
             <% }); %>
         </select>
     </div>
