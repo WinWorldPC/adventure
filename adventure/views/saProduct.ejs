@@ -1,0 +1,39 @@
+﻿<%- include("head", {title: "Editing " + product.Name, sitePages: sitePages, user: user}) %>
+<h1>Editing <%= product.Name %></h1>
+<h2>Basic metadata</h2>
+<form>
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%= product.Name %>">
+    </div>
+    <div class="form-group">
+        <label for="slug">Slog</label>
+        <input type="text" class="form-control" id="slug" name="slug" placeholder="slug" value="<%= product.Slug %>">
+    </div>
+    <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea class="form-control" id="notes" name="notes"><%= product.Notes %></textarea>
+    </div>
+    <div class="form-group">
+        <label for="type">Type</label>
+        <select class="form-control" id="type" name="type">
+            <option <%= product.Type == "OS" ? "selected" : "" %>>OS</option>
+            <option <%= product.Type == "Application" ? "selected" : "" %>>Application</option>
+            <option <%= product.Type == "Game" ? "selected" : "" %>>Game</option>
+            <option <%= product.Type == "DevTool" ? "selected" : "" %>>DevTool</option>
+            <option <%= product.Type == "System" ? "selected" : "" %>>System</option>
+        </select>
+    </div>
+    <% if (product.Type == "Application") { %>
+    <div class="form-group">
+        <label for="applicationTags">Type</label>
+        <select multiple class="form-control" id="applicationTags" name="applicationTags">
+            <% Object.keys(tagMappingsInverted).forEach(function (i, n, a) { %>
+            <option <%= product.ApplicationTags.indexOf(i) > -1 ? "selected" : "" %>><%= i %></option>
+            <% }); %>
+        </select>
+    </div>
+    <% } %>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<%- include("foot") %>

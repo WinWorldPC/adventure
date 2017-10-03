@@ -745,7 +745,22 @@ function adminRoute(req, res, next) {
 
 server.get("/sa/product/:product", adminRoute, function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
-        return res.send(prRes || prErr);
+        var product = prRes[0] || null;
+        if (prErr || product == null) {
+            res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There is no product."
+            });
+        }
+        return res.render("saProduct",{
+            sitePages: sitePages,
+            user: req.user,
+            
+            product: product,
+            tagMappingsInverted: constants.tagMappingsInverted
+        });
     });
 });
 
@@ -766,7 +781,7 @@ server.get("/:page", function (req, res) {
             var file = path.join(config.pageDirectory, req.params.page + ".md");
             fs.readFile(file, "utf8", function (err, contents) {
                 if (err) {
-                    return res.status(400).render("error", {
+                    return res.status(500).render("error", {
                         sitePages: sitePages,
                         user: req.user,
                         
