@@ -89,7 +89,7 @@ server.post("/user/login", urlencodedParser, function (req, res) {
         }
         // if user is not found due to wrong username or password
         if (!user) {
-            return res.render("login", {
+            return res.status(400).render("login", {
                 sitePages: sitePages,
                 user: req.user,
 
