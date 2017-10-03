@@ -7,7 +7,7 @@ var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEF
 
 database.createConnection(config.mysql);
 
-const downloadHitsQuery = "DELETE FROM DownloadHits WHERE DATE_SUB(DownloadTime,INTERVAL 1 DAY) > CURDATE()";
+const downloadHitsQuery = "DELETE FROM DownloadHits WHERE DATE_SUB(CURDATE(), INTERVAL 1 DAY) > DownloadTime";
 
 database.execute(downloadHitsQuery, [], function (dhErr, dhRes, dhFields) {
     if (dhErr) {
