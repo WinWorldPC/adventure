@@ -72,7 +72,7 @@ function restrictedRoute(flag) {
                     sitePages: sitePages,
                     user: req.user,
                     
-                    message: "You aren't allow to access this route."
+                    message: "You aren't allowed to access this route."
                 });
             }
         } else {
@@ -155,7 +155,7 @@ server.get("/user/logout", function (req, res) {
 
 // TODO: Refactor these routes for admins to edit other profiles
 // They could use SQL for now, but as we extend, that's infeasible
-server.get("/user/edit", function (req, res) {
+server.get("/user/edit", restrictedRoute(), function (req, res) {
     return res.render("editProfile", {
         sitePages: sitePages,
         user: req.user,
@@ -165,69 +165,65 @@ server.get("/user/edit", function (req, res) {
     });
 });
 
-server.post("/user/changepw", urlencodedParser, function (req, res) {
-    if (req.user) {
-        if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
-            if (formatting.sha256(req.body.password) == req.user.Password) {
-                if (req.body.newPassword == req.body.newPasswordR) {
-                    var salt = formatting.createSalt();
-                    var newPassword = formatting.sha256(req.body.newPassword + salt);
-                    // HACK: nasty way to demangle UInt8Array
-                    var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-                    database.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, id] , function (pwErr, pwRes, pwFields) {
-                        if (pwErr) {
-                            return res.status(500).render("editProfile", {
-                                sitePages: sitePages,
-                                user: req.user,
-                                
-                                message: "There was an error changing your password.",
-                                messageColour: "alert-danger",
-                            });
-                        } else {
-                            return res.render("editProfile", {
-                                sitePages: sitePages,
-                                user: req.user,
-                                
-                                message: "Your password change was a success!",
-                                messageColour: "alert-success",
-                            });
-                        }
-                    });
-                } else {
-                    return res.status(400).render("editProfile", {
-                        sitePages: sitePages,
-                        user: req.user,
-                        
-                        message: "The new passwords don't match.",
-                        messageColour: "alert-danger",
-                    });
-                }
+server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req, res) {
+    if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
+        if (formatting.sha256(req.body.password) == req.user.Password) {
+            if (req.body.newPassword == req.body.newPasswordR) {
+                var salt = formatting.createSalt();
+                var newPassword = formatting.sha256(req.body.newPassword + salt);
+                // HACK: nasty way to demangle UInt8Array
+                var id = formatting.hexToBin(req.user.UserID.toString("hex"));
+                database.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, id] , function (pwErr, pwRes, pwFields) {
+                    if (pwErr) {
+                        return res.status(500).render("editProfile", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error changing your password.",
+                            messageColour: "alert-danger",
+                        });
+                    } else {
+                        return res.render("editProfile", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "Your password change was a success!",
+                            messageColour: "alert-success",
+                        });
+                    }
+                });
             } else {
-                return res.status(403).render("editProfile", {
+                return res.status(400).render("editProfile", {
                     sitePages: sitePages,
                     user: req.user,
                     
-                    message: "The current password given was incorrect.",
+                    message: "The new passwords don't match.",
                     messageColour: "alert-danger",
                 });
             }
         } else {
-            return res.status(400).render("editProfile", {
+            return res.status(403).render("editProfile", {
                 sitePages: sitePages,
                 user: req.user,
                 
-                message: "The request was malformed.",
+                message: "The current password given was incorrect.",
                 messageColour: "alert-danger",
             });
         }
     } else {
-        return res.redirect("/user/login");
+        return res.status(400).render("editProfile", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed.",
+            messageColour: "alert-danger",
+        });
     }
 });
 
-server.post("/user/edit", urlencodedParser, function (req, res) {
+server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, res) {
     // TODO: Extend as we extend editable profile options (none for now)
-    if (req.user && req.body && req.body.email) {
+    if (req.body && req.body.email) {
         // HACK: nasty way to demangle UInt8Array
         var id = formatting.hexToBin(req.user.UserID.toString("hex"));
         database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [req.body.email, id] , function (pwErr, pwRes, pwFields) {
@@ -250,7 +246,13 @@ server.post("/user/edit", urlencodedParser, function (req, res) {
             }
         });
     } else {
-        return res.redirect("/user/login");
+        return res.status(400).render("editProfile", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed.",
+            messageColour: "alert-danger",
+        });
     }
 });
 
