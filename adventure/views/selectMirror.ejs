@@ -8,6 +8,7 @@
         <%= download.Information %>
         <% } %>
         <h2>Mirrors</h2>
+        Having trouble with downloads? You may want to <a href="/download/test">check what the site and mirrors report</a> if they aren't working when reporting an issue.
         <ul id="mirrorsList">
             <% mirrors.forEach(function(i, n, a) {%>
             <li><a href="/download/<%= download.DLUUID %>/from/<%= i.MirrorUUID %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
