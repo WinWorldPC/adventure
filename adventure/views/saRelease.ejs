@@ -1,0 +1,15 @@
+﻿<%- include("head", {title: "Editing " + release.Name, sitePages: sitePages, user: user}) %>
+<h1>Editing <%= release.Name %></h1>
+<h2>Basic metadata</h2>
+<form method="post" action="/sa/editReleaseMetadata/<%= release.ReleaseUUID %>">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input required type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%= release.Name %>">
+    </div>
+    <div class="form-group">
+        <label for="slug">Slug</label>
+        <input required type="text" class="form-control" id="slug" name="slug" placeholder="slug" value="<%= release.Slug %>">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<%- include("foot") %>

@@ -769,8 +769,50 @@ server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencode
 
 server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
     database.execute("SELECT * FROM `Releases` WHERE `ReleaseUUID` = ?", [formatting.hexToBin(req.params.release)], function (rlErr, rlRes, rlFields) {
-        return res.send(rlRes[0] || rlErr);
+        var release = rlRes[0] || null;
+        if (rlErr || release == null) {
+            res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There is no release."
+            });
+        }
+        release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
+        return res.render("saRelease", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            release: release,
+            platformMappingsInverted: constants.platformMappingsInverted
+        });
     });
+});
+
+server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    if (req.body && req.params.release && formatting.isHexString(req.params.release)) {
+        var uuid = req.params.release;
+        var dbParams = [req.body.name, req.body.slug, formatting.hexToBin(uuid)];
+        database.execute("UPDATE Releases SET Name = ?, Slug = ? WHERE ReleaseUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
+            if (rlErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "The release could not be edited."
+                });
+            } else {
+                return res.redirect("/release/" + uuid);
+            }
+        });
+    } else {
+        return res.status(404).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
 });
 
 // this will soak up anything without routes on root
