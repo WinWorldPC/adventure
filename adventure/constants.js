@@ -26,9 +26,12 @@ var tagMappings = {
     'tag-document': 'Document',
     'tag-media-player': 'Media Player',
     'tag-virtualization': 'Virtualization',
-    'tag-archive': 'Archive',
+    'tag-archive': 'Archive',   
+    'tag-planning': 'Planning',
+    'tag-math': 'Mathematics',
+    'tag-education': 'Education',
+    'tag-engineering': 'Engineering',
     'tag-other': 'Other',
-    'tag-server': 'Server'
 };
 var tagMappingsInverted = invert(tagMappings);
 var platformMappings = {
