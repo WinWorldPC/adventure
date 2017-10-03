@@ -495,6 +495,8 @@ server.get("/product/:product/:release", function (req, res) {
                         release.InstallInstructions = marked(release.InstallInstructions || "");
                         release.Notes = marked(release.Notes || "");
                         product.Notes = marked(product.Notes || "");
+                        release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
+                        product.ProductUUID = formatting.binToHex(product.ProductUUID);
                         // format beforehand, rather than in rendering or client end
                         release.RAMRequirement = formatting.formatBytes(release.RAMRequirement);
                         release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
@@ -735,8 +737,9 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
 });
 
 // Admin routes
+// Use UUID because slug can change
 server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
-    database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
+    database.execute("SELECT * FROM `Products` WHERE `ProductUUID` = ?", [formatting.hexToBin(req.params.product)], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (prErr || product == null) {
             res.status(404).render("error", {
@@ -756,11 +759,13 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
     });
 });
 
-server.get("/sa/product/:product/:release", restrictedRoute("sa"), function (req, res) {
-    database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
-        database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ?", [prRes[0].ProductUUID], function (rlErr, rlRes, rlFields) {
-            return res.send(prRes || prErr);
-        });
+server.post("/sa/editProductMetadata", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    res.send(req.body);
+});
+
+server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
+    database.execute("SELECT * FROM `Releases` WHERE `ReleaseUUID` = ?", [formatting.hexToBin(req.params.release)], function (rlErr, rlRes, rlFields) {
+        return res.send(rlRes[0] || rlErr);
     });
 });
 
