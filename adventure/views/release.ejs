@@ -3,10 +3,10 @@
     <div id="descriptionColumn" class="col-sm-9">
         <h1><%= product.Name %> <small class="text-muted"><%= release.Name %></small></h1>
         <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
-        <nav>
-            <a class="btn btn-primary" role="button" href="/sa/product/<%= product.ProductUUID %>">Edit product</a>
-            <a class="btn btn-primary" role="button" href="/sa/release/<%= release.ReleaseUUID %> ">Edit release</a>
-        </nav>
+        <div class="btn-group" role="group" aria-label="Admin actions">
+            <a class="btn btn-warning" role="button" href="/sa/product/<%= product.ProductUUID %>">Edit product</a>
+            <!-- <a class="btn btn-warning" role="button" href="/sa/release/<%= release.ReleaseUUID %>">Edit release</a> -->
+        </div>
         <% } %>
         <%- product.Notes %>
         <div id="releaseInformation">
