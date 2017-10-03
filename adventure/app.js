@@ -749,6 +749,7 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
                 message: "There is no product."
             });
         }
+        product.ProductUUID = formatting.binToHex(product.ProductUUID);
         return res.render("saProduct",{
             sitePages: sitePages,
             user: req.user,
@@ -759,8 +760,30 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
     });
 });
 
-server.post("/sa/editProductMetadata", restrictedRoute("sa"), urlencodedParser, function (req, res) {
-    res.send(req.body);
+server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    if (req.body && req.params.product && formatting.isHexString(req.params.product)) {
+        var uuid = req.params.product;
+        var dbParams = [req.body.name, req.body.slug, req.body.notes, req.body.type, req.body.applicationTags || "", formatting.hexToBin(uuid)];
+        database.execute("UPDATE Products SET Name = ?, Slug = ?, Notes = ?, Type = ?, ApplicationTags = ? WHERE ProductUUID = ?", dbParams, function (prErr, prRes, prFields) {
+            if (prErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "The product could not be edited."
+                });
+            } else {
+                return res.redirect("/product/" + req.body.slug);
+            }
+        });
+    } else {
+        return res.status(404).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
 });
 
 server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {

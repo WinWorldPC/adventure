@@ -1,7 +1,7 @@
 ﻿<%- include("head", {title: "Editing " + product.Name, sitePages: sitePages, user: user}) %>
 <h1>Editing <%= product.Name %></h1>
 <h2>Basic metadata</h2>
-<form method="post" action="/sa/editProductMetadata/<%= product.productUUID %>">
+<form method="post" action="/sa/editProductMetadata/<%= product.ProductUUID %>">
     <div class="form-group">
         <label for="name">Name</label>
         <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%= product.Name %>">
