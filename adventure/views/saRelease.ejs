@@ -13,7 +13,10 @@
         </div>
         <div class="form-group col">
             <label for="slug">Slug</label>
-            <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" value="<%= release.Slug %>">
+            <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" pattern="^[1-9A-Za-z-]+$" value="<%= release.Slug %>">
+            <small class="form-text text-muted">
+                Alphanumeric characters and hyphen only
+            </small>
         </div>
     </div>
     <%
