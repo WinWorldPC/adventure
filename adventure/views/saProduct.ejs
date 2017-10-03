@@ -8,11 +8,11 @@
     </div>
     <div class="form-group">
         <label for="slug">Slug</label>
-        <input required type="text" class="form-control" id="slug" name="slug" placeholder="slug" value="<%= product.Slug %>">
+        <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" value="<%= product.Slug %>">
     </div>
     <div class="form-group">
         <label for="notes">Notes</label>
-        <textarea rows="16" class="form-control" id="notes" name="notes"><%= product.Notes %></textarea>
+        <textarea rows="5" class="form-control" id="notes" name="notes"><%= product.Notes %></textarea>
     </div>
     <div class="form-group">
         <label for="type">Type</label>
@@ -26,7 +26,7 @@
     </div>
     <% if (product.Type == "Application") { %>
     <div class="form-group">
-        <label for="applicationTags">Type</label>
+        <label for="applicationTags">Tags</label>
         <select multiple class="form-control" id="applicationTags" name="applicationTags">
             <% Object.keys(tagMappingsInverted).forEach(function (i, n, a) { %>
             <option <%= product.ApplicationTags.indexOf(i) > -1 ? "selected" : "" %>><%= i %></option>

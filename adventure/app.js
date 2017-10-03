@@ -792,8 +792,8 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
 server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     if (req.body && req.params.release && formatting.isHexString(req.params.release)) {
         var uuid = req.params.release;
-        var dbParams = [req.body.name, req.body.slug, formatting.hexToBin(uuid)];
-        database.execute("UPDATE Releases SET Name = ?, Slug = ? WHERE ReleaseUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
+        var dbParams = [req.body.name, req.body.slug, req.body.notes, req.body.installInstructions, req.body.platform || "", req.body.type, formatting.hexToBin(uuid)];
+        database.execute("UPDATE Releases SET Name = ?, Slug = ?, Notes = ?, InstallInstructions = ?, Platform = ?, Type = ? WHERE ReleaseUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
                     sitePages: sitePages,

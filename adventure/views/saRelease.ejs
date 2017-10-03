@@ -8,7 +8,30 @@
     </div>
     <div class="form-group">
         <label for="slug">Slug</label>
-        <input required type="text" class="form-control" id="slug" name="slug" placeholder="slug" value="<%= release.Slug %>">
+        <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" value="<%= release.Slug %>">
+    </div>
+    <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea rows="5" class="form-control" id="notes" name="notes"><%= release.Notes %></textarea>
+    </div>
+    <div class="form-group">
+        <label for="installInstructions">Installation instructions</label>
+        <textarea rows="5" class="form-control" id="installInstructions" name="installInstructions"><%= release.InstallInstructions %></textarea>
+    </div>
+    <div class="form-group">
+        <label for="platform">Platforms</label>
+        <select multiple class="form-control" id="platform" name="platform">
+            <% Object.keys(platformMappingsInverted).forEach(function (i, n, a) { %>
+            <option <%= release.Platform.indexOf(i) > -1 ? "selected" : "" %>><%= i %></option>
+            <% }); %>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="type">Type</label>
+        <select required class="form-control" id="type" name="type">
+            <option <%= release.Type == "GUI" ? "selected" : "" %>>GUI</option>
+            <option <%= release.Type == "Text" ? "selected" : "" %>>Text</option>
+        </select>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
