@@ -80,5 +80,6 @@
         <input type="number" class="form-control" id="diskSpaceRequired" name="diskSpaceRequired" placeholder="Required free disk space (bytes)" value="<%= release.DiskSpaceRequired %>">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
+    <a class="btn btn-outline-primary" href="/release/<%= release.ReleaseUUID %>">Cancel</a>
 </form>
 <%- include("foot") %>
