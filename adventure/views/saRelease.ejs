@@ -7,6 +7,10 @@
         <input required type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%= release.Name %>">
     </div>
     <div class="form-group">
+        <label for="vendorName">Vendor name</label>
+        <input required type="text" class="form-control" id="vendorName" name="vendorName" placeholder="Vendor name" value="<%= release.VendorName %>">
+    </div>
+    <div class="form-group">
         <label for="slug">Slug</label>
         <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" value="<%= release.Slug %>">
     </div>
@@ -62,6 +66,18 @@
             <option <%= release.Type == "GUI" ? "selected" : "" %>>GUI</option>
             <option <%= release.Type == "Text" ? "selected" : "" %>>Text</option>
         </select>
+    </div>
+    <div class="form-group">
+        <label for="cpuRequirement">Required CPU</label>
+        <input required type="text" class="form-control" id="cpuRequirement" name="cpuRequirement" placeholder="Required CPU" value="<%= release.CPURequirement %>">
+    </div>
+    <div class="form-group">
+        <label for="ramRequirement">Required RAM (bytes)</label>
+        <input required type="number" class="form-control" id="ramRequirement" name="ramRequirement" placeholder="Required RAM (bytes)" value="<%= release.RAMRequirement %>">
+    </div>
+    <div class="form-group">
+        <label for="diskSpaceRequired">Required free disk space (bytes)</label>
+        <input required type="number" class="form-control" id="diskSpaceRequired" name="diskSpaceRequired" placeholder="Required free disk space (bytes)" value="<%= release.DiskSpaceRequired %>">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
