@@ -118,7 +118,7 @@ server.post("/user/login", urlencodedParser, function (req, res) {
             if (user.Salt) {
                 return res.redirect("/home");
             } else {
-                return res.status(500).render("error", {
+                return res.render("error", {
                     sitePages: sitePages,
                     user: req.user,
                     
