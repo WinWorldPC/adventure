@@ -4,11 +4,11 @@
 <form method="post" action="/sa/editProductMetadata/<%= product.ProductUUID %>">
     <div class="form-group">
         <label for="name">Name</label>
-        <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%= product.Name %>">
+        <input required type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%= product.Name %>">
     </div>
     <div class="form-group">
         <label for="slug">Slog</label>
-        <input type="text" class="form-control" id="slug" name="slug" placeholder="slug" value="<%= product.Slug %>">
+        <input required type="text" class="form-control" id="slug" name="slug" placeholder="slug" value="<%= product.Slug %>">
     </div>
     <div class="form-group">
         <label for="notes">Notes</label>
@@ -16,7 +16,7 @@
     </div>
     <div class="form-group">
         <label for="type">Type</label>
-        <select class="form-control" id="type" name="type">
+        <select required class="form-control" id="type" name="type">
             <option <%= product.Type == "OS" ? "selected" : "" %>>OS</option>
             <option <%= product.Type == "Application" ? "selected" : "" %>>Application</option>
             <option <%= product.Type == "Game" ? "selected" : "" %>>Game</option>
