@@ -62,6 +62,25 @@ if (config.runBehindProxy) {
     server.set("trust proxy", "127.0.0.1"); // don't hardcode?
 }
 
+function restrictedRoute(flag) {
+    return function (req, res, next) {
+        if (req.user) {
+            if (flag == null || req.user.UserFlags.some(function (x) { return x.FlagName == flag; })) {
+                next();
+            } else {
+                return res.status(403).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "You aren't allow to access this route."
+                });
+            }
+        } else {
+            return res.redirect("/user/login");
+        }
+    };
+}
+
 // Auth routes
 server.get("/user/login", function (req, res) {
     if (req.user) {
@@ -367,43 +386,31 @@ server.get("/search", function (req, res) {
 // TODO: Experimental view; VIPs only for now now that auth works
 function filesRoute(req, res) {
     var page = req.query.page || 1;
-    
-    if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "vip"; })) {
-        // Downloads without releases associated are essentially orphans that should be GCed
-        database.execute("SELECT COUNT(*) FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL", function (cErr, cRes, cFields) {
-            var count = cRes[0]["COUNT(*)"];
-            var pages = Math.ceil(count / config.perPage);
-            database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL ORDER BY `FileName` LIMIT ?,?", [(page - 1) * config.perPage, config.perPage], function (fiErr, fiRes, fiFields) {
-                var files = fiRes.map(function (x) {
-                    x.FileSize = formatting.formatBytes(x.FileSize);
-                    x.ImageType = constants.fileTypeMappings[x.ImageType];
-                    x.DLUUID = formatting.binToHex(x.DLUUID);
-                    x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
-                    return x;
-                });
-                res.render("files", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
-                    page: page,
-                    pages: pages,
-                    pageBounds: config.perPageBounds,
-                    files: files
-                });
-            });
-        });
-    } else if (req.user) {
-        return res.status(403).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-            
-            message: "This feature is experimental and not allowed without VIP privileges."
-        });
-    } else {
-        return res.redirect("/user/login");
-    }
+   // Downloads without releases associated are essentially orphans that should be GCed
+   database.execute("SELECT COUNT(*) FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL", function (cErr, cRes, cFields) {
+       var count = cRes[0]["COUNT(*)"];
+       var pages = Math.ceil(count / config.perPage);
+       database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL ORDER BY `FileName` LIMIT ?,?", [(page - 1) * config.perPage, config.perPage], function (fiErr, fiRes, fiFields) {
+           var files = fiRes.map(function (x) {
+               x.FileSize = formatting.formatBytes(x.FileSize);
+               x.ImageType = constants.fileTypeMappings[x.ImageType];
+               x.DLUUID = formatting.binToHex(x.DLUUID);
+               x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
+               return x;
+           });
+           res.render("files", {
+               sitePages: sitePages,
+               user: req.user,
+               
+               page: page,
+               pages: pages,
+               pageBounds: config.perPageBounds,
+               files: files
+           });
+       });
+   });
 }
-server.get("/files/", filesRoute);
+server.get("/files/", restrictedRoute("vip"), filesRoute);
 
 server.get("/product/:product", function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
@@ -726,24 +733,7 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
 });
 
 // Admin routes
-function adminRoute(req, res, next) {
-    if (req.user) {
-        if (req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
-            next();
-        } else {
-            return res.status(403).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-                
-                message: "You aren't an admin."
-            });
-        }
-    } else {
-        return res.redirect("/user/login");
-    }
-}
-
-server.get("/sa/product/:product", adminRoute, function (req, res) {
+server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (prErr || product == null) {
@@ -764,7 +754,7 @@ server.get("/sa/product/:product", adminRoute, function (req, res) {
     });
 });
 
-server.get("/sa/product/:product/:release", adminRoute, function (req, res) {
+server.get("/sa/product/:product/:release", restrictedRoute("sa"), function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ?", [prRes[0].ProductUUID], function (rlErr, rlRes, rlFields) {
             return res.send(prRes || prErr);
