@@ -424,21 +424,9 @@ server.get("/product/:product", function (req, res) {
                 
                 message: "There was no product."
             });
-        } else if (product.DefaultRelease) {
-            database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `ReleaseUUID` = ?", [product.ProductUUID, product.DefaultRelease], function (reErr, reRes, reFields) {
-                var release = reRes[0] || null;
-                if (release) {
-                    return res.redirect("/product/" + product.Slug + "/" + release.Slug);
-                } else {
-                    return res.status(404).render("error", {
-                        sitePages: sitePages,
-                        user: req.user,
-                        
-                        message: "The product has no releases."
-                    });
-                }
-            });
-        } else {
+        }
+        
+        var fallback = function () {
             database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseDate`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
                 var release = rlRes[0] || null;
                 if (release) {
@@ -452,6 +440,19 @@ server.get("/product/:product", function (req, res) {
                     });
                 }
             });
+        };
+
+        if (product.DefaultRelease) {
+            database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? AND `ReleaseUUID` = ?", [product.ProductUUID, product.DefaultRelease], function (reErr, reRes, reFields) {
+                var release = reRes[0] || null;
+                if (release) {
+                    return res.redirect("/product/" + product.Slug + "/" + release.Slug);
+                } else {
+                    fallback();
+                }
+            });
+        } else {
+            fallback();
         }
     });
 });
