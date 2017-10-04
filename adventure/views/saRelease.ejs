@@ -77,7 +77,7 @@
         <label for="platform">Platforms</label>
         <select multiple class="form-control" id="platform" name="platform">
             <% Object.keys(platformMappingsInverted).forEach(function (i, n, a) { %>
-            <option <%= release.Platform.indexOf(i) > -1 ? "selected" : "" %>><%= i %></option>
+            <option <%= release.Platform && release.Platform.indexOf(i) > -1 ? "selected" : "" %>><%= i %></option>
             <% }); %>
         </select>
     </div>
@@ -123,5 +123,15 @@
         <input required type="text" class="form-control" id="serial" name="serial" placeholder="Serial">
     </div>
     <button type="submit" class="btn btn-primary">Add Serial</button>
+</form>
+<!-- TODO: Screenshots -->
+<h2>Delete release</h2>
+This will delete the release and all extra information (screenshots and serials) associated with it. It will not delete downloads. Are you sure you want to do this?
+<form method="get" action="/sa/deleteRelease/<%= release.ReleaseUUID %>" class="form-inline">
+    <div class="form-group mb-2 mr-sm-2 mb-sm-0">
+        <input class="form-check-input" name="yesPlease" id="saReleaseDeleteCheck" type="checkbox">
+        I want to delete this release
+    </div>
+    <button type="submit" id="saReleaseDeleteSubmit" class="btn btn-danger">Delete Release</button>
 </form>
 <%- include("foot") %>

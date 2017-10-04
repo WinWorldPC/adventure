@@ -964,6 +964,56 @@ server.post("/sa/createRelease/:product", restrictedRoute("sa"), urlencodedParse
     }
 });
 
+server.get("/sa/deleteRelease/:release", restrictedRoute("sa"), function (req, res) {
+    if (req.params.release && formatting.isHexString(req.params.release) && req.query && req.query.yesPlease) {
+        var uuidAsBuf = formatting.hexToBin(req.params.release);
+        
+        database.execute("DELETE FROM Serials WHERE ReleaseUUID = ?", [uuidAsBuf], function (seErr, seRes, seFields) {
+            if (seErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error removing serials."
+                });
+            } else {
+                database.execute("DELETE FROM Screenshots WHERE ReleaseUUID = ?", [uuidAsBuf], function (scErr, scRes, scFields) {
+                    // TODO: Actually delete files (could be too destructive though)
+                    if (scErr) {
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error removing screenshots."
+                        });
+                    } else {
+                        database.execute("DELETE FROM Releases WHERE ReleaseUUID = ?", [uuidAsBuf], function (rlErr, rlRes, rlFields) {
+                            if (rlErr) {
+                                return res.status(500).render("error", {
+                                    sitePages: sitePages,
+                                    user: req.user,
+                                    
+                                    message: "There was an error removing the release."
+                                });
+                            } else {
+                                // TODO: Come up with a better redirect
+                                return res.redirect("/library");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed, or you weren't certain."
+        });
+    }
+});
+
 server.get("/sa/createProduct", restrictedRoute("sa"), function (req, res) {
     return res.render("saCreateProduct", {
         sitePages: sitePages,
