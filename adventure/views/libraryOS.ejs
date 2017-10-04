@@ -4,8 +4,10 @@
     <a class="nav-link" href="/library/applications">Applications</a>
     <a class="nav-link" href="/library/games">Games</a>
     <a class="nav-link" href="/library/dev">Developer Tools</a>
-    <a class="nav-link" href="/library/sys">System Tools and Patches</a>
-    <!-- TODO: Tag selection-->
+    <a class="nav-link mr-auto" href="/library/sys">System Tools and Patches</a>
+    <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+    <a class="btn btn-warning" href="/sa/createProduct">Create product</a>
+    <% } %>
 </nav>
 <div class="row">
     <div class="col-md-3">

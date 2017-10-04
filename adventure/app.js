@@ -964,6 +964,73 @@ server.post("/sa/createRelease/:product", restrictedRoute("sa"), urlencodedParse
     }
 });
 
+server.get("/sa/createProduct", restrictedRoute("sa"), function (req, res) {
+    return res.render("saCreateProduct", {
+        sitePages: sitePages,
+        user: req.user,
+    });
+});
+
+server.post("/sa/createProduct", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    const getNewProductQuery = "SELECT * FROM `Products` WHERE `Name` = ? && `Slug` = ?";
+    
+    if (req.body && req.body.slug && req.body.name) {
+        // check for dupe
+        var slug = req.body.slug;
+        var name = req.body.name;
+        var dbParams = [name, slug];
+        database.execute(getNewProductQuery, dbParams, function (dbErr, dbRes, dbFields) {
+            if (dbErr || dbRes == null) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error checking the database."
+                });
+            } else if (dbRes.length > 0) {
+                return res.status(403).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There is already a product with that slug."
+                });
+            } else {
+                // HACK: for old DB structure
+                database.execute("INSERT INTO Products (Name, Slug, Type, Notes, DiscussionUUID) VALUES (?, ?, 'Application', '', 0x00000000000000000000000000000000)", dbParams, function (inErr, inRes, inFields) {
+                    if (inErr) {
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error creating the item."
+                        });
+                    } else {
+                        database.execute(getNewProductQuery, dbParams, function (rlErr, rlRes, rlFields) {
+                            if (rlErr || rlRes == null || rlRes.length == 0) {
+                                return res.status(500).render("error", {
+                                    sitePages: sitePages,
+                                    user: req.user,
+                                    
+                                    message: "There was an error validating the item."
+                                });
+                            } else {
+                                return res.redirect("/product/" + rlRes[0].Slug);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
+});
+
 // this will soak up anything without routes on root
 server.get("/:page", function (req, res) {
     if (sitePages[req.params.page]) {
