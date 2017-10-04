@@ -922,7 +922,7 @@ server.post("/sa/createRelease/:product", restrictedRoute("sa"), urlencodedParse
                     message: "There was an error checking the database."
                 });
             } else if (dbRes.length > 0) {
-                return res.status(403).render("error", {
+                return res.status(409).render("error", {
                     sitePages: sitePages,
                     user: req.user,
                     
@@ -988,7 +988,7 @@ server.post("/sa/createProduct", restrictedRoute("sa"), urlencodedParser, functi
                     message: "There was an error checking the database."
                 });
             } else if (dbRes.length > 0) {
-                return res.status(403).render("error", {
+                return res.status(409).render("error", {
                     sitePages: sitePages,
                     user: req.user,
                     
@@ -1005,8 +1005,8 @@ server.post("/sa/createProduct", restrictedRoute("sa"), urlencodedParser, functi
                             message: "There was an error creating the item."
                         });
                     } else {
-                        database.execute(getNewProductQuery, dbParams, function (rlErr, rlRes, rlFields) {
-                            if (rlErr || rlRes == null || rlRes.length == 0) {
+                        database.execute(getNewProductQuery, dbParams, function (prErr, prRes, prFields) {
+                            if (prErr || prRes == null || prRes.length == 0) {
                                 return res.status(500).render("error", {
                                     sitePages: sitePages,
                                     user: req.user,
@@ -1014,7 +1014,7 @@ server.post("/sa/createProduct", restrictedRoute("sa"), urlencodedParser, functi
                                     message: "There was an error validating the item."
                                 });
                             } else {
-                                return res.redirect("/product/" + rlRes[0].Slug);
+                                return res.redirect("/product/" + prRes[0].Slug);
                             }
                         });
                     }
