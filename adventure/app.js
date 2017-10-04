@@ -141,7 +141,7 @@ server.post("/user/login", urlencodedParser, function (req, res) {
                     sitePages: sitePages,
                     user: req.user,
                     
-                    message: "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>."
+                    message: "Your password was stored in an insecure way - you need to <a href='/user/edit' class='alert-link'>update it</a>."
                 });
             }
         });
