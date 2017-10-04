@@ -769,6 +769,8 @@ server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencode
 
 server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
     database.execute("SELECT * FROM `Releases` WHERE `ReleaseUUID` = ?", [formatting.hexToBin(req.params.release)], function (rlErr, rlRes, rlFields) {
+        // now get any perphiery stuff
+
         var release = rlRes[0] || null;
         if (rlErr || release == null) {
             res.status(404).render("error", {
@@ -778,13 +780,16 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
                 message: "There is no release."
             });
         }
-        release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
-        return res.render("saRelease", {
-            sitePages: sitePages,
-            user: req.user,
-            
-            release: release,
-            platformMappingsInverted: constants.platformMappingsInverted
+        database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
+            release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
+            return res.render("saRelease", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                release: release,
+                serials: seRes,
+                platformMappingsInverted: constants.platformMappingsInverted
+            });
         });
     });
 });
@@ -812,7 +817,60 @@ server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencode
             }
         });
     } else {
-        return res.status(404).render("error", {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.post("/sa/addSerial/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.serial) {
+        var uuid = req.params.release;
+        var uuidAsBuf = formatting.hexToBin(uuid);
+        database.execute("INSERT INTO `Serials` (ReleaseUUID, Serial) VALUES (?, ?)", [uuidAsBuf, req.body.serial], function (seErr, seRes, seFields) {
+            if (seErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "The serial could not be added."
+                });
+            } else {
+                return res.redirect("/sa/release/" + uuid);
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.get("/sa/removeSerial/:release/:serial", restrictedRoute("sa"), function (req, res) {
+    if (req.params.release && formatting.isHexString(req.params.release) && req.params.serial) {
+        var uuid = req.params.release;
+        var uuidAsBuf = formatting.hexToBin(uuid);
+        var serial = decodeURIComponent(req.params.serial);
+        database.execute("DELETE FROM Serials WHERE ReleaseUUID = ? && Serial = ?", [uuidAsBuf, serial], function (seErr, seRes, seFields) {
+            if (seErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "The serial could not be removed."
+                });
+            } else {
+                return res.redirect("/sa/release/" + uuid);
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
             sitePages: sitePages,
             user: req.user,
             

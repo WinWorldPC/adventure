@@ -39,10 +39,16 @@
         <div class="form-group col">
             <label for="releaseDate">Release date</label>
             <input type="datetime-local" class="form-control" id="releaseDate" name="releaseDate" placeholder="Release date" value="<%= release.ReleaseDate && release.ReleaseDate.getTime() ? shortIso(release.ReleaseDate) : '' %>">
+            <small class="form-text text-muted">
+                If your browser doesn't support HTML 5 datetime fields, use a format like <pre>2000-02-15T06:00</pre>.
+            </small>
         </div>
         <div class="form-group col">
             <label for="endOfLife">End of life  </label>
             <input type="datetime-local" class="form-control" id="endOfLife" name="endOfLife" placeholder="End of life" value="<%= release.EndOfLife && release.EndOfLife.getTime() ? shortIso(release.EndOfLife) : '' %>">
+            <small class="form-text text-muted">
+                If your browser doesn't support HTML 5 datetime fields, use a format like <pre>2000-02-15T06:00</pre>.
+            </small>
         </div>
     </div>
     <div class="form-check">
@@ -91,18 +97,31 @@
             <label for="ramRequirement">Required RAM</label>
             <input required type="number" class="form-control" id="ramRequirement" name="ramRequirement" placeholder="Required RAM" value="<%= release.RAMRequirement %>">
             <small class="form-text text-muted">
-                This field is converted to the most sensible human-readable byte size. Leave 0 to block.
+                This field is converted to the most sensible human-readable byte size. Enter 0 to blank.
             </small>
         </div>
         <div class="form-group col">
             <label for="diskSpaceRequired">Required free disk space</label>
             <input required type="number" class="form-control" id="diskSpaceRequired" name="diskSpaceRequired" placeholder="Required free disk space" value="<%= release.DiskSpaceRequired %>">
             <small class="form-text text-muted">
-                This field is converted to the most sensible human-readable byte size. Leave 0 to block.
+                This field is converted to the most sensible human-readable byte size. Enter 0 to blank.
             </small>
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
     <a class="btn btn-outline-primary" href="/release/<%= release.ReleaseUUID %>">Cancel</a>
+</form>
+<h2>Manage serials</h2>
+<ul>
+    <% serials.forEach(function (i, n, a) { %>
+    <li><%= i.Serial %> (<a href="/sa/removeSerial/<%= release.ReleaseUUID %>/<%= encodeURIComponent(i.Serial) %>">Remove</a>)</li>
+    <% }); %>
+</ul>
+<form method="post" action="/sa/addSerial/<%= release.ReleaseUUID %>" class="form-inline">
+    <div class="form-group mb-2 mr-sm-2 mb-sm-0">
+        <label class="sr-only" for="serial">Serial</label>
+        <input required type="text" class="form-control" id="serial" name="serial" placeholder="Serial">
+    </div>
+    <button type="submit" class="btn btn-primary">Add Serial</button>
 </form>
 <%- include("foot") %>
