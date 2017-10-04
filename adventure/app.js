@@ -432,12 +432,16 @@ server.get("/product/:product", function (req, res) {
                 if (release) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
                 } else {
-                    return res.status(404).render("error", {
-                        sitePages: sitePages,
-                        user: req.user,
-                        
-                        message: "The product has no releases."
-                    });
+                    if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+                        return res.redirect("/sa/createRelease/" + formatting.binToHex(product.ProductUUID));
+                    } else {
+                        return res.status(404).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "The product has no releases."
+                        });
+                    }
                 }
             });
         };
