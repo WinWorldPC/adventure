@@ -879,6 +879,87 @@ server.get("/sa/removeSerial/:release/:serial", restrictedRoute("sa"), function 
     }
 });
 
+server.get("/sa/createRelease/:product", restrictedRoute("sa"), function (req, res) {
+    database.execute("SELECT * FROM `Products` WHERE `ProductUUID` = ?", [formatting.hexToBin(req.params.product)], function (prErr, prRes, prFields) {
+        var product = prRes[0] || null;
+        if (prErr || product == null) {
+            res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There is no product."
+            });
+        }
+        product.ProductUUID = formatting.binToHex(product.ProductUUID);
+        return res.render("saCreateRelease", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            product: product,
+        });
+    });
+});
+
+server.post("/sa/createRelease/:product", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    const getNewProductQuery = "SELECT * FROM `Releases` WHERE `ProductUUID` = ? && `Name` = ? && `Slug` = ?";
+
+    if (req.body && req.params.product && formatting.isHexString(req.params.product) && req.body.slug && req.body.name) {
+        // check for dupe
+        var uuidAsBuf = formatting.hexToBin(req.params.product);
+        var slug = req.body.slug;
+        var name = req.body.name;
+        var dbParams = [uuidAsBuf, name, slug];
+        database.execute(getNewProductQuery, dbParams, function (dbErr, dbRes, dbFields) {
+            if (dbErr || dbRes == null) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error checking the database."
+                });
+            } else if (dbRes.length > 0) {
+                return res.status(403).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There is already a release with that slug."
+                });
+            } else {
+                database.execute("INSERT INTO Releases (ProductUUID, Name, Slug) VALUES (?, ?, ?)", dbParams, function (inErr, inRes, inFields) {
+                    if (inErr) {
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error creating the item."
+                        });
+                    } else {
+                        database.execute(getNewProductQuery, dbParams, function (rlErr, rlRes, rlFields) {
+                            if (rlErr || rlRes == null || rlRes.length == 0) {
+                                return res.status(500).render("error", {
+                                    sitePages: sitePages,
+                                    user: req.user,
+                                    
+                                    message: "There was an error validating the item."
+                                });
+                            } else {
+                                return res.redirect("/release/" + formatting.binToHex(rlRes[0].ReleaseUUID));
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
+});
+
 // this will soak up anything without routes on root
 server.get("/:page", function (req, res) {
     if (sitePages[req.params.page]) {

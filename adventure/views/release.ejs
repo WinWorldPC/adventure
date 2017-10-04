@@ -6,6 +6,7 @@
         <div class="btn-group" role="group" aria-label="Admin actions">
             <a class="btn btn-warning" role="button" href="/sa/product/<%= product.ProductUUID %>">Edit product</a>
             <a class="btn btn-warning" role="button" href="/sa/release/<%= release.ReleaseUUID %>">Edit release</a>
+            <a class="btn btn-warning" role="button" href="/sa/createRelease/<%= product.ProductUUID %>">Create release</a>
         </div>
         <% } %>
         <%- product.Notes %>

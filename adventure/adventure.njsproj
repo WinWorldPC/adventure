@@ -55,6 +55,7 @@
     <Content Include="views\editProfile.ejs" />
     <Content Include="views\login.ejs" />
     <Content Include="views\page.ejs" />
+    <Content Include="views\saCreateRelease.ejs" />
     <Content Include="views\saRelease.ejs" />
     <Content Include="views\saProduct.ejs" />
     <Content Include="views\searchCSE.ejs" />
