@@ -1160,6 +1160,37 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
     });
 });
 
+server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    if (req.body && req.params.download && formatting.isHexString(req.params.download) && formatting.isHexString(req.body.releaseUUID) && /^[0-9a-f]{40}$/.test(req.body.sha1Sum)) {
+        var uuid = req.params.download;
+        var releaseUuidAsBuf = formatting.hexToBin(req.body.releaseUUID);
+        var arch = req.body.arch || "";
+        var rtm = req.body.rtm ? "True" : "False";
+        var upgrade = req.body.upgrade ? "True" : "False";
+        var sha1Sum = Buffer.from(req.body.sha1Sum, "hex");
+        var dbParams = [productUuidAsBuf, req.body.name, arch, req.body.version,rtm, upgrade, req.body.information, req.body.language, req.body.imageType, req.body.fileSize, sha1Sum, formatting.hexToBin(uuid)];
+        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, ImageType = ?, FileSize = ?, SHA1Sum = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
+            if (rlErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "The download could not be edited."
+                });
+            } else {
+                return res.redirect("/download/" + uuid);
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
+});
+
 // this will soak up anything without routes on root
 server.get("/:page", function (req, res) {
     if (sitePages[req.params.page]) {
