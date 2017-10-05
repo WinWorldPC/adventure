@@ -723,6 +723,20 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
 
 // Admin routes
 // Use UUID because slug can change
+// "SELECT * FROM Downloads WHERE NOT EXISTS (SELECT 1 FROM Releases WHERE Downloads.ReleaseUUID = Releases.ReleaseUUID)"
+
+server.get("/sa/orphanedReleases/", function (req, res) {
+    database.execute("SELECT * FROM Releases WHERE NOT EXISTS (SELECT 1 FROM Products WHERE Products.ProductUUID = Releases.ProductUUID)", [], function (rlErr, rlRes, rlFields) {
+        res.send(rlRes || rlErr);
+    });
+});
+
+server.get("/sa/orphanedDownloads/", function (req, res) {
+    database.execute("SELECT * FROM Downloads WHERE NOT EXISTS (SELECT 1 FROM Releases WHERE Downloads.ReleaseUUID = Releases.ReleaseUUID)", [], function (dlErr, dlRes, dlFields) {
+        res.send(dlRes || dlErr);
+    });
+});
+
 server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `ProductUUID` = ?", [formatting.hexToBin(req.params.product)], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
