@@ -433,8 +433,6 @@ server.get("/product/:product", function (req, res) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
                 } else {
                     if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
-                        return res.redirect("/sa/createRelease/" + formatting.binToHex(product.ProductUUID));
-                    } else {
                         return res.status(404).render("error", {
                             sitePages: sitePages,
                             user: req.user,
@@ -546,12 +544,26 @@ server.get("/release/:id", function (req, res) {
                     sitePages: sitePages,
                     user: req.user,
                     
-                    message: "There was no product."
+                    message: "There was no release."
                 });
             }
             database.execute("SELECT `Slug`,`ProductUUID` FROM `Products` WHERE `ProductUUID` = ?", [release.ProductUUID], function (prErr, prRes, prFields) {
                 var product = prRes[0] || null;
-                res.redirect("/product/" + product.Slug + "/" + release.Slug);
+                
+                if (product == null) {
+                    if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+                        return res.redirect("/sa/release/" + req.params.id);
+                    } else {
+                        return res.status(404).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was no product associated."
+                        });
+                    }
+                } else {
+                    return res.redirect("/product/" + product.Slug + "/" + release.Slug);
+                }
             });
         });
     } else {
@@ -800,6 +812,7 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
         }
         database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
             release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
+            release.ProductUUID = formatting.binToHex(release.ProductUUID);
             return res.render("saRelease", {
                 sitePages: sitePages,
                 user: req.user,
@@ -813,16 +826,17 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
 });
 
 server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
-    if (req.body && req.params.release && formatting.isHexString(req.params.release)) {
+    if (req.body && req.params.release && formatting.isHexString(req.params.release) && formatting.isHexString(req.body.productUUID)) {
         var uuid = req.params.release;
+        var productUuidAsBuf = formatting.hexToBin(req.body.productUUID);
         var platform = req.body.platform || "";
         var releaseDate = req.body.releaseDate ? new Date(req.body.releaseDate) : null;
         var endOfLife = req.body.endOfLife ? new Date(req.body.endOfLife) : null;
         var fuzzyDate = req.body.fuzzyDate ? "True" : "False";
         var ramRequirement = req.body.ramRequirement || 0;
         var diskSpaceRequired = req.body.diskSpaceRequired || 0;
-        var dbParams = [req.body.name, req.body.vendorName, req.body.slug, req.body.notes, req.body.installInstructions, platform, req.body.type, releaseDate, endOfLife, fuzzyDate, req.body.cpuRequirement, ramRequirement, diskSpaceRequired, formatting.hexToBin(uuid)];
-        database.execute("UPDATE Releases SET Name = ?, VendorName = ?, Slug = ?, Notes = ?, InstallInstructions = ?, Platform = ?, Type = ?, ReleaseDate = ?, EndOfLife = ?, FuzzyDate = ?, CPURequirement = ?, RAMRequirement = ?, DiskSpaceRequired = ? WHERE ReleaseUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
+        var dbParams = [productUuidAsBuf, req.body.name, req.body.vendorName, req.body.slug, req.body.notes, req.body.installInstructions, platform, req.body.type, releaseDate, endOfLife, fuzzyDate, req.body.cpuRequirement, ramRequirement, diskSpaceRequired, formatting.hexToBin(uuid)];
+        database.execute("UPDATE Releases SET ProductUUID = ?, Name = ?, VendorName = ?, Slug = ?, Notes = ?, InstallInstructions = ?, Platform = ?, Type = ?, ReleaseDate = ?, EndOfLife = ?, FuzzyDate = ?, CPURequirement = ?, RAMRequirement = ?, DiskSpaceRequired = ? WHERE ReleaseUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
                     sitePages: sitePages,

@@ -2,6 +2,10 @@
 <h1>Editing <%= release.Name %></h1>
 <h2>Basic metadata</h2>
 <form method="post" action="/sa/editReleaseMetadata/<%= release.ReleaseUUID %>">
+    <div class="form-group">
+        <label for="productUUID">Associated product</label>
+        <input required type="text" class="form-control" id="productUUID" name="productUUID" placeholder="Associated product UUID" value="<%= release.ProductUUID %>">
+    </div>
     <div class="row">
         <div class="form-group col">
             <label for="name">Name</label>
