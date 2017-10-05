@@ -45,4 +45,13 @@
     <button type="submit" class="btn btn-primary">Submit</button>
     <a class="btn btn-outline-primary" href="/product/<%= product.Slug %>">Cancel</a>
 </form>
+<h2>Delete product</h2>
+This will delete the product. It will not delete releases associated to it. Are you sure you want to do this?
+<form method="get" action="/sa/deleteProduct/<%= product.ProductUUID %>" class="form-inline">
+    <div class="form-group mb-2 mr-sm-2 mb-sm-0">
+        <input class="form-check-input" name="yesPlease" id="saProductDeleteCheck" type="checkbox">
+        I want to delete this product
+    </div>
+    <button type="submit" id="saProductDeleteSubmit" class="btn btn-danger">Delete Product</button>
+</form>
 <%- include("foot") %>

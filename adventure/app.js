@@ -964,6 +964,33 @@ server.post("/sa/createRelease/:product", restrictedRoute("sa"), urlencodedParse
     }
 });
 
+server.get("/sa/deleteProduct/:product", restrictedRoute("sa"), function (req, res) {
+    if (req.params.product && formatting.isHexString(req.params.product) && req.query && req.query.yesPlease) {
+        var uuidAsBuf = formatting.hexToBin(req.params.product);
+        
+        database.execute("DELETE FROM Products WHERE ProductUUID = ?", [uuidAsBuf], function (prErr, prRes, prFields) {
+            if (prErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error removing the product."
+                });
+            } else {
+                return res.redirect("/library");
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed, or you weren't certain."
+        });
+    }
+});
+
+
 server.get("/sa/deleteRelease/:release", restrictedRoute("sa"), function (req, res) {
     if (req.params.release && formatting.isHexString(req.params.release) && req.query && req.query.yesPlease) {
         var uuidAsBuf = formatting.hexToBin(req.params.release);
