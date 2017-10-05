@@ -4,6 +4,11 @@
         <h1>
             <%= download.Name %>
         </h1>
+        <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+        <div class="btn-group" role="group" aria-label="Admin actions">
+            <a class="btn btn-warning" role="button" href="/sa/download/<%= download.DLUUID %>">Edit download</a>
+        </div>
+        <% } %>
         <% if (download.Information) { %>
         <%= download.Information %>
         <% } %>

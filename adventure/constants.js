@@ -47,6 +47,18 @@ var platformMappings = {
     'platform-other': 'Other'
 }
 var platformMappingsInverted = invert(platformMappings);
+var fileTypeMappings = {
+    "Archive": "Archive",
+    "35Floppy": "3½ Floppy",
+    "525Floppy": "5¼ Floppy",
+    "CDISO": "CD",
+    "DVDISO": "DVD",
+    // VM is implied here, IMHO
+    "VPC": "Virtual PC",
+    "VMWARE": "VMware",
+    "VBOX": "VirtualBox",
+};
+var fileTypeMappingsInverted = invert(fileTypeMappings);
 
 // These are fixed values that aren't useful to be configurable.
 module.exports = {
@@ -56,15 +68,6 @@ module.exports = {
     platformMappings: platformMappings,
     platformMappingsInverted: platformMappingsInverted,
     // TODO: These could be localizable one day?
-    fileTypeMappings: {
-        "Archive": "Archive",
-        "35Floppy": "3½ Floppy",
-        "525Floppy": "5¼ Floppy",
-        "CDISO": "CD",
-        "DVDISO": "DVD",
-        // VM is implied here, IMHO
-        "VPC": "Virtual PC",
-        "VMWARE": "VMware",
-        "VBOX": "VirtualBox",
-    },
+    fileTypeMappings: fileTypeMappings,
+    fileTypeMappingsInverted: fileTypeMappingsInverted,
 };

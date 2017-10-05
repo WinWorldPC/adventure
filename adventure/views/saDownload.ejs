@@ -1,0 +1,89 @@
+﻿<%- include("head", {title: "Editing " + download.Name, sitePages: sitePages, user: user}) %>
+<h1>Editing <%= download.Name %></h1>
+<h2>Basic metadata</h2>
+<form method="post" action="/sa/editDownloadMetadata/<%= download.DLUUID %>">
+    <div class="form-group">
+        <label for="releaseUUID">Associated release</label>
+        <input required type="text" class="form-control" id="releaseUUID" name="releaseUUID" placeholder="Associated release UUID" value="<%= download.ReleaseUUID %>">
+    </div>
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input required type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%= download.Name %>">
+    </div>
+    <div class="row">
+        <div class="form-group col">
+            <label for="version">Version</label>
+            <input type="text" class="form-control" id="version" name="version" placeholder="Version" value="<%= download.Version %>">
+            <div class="form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" name="rtm" type="checkbox" <%= download.RTM == "True" ? "checked" : "" %>>
+                    RTM
+                </label>
+            </div>
+            <div class="form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" name="upgrade" type="checkbox" <%= download.Upgrade == "True" ? "checked" : "" %>>
+                    Upgrade
+                </label>
+            </div>
+        </div>
+        <div class="form-group col">
+            <label for="language">Language</label>
+            <input type="text" class="form-control" id="language" name="language" placeholder="Language" value="<%= download.Language %>">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="information">Information</label>
+        <textarea rows="5" class="form-control" id="information" name="information"><%= download.Information %></textarea>
+        <small class="form-text text-muted">
+            This field is formatted in Markdown
+        </small>
+    </div>
+    <div class="form-group">
+        <label for="arch">Processor architecture</label>
+        <select multiple class="form-control" id="arch" name="arch">
+            <option <%= download.Arch && download.Arch.indexOf("x86") > -1 ? "selected" : "" %>>x86</option>
+            <option <%= download.Arch && download.Arch.indexOf("x86-32") > -1 ? "selected" : "" %>>x86-32</option>
+            <option <%= download.Arch && download.Arch.indexOf("m68k") > -1 ? "selected" : "" %>>m68k</option>
+            <option <%= download.Arch && download.Arch.indexOf("ppc") > -1 ? "selected" : "" %>>ppc</option>
+            <option <%= download.Arch && download.Arch.indexOf("amd64") > -1 ? "selected" : "" %>>amd64</option>
+            <option <%= download.Arch && download.Arch.indexOf("mos6502") > -1 ? "selected" : "" %>>mos6502</option>
+            <option <%= download.Arch && download.Arch.indexOf("ppc64") > -1 ? "selected" : "" %>>ppc64</option>
+            <option <%= download.Arch && download.Arch.indexOf("SPARC") > -1 ? "selected" : "" %>>SPARC</option>
+            <option <%= download.Arch && download.Arch.indexOf("SPARC64") > -1 ? "selected" : "" %>>SPARC64</option>
+            <option <%= download.Arch && download.Arch.indexOf("MIPS") > -1 ? "selected" : "" %>>MIPS</option>
+            <option <%= download.Arch && download.Arch.indexOf("MIPS64") > -1 ? "selected" : "" %>>MIPS64</option>
+            <option <%= download.Arch && download.Arch.indexOf("Alpha") > -1 ? "selected" : "" %>>Alpha</option>
+            <option <%= download.Arch && download.Arch.indexOf("Other") > -1 ? "selected" : "" %>>Other</option>
+        </select>
+    </div>
+    <div class="row">
+        <div class="form-group col">
+            <label for="imageType">File type</label>
+            <select required class="form-control" id="imageType" name="imageType">
+                <% Object.keys(fileTypeMappingsInverted).forEach(function (i, n, a) { %>
+                <option <%= download.ImageType && download.ImageType == fileTypeMappingsInverted[i] ? "selected" : "" %> value="<%= fileTypeMappingsInverted[i] %>"><%= i %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="form-group col">
+            <label for="fileSize">File size</label>
+            <input required type="number" class="form-control" id="fileSize" name="fileSize" placeholder="File size" value="<%= download.FileSize || 0 %>">
+            <small class="form-text text-muted">
+                This field is converted to the most sensible human-readable byte size. Enter 0 to blank.
+            </small>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <a class="btn btn-outline-primary" href="/download/<%= download.DLUUID %>">Cancel</a>
+</form>
+<h2>Delete download</h2>
+This will delete the release and mirror presence information. It will not delete the files on mirrors. Are you sure you want to do this?
+<form method="get" action="/sa/deleteDownload/<%= download.DLUUID %>" class="form-inline">
+    <div class="form-group mb-2 mr-sm-2 mb-sm-0">
+        <input class="form-check-input" name="yesPlease" id="saReleaseDeleteCheck" type="checkbox">
+        I want to delete this release
+    </div>
+    <button type="submit" id="saDownloadDeleteSubmit" class="btn btn-danger">Delete Download</button>
+</form>
+<%- include("foot") %>

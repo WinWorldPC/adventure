@@ -57,6 +57,7 @@
     <Content Include="views\page.ejs" />
     <Content Include="views\saCreateProduct.ejs" />
     <Content Include="views\saCreateRelease.ejs" />
+    <Content Include="views\saDownload.ejs" />
     <Content Include="views\saRelease.ejs" />
     <Content Include="views\saProduct.ejs" />
     <Content Include="views\searchCSE.ejs" />

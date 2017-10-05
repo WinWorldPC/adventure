@@ -1136,6 +1136,30 @@ server.post("/sa/createProduct", restrictedRoute("sa"), urlencodedParser, functi
     }
 });
 
+server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) {
+    database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [formatting.hexToBin(req.params.download)], function (dlErr, dlRes, dlFields) {
+        var download = dlRes[0] || null;
+        if (dlErr || download == null) {
+            res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There is no product."
+            });
+        }
+        download.DLUUID = formatting.binToHex(download.DLUUID);
+        download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);
+        return res.render("saDownload", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            download: download,
+            fileTypeMappings: constants.fileTypeMappings,
+            fileTypeMappingsInverted: constants.fileTypeMappingsInverted,
+        });
+    });
+});
+
 // this will soak up anything without routes on root
 server.get("/:page", function (req, res) {
     if (sitePages[req.params.page]) {
