@@ -99,14 +99,14 @@
         </div>
         <div class="form-group col">
             <label for="ramRequirement">Required RAM</label>
-            <input required type="number" class="form-control" id="ramRequirement" name="ramRequirement" placeholder="Required RAM" value="<%= release.RAMRequirement %>">
+            <input required type="number" class="form-control" id="ramRequirement" name="ramRequirement" placeholder="Required RAM" value="<%= release.RAMRequirement || 0 %>">
             <small class="form-text text-muted">
                 This field is converted to the most sensible human-readable byte size. Enter 0 to blank.
             </small>
         </div>
         <div class="form-group col">
             <label for="diskSpaceRequired">Required free disk space</label>
-            <input required type="number" class="form-control" id="diskSpaceRequired" name="diskSpaceRequired" placeholder="Required free disk space" value="<%= release.DiskSpaceRequired %>">
+            <input required type="number" class="form-control" id="diskSpaceRequired" name="diskSpaceRequired" placeholder="Required free disk space" value="<%= release.DiskSpaceRequired || 0 %>">
             <small class="form-text text-muted">
                 This field is converted to the most sensible human-readable byte size. Enter 0 to blank.
             </small>
