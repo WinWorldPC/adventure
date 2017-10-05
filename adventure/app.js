@@ -167,7 +167,7 @@ server.get("/user/edit", restrictedRoute(), function (req, res) {
 
 server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req, res) {
     if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
-        if (formatting.sha256(req.body.password) == req.user.Password) {
+        if (formatting.sha256(req.body.password + (req.user.Salt || "")) == req.user.Password) {
             if (req.body.newPassword == req.body.newPasswordR) {
                 var salt = formatting.createSalt();
                 var newPassword = formatting.sha256(req.body.newPassword + salt);
