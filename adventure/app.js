@@ -1168,8 +1168,8 @@ server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlenco
         var rtm = req.body.rtm ? "True" : "False";
         var upgrade = req.body.upgrade ? "True" : "False";
         var sha1Sum = Buffer.from(req.body.sha1Sum, "hex");
-        var dbParams = [productUuidAsBuf, req.body.name, arch, req.body.version,rtm, upgrade, req.body.information, req.body.language, req.body.imageType, req.body.fileSize, sha1Sum, formatting.hexToBin(uuid)];
-        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, ImageType = ?, FileSize = ?, SHA1Sum = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
+        var dbParams = [releaseUuidAsBuf, req.body.name, arch, req.body.version,rtm, upgrade, req.body.information, req.body.language, req.body.imageType, req.body.fileSize, sha1Sum, req.body.downloadPath, req.body.originalPath, req.body.fileName, formatting.hexToBin(uuid)];
+        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, ImageType = ?, FileSize = ?, SHA1Sum = ?, DownloadPath = ?, OriginalPath = ?, FileName = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
                     sitePages: sitePages,

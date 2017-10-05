@@ -79,6 +79,20 @@
             </small>
         </div>
     </div>
+    <div class="row">
+        <div class="form-group col">
+            <label for="downloadPath">Download path</label>
+            <input required type="text" class="form-control" id="downloadPath" name="downloadPath" placeholder="Download path" value="<%= download.DownloadPath %>">
+        </div>
+        <div class="form-group col">
+            <label for="originalPath">Original path</label>
+            <input required type="text" class="form-control" id="originalPath" name="originalPath" placeholder="Original path" value="<%= download.OriginalPath %>">
+        </div>
+        <div class="form-group col">
+            <label for="fileName">File name</label>
+            <input required type="text" class="form-control" id="fileName" name="fileName" placeholder="File name" value="<%= download.FileName %>">
+        </div>
+    </div>
     <button type="submit" class="btn btn-primary">Submit</button>
     <a class="btn btn-outline-primary" href="/download/<%= download.DLUUID %>">Cancel</a>
 </form>
