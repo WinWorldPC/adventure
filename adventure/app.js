@@ -1147,15 +1147,22 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
                 message: "There is no product."
             });
         }
-        download.DLUUID = formatting.binToHex(download.DLUUID);
-        download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);
-        return res.render("saDownload", {
-            sitePages: sitePages,
-            user: req.user,
-            
-            download: download,
-            fileTypeMappings: constants.fileTypeMappings,
-            fileTypeMappingsInverted: constants.fileTypeMappingsInverted,
+        database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [download.DLUUID], function (mrErr, mrRes, mrFields) {
+            //  WHERE `IsOnline` = True
+            database.execute("SELECT * FROM `DownloadMirrors`", null, function (miErr, miRes, miFields) {
+                download.DLUUID = formatting.binToHex(download.DLUUID);
+                download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);
+                return res.render("saDownload", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    download: download,
+                    mirrors: miRes,
+                    mirrorContents: mrRes,
+                    fileTypeMappings: constants.fileTypeMappings,
+                    fileTypeMappingsInverted: constants.fileTypeMappingsInverted,
+                });
+            });
         });
     });
 });

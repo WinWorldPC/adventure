@@ -96,6 +96,22 @@
     <button type="submit" class="btn btn-primary">Submit</button>
     <a class="btn btn-outline-primary" href="/download/<%= download.DLUUID %>">Cancel</a>
 </form>
+<h2>Mirror presence</h2>
+Mirrors that are shown as striken out are not online. Toggling mirror presence will not change the presence of the files on the server.
+<ul>
+    <% mirrors.forEach(function (i, n, a) { %>
+    <li>
+        <% if (i.IsOnline == "False") { %>
+        <del>
+        <% } %>
+        <%= i.MirrorName %>
+        (<%= mirrorContents.some(function (x) { return x.MirrorUUID.toString("hex") == i.MirrorUUID.toString("hex") }) ? "Available" : "Not available" %>)
+        <% if (i.IsOnline == "False") { %>
+        </del>
+        <% } %>
+    </li>
+    <% }); %>
+</ul>
 <h2>Delete download</h2>
 This will delete the release and mirror presence information. It will not delete the files on mirrors. Are you sure you want to do this?
 <form method="get" action="/sa/deleteDownload/<%= download.DLUUID %>" class="form-inline">
