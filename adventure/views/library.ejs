@@ -6,7 +6,18 @@
     <a class="nav-link <%= category == 'dev' ? 'active' : '' %>" href="/library/dev">Developer Tools</a>
     <a class="nav-link <%= category == 'sys' ? 'active' : '' %> mr-auto" href="/library/sys">System Tools and Patches</a>
     <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
-    <a class="btn btn-warning" href="/sa/createProduct">Create product</a>
+    <div class="btn-group">
+        <div id="orphanDropdown" class="dropdown btn-group">
+            <button class="btn btn-warning dropdown-toggle" type="button" id="orphanDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Oprhans...
+            </button>
+            <div class="dropdown-menu" aria-labelledby="orphanDropdownButton">
+                <a class="dropdown-item" href="/sa/orphanedReleases">Orphaned releases</a>
+                <a class="dropdown-item" href="/sa/orphanedDownloads">Orphaned downloads</a>
+            </div>
+        </div>
+        <a class="btn btn-warning" href="/sa/createProduct">Create product</a>
+    </div>
     <% } %>
 </nav>
 <dl id="libraryList">

@@ -1,0 +1,10 @@
+﻿<%- include("head", {title: "Orphaned releases", sitePages: sitePages, user: user}) %>
+<h1>Orphaned releases</h1>
+<ul>
+    <% orphans.forEach(function (i, n, a) { %>
+    <li>
+        <a href="/sa/release/<%= i.ReleaseUUID %>"><%= i.Name %></a>
+    </li>
+    <% }) %>
+</ul>
+<%- include("foot") %>

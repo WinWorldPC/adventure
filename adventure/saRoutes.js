@@ -17,13 +17,29 @@ var server = express.Router();
 
 server.get("/sa/orphanedReleases/", function (req, res) {
     database.execute("SELECT * FROM Releases WHERE NOT EXISTS (SELECT 1 FROM Products WHERE Products.ProductUUID = Releases.ProductUUID)", [], function (rlErr, rlRes, rlFields) {
-        res.send(rlRes || rlErr);
+        return res.render("saOrphanedReleases", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            orphans: rlRes.map(function (x) {
+                x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
+                return x;
+            })
+        });
     });
 });
 
 server.get("/sa/orphanedDownloads/", function (req, res) {
     database.execute("SELECT * FROM Downloads WHERE NOT EXISTS (SELECT 1 FROM Releases WHERE Downloads.ReleaseUUID = Releases.ReleaseUUID)", [], function (dlErr, dlRes, dlFields) {
-        res.send(dlRes || dlErr);
+        return res.render("saOrphanedDownloads", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            orphans: dlRes.map(function (x) {
+                x.DLUUID = formatting.binToHex(x.DLUUID);
+                return x;
+            })
+        });
     });
 });
 
@@ -467,7 +483,7 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
             //  WHERE `IsOnline` = True
             database.execute("SELECT * FROM `DownloadMirrors`", null, function (miErr, miRes, miFields) {
                 download.DLUUID = formatting.binToHex(download.DLUUID);
-                download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);
+                download.ReleaseUUID = download.ReleaseUUID ? formatting.binToHex(download.ReleaseUUID) : null;
                 var mirrors = miRes.map(function (x) {
                     x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
                     return x;

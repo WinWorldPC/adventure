@@ -4,7 +4,7 @@
 <form method="post" action="/sa/editDownloadMetadata/<%= download.DLUUID %>">
     <div class="form-group">
         <label for="releaseUUID">Associated release</label>
-        <input required type="text" class="form-control" id="releaseUUID" name="releaseUUID" placeholder="Associated release UUID" value="<%= download.ReleaseUUID %>">
+        <input type="text" class="form-control" id="releaseUUID" name="releaseUUID" placeholder="Associated release UUID" value="<%= download.ReleaseUUID %>">
     </div>
     <div class="form-group">
         <label for="name">Name</label>
