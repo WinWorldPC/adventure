@@ -39,6 +39,7 @@
     <Compile Include="formatting.js" />
     <Compile Include="gc.js" />
     <Compile Include="middleware.js" />
+    <Compile Include="saRoutes.js" />
     <Content Include="res\img\favicon.ico" />
     <Content Include="res\js\lazyCarousel.js" />
     <Content Include="config.example.json" />
