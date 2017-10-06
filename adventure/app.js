@@ -10,7 +10,8 @@
     fs = require("fs"),
     path = require("path"),
     constants = require("./constants.js"),
-    formatting = require("./formatting.js");
+    formatting = require("./formatting.js"),
+    middleare = require("./middleware.js");
 
 // HACK: BOM must die
 var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEFF/, ""));
@@ -62,24 +63,7 @@ if (config.runBehindProxy) {
     server.set("trust proxy", "127.0.0.1"); // don't hardcode?
 }
 
-function restrictedRoute(flag) {
-    return function (req, res, next) {
-        if (req.user) {
-            if (flag == null || req.user.UserFlags.some(function (x) { return x.FlagName == flag; })) {
-                next();
-            } else {
-                return res.status(403).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
-                    message: "You aren't allowed to access this route."
-                });
-            }
-        } else {
-            return res.redirect("/user/login");
-        }
-    };
-}
+var restrictedRoute = middleware.restrictedRoute;
 
 // Auth routes
 server.get("/user/login", function (req, res) {

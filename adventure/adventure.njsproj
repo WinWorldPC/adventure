@@ -38,6 +38,7 @@
     <Compile Include="database.js" />
     <Compile Include="formatting.js" />
     <Compile Include="gc.js" />
+    <Compile Include="middleware.js" />
     <Content Include="res\img\favicon.ico" />
     <Content Include="res\js\lazyCarousel.js" />
     <Content Include="config.example.json" />
