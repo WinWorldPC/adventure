@@ -1069,6 +1069,44 @@ server.get("/sa/deleteRelease/:release", restrictedRoute("sa"), function (req, r
     }
 });
 
+server.get("/sa/deleteDownload/:download", restrictedRoute("sa"), function (req, res) {
+    if (req.params.download && formatting.isHexString(req.params.download) && req.query && req.query.yesPlease) {
+        var uuidAsBuf = formatting.hexToBin(req.params.download);
+        
+        database.execute("DELETE FROM MirrorContents WHERE DownloadUUID = ?", [uuidAsBuf], function (mcErr, mcRes, mcFields) {
+            if (mcErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error removing mirror presence information."
+                });
+            } else {
+                database.execute("DELETE FROM Downloads WHERE DLUUID = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
+                    if (dlErr) {
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error removing the download."
+                        });
+                    } else {
+                        // TODO: Come up with a better redirect
+                        return res.redirect("/library");
+                    }
+                });
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed, or you weren't certain."
+        });
+    }
+});
+
 server.get("/sa/createProduct", restrictedRoute("sa"), function (req, res) {
     return res.render("saCreateProduct", {
         sitePages: sitePages,
