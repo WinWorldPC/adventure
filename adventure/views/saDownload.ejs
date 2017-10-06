@@ -96,12 +96,14 @@
 Mirrors that are shown as striken out are not online. Toggling mirror presence will not change the presence of the files on the server.
 <ul>
     <% mirrors.forEach(function (i, n, a) { %>
+    <% var online = mirrorContents.some(function (x) { return x.MirrorUUID == i.MirrorUUID }) %>
     <li>
         <% if (i.IsOnline == "False") { %>
         <del>
         <% } %>
         <%= i.MirrorName %>
-        (<%= mirrorContents.some(function (x) { return x.MirrorUUID.toString("hex") == i.MirrorUUID.toString("hex") }) ? "Available" : "Not available" %>)
+        (<%= online ? "Available" : "Not available" %>,
+        <a href="/sa/downloadMirrorAvailability/<%= download.DLUUID %>/<%= i.MirrorUUID %>">Make <%= online ? "Unavailable" : "Available" %></a>)
         <% if (i.IsOnline == "False") { %>
         </del>
         <% } %>

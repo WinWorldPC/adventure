@@ -1152,13 +1152,22 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
             database.execute("SELECT * FROM `DownloadMirrors`", null, function (miErr, miRes, miFields) {
                 download.DLUUID = formatting.binToHex(download.DLUUID);
                 download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);
+                var mirrors = miRes.map(function (x) {
+                    x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
+                    return x;
+                });
+                var mirrorContents = mrRes.map(function (x) {
+                    x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
+                    return x;
+                });
+
                 return res.render("saDownload", {
                     sitePages: sitePages,
                     user: req.user,
                     
                     download: download,
-                    mirrors: miRes,
-                    mirrorContents: mrRes,
+                    mirrors: mirrors,
+                    mirrorContents: mirrorContents,
                     fileTypeMappings: constants.fileTypeMappings,
                     fileTypeMappingsInverted: constants.fileTypeMappingsInverted,
                 });
@@ -1186,6 +1195,59 @@ server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlenco
                 });
             } else {
                 return res.redirect("/download/" + uuid);
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.get("/sa/downloadMirrorAvailability/:download/:mirror", restrictedRoute("sa"), function (req, res) {
+    if (req.params.download && formatting.isHexString(req.params.download) && req.params.mirror && formatting.isHexString(req.params.mirror)) {
+        var downloadUuidAsBuf = formatting.hexToBin(req.params.download);
+        var mirrorUuidAsBuf = formatting.hexToBin(req.params.mirror);
+        var dbParams = [mirrorUuidAsBuf, downloadUuidAsBuf];
+        database.execute("SELECT * FROM MirrorContents WHERE MirrorUUID = ? && DownloadUUID = ?", dbParams, function (tsErr, tsRes, tsFields) {
+            if (tsErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error checking the database for availability."
+                });
+            } else if (tsRes.length == 0) {
+                // create
+                database.execute("INSERT INTO MirrorContents (MirrorUUID, DownloadUUID) VALUES (?, ?)", dbParams, function (inErr, inRes, inFields) {
+                    if (inErr) {
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error making the download available."
+                        });
+                    } else {
+                        return res.redirect("/sa/download/" + req.params.download);
+                    }
+                });
+            } else {
+                // delete
+                database.execute("DELETE FROM MirrorContents WHERE MirrorUUID = ? && DownloadUUID = ?", dbParams, function (deErr, deRes, deFields) {
+                    if (deErr) {
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error making the download unavailable."
+                        });
+                    } else {
+                        return res.redirect("/sa/download/" + req.params.download);
+                    }
+                });
             }
         });
     } else {
