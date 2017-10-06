@@ -78,7 +78,27 @@
     <Folder Include="res\js\" />
     <Folder Include="res\css\" />
     <Folder Include="res\img\" />
+    <Folder Include="typings\" />
+    <Folder Include="typings\globals\" />
+    <Folder Include="typings\globals\node\" />
+    <Folder Include="typings\modules\" />
+    <Folder Include="typings\modules\body-parser\" />
+    <Folder Include="typings\modules\cookie-parser\" />
+    <Folder Include="typings\modules\ejs\" />
+    <Folder Include="typings\modules\express\" />
+    <Folder Include="typings\modules\morgan\" />
+    <Folder Include="typings\modules\passport-local\" />
     <Folder Include="views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="typings\globals\node\index.d.ts" />
+    <TypeScriptCompile Include="typings\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\body-parser\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\cookie-parser\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\ejs\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\express\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\morgan\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\passport-local\index.d.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

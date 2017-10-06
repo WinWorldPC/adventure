@@ -8,13 +8,13 @@
     "email": ""
   },
   "dependencies": {
-    "body-parser": "^1.18.0",
+    "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
     "ejs": "^2.5.7",
-    "express": "^4.15.4",
+    "express": "^4.16.1",
     "express-session": "^1.15.6",
     "marked": "^0.3.6",
-    "morgan": "^1.8.2",
+    "morgan": "^1.9.0",
     "mysql2": "^1.4.2",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0"
