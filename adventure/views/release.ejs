@@ -7,6 +7,7 @@
             <a class="btn btn-warning" role="button" href="/sa/product/<%= product.ProductUUID %>">Edit product</a>
             <a class="btn btn-warning" role="button" href="/sa/release/<%= release.ReleaseUUID %>">Edit release</a>
             <a class="btn btn-warning" role="button" href="/sa/createRelease/<%= product.ProductUUID %>">Create release</a>
+            <a class="btn btn-warning" role="button" href="/sa/createDownload/<%= release.ReleaseUUID %>">Create download</a>
         </div>
         <% } %>
         <%- product.Notes %>

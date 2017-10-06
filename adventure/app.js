@@ -803,7 +803,7 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
 
         var release = rlRes[0] || null;
         if (rlErr || release == null) {
-            res.status(404).render("error", {
+            return res.status(404).render("error", {
                 sitePages: sitePages,
                 user: req.user,
                 
@@ -915,7 +915,7 @@ server.get("/sa/createRelease/:product", restrictedRoute("sa"), function (req, r
     database.execute("SELECT * FROM `Products` WHERE `ProductUUID` = ?", [formatting.hexToBin(req.params.product)], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (prErr || product == null) {
-            res.status(404).render("error", {
+            return res.status(404).render("error", {
                 sitePages: sitePages,
                 user: req.user,
                 
@@ -1284,6 +1284,91 @@ server.get("/sa/downloadMirrorAvailability/:download/:mirror", restrictedRoute("
                         });
                     } else {
                         return res.redirect("/sa/download/" + req.params.download);
+                    }
+                });
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.get("/sa/createDownload/:release", restrictedRoute("sa"), function (req, res) {
+    database.execute("SELECT * FROM `Releases` WHERE `ReleaseUUID` = ?", [formatting.hexToBin(req.params.release)], function (rlErr, rlRes, rlFields) {
+        var release = rlRes[0] || null;
+        if (rlErr || release == null) {
+            return res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+                
+                message: "There is no release."
+            });
+        }
+        release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
+        return res.render("saCreateDownload", {
+            sitePages: sitePages,
+            user: req.user,
+            
+            release: release,
+        });
+    });
+});
+
+server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    const getNewProductQuery = "SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? && `Name` = ? && `Version` = ? && `DownloadPath` = ? && `OriginalPath` = ? && `FileName` = ? && `SHA1Sum` = ?";
+    
+    if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.downloadPath && req.body.name && req.body.version && /^[0-9a-f]{40}$/.test(req.body.sha1Sum)) {
+        // check for dupe
+        var uuidAsBuf = formatting.hexToBin(req.params.release);
+        var downloadPath = req.body.downloadPath;
+        var fileName = path.basename(downloadPath);
+        var name = req.body.name;
+        var version = req.body.version
+        var sha1Sum = Buffer.from(req.body.sha1Sum, "hex");
+        var dbParams = [uuidAsBuf, name, version, downloadPath, downloadPath, fileName, sha1Sum];
+        
+        database.execute(getNewProductQuery, dbParams, function (dbErr, dbRes, dbFields) {
+            if (dbErr || dbRes == null) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There was an error checking the database."
+                });
+            } else if (dbRes.length > 0) {
+                return res.status(409).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+                    
+                    message: "There is already a download with these attributes."
+                });
+            } else {
+                database.execute("INSERT INTO Downloads (ReleaseUUID, Name, Version, DownloadPath, OriginalPath, FileName, SHA1Sum) VALUES (?, ?, ?, ?, ?, ?, ?)", dbParams, function (inErr, inRes, inFields) {
+                    if (inErr) {
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+                            
+                            message: "There was an error creating the item."
+                        });
+                    } else {
+                        database.execute(getNewProductQuery, dbParams, function (rlErr, rlRes, rlFields) {
+                            if (rlErr || rlRes == null || rlRes.length == 0) {
+                                return res.status(500).render("error", {
+                                    sitePages: sitePages,
+                                    user: req.user,
+                                    
+                                    message: "There was an error validating the item."
+                                });
+                            } else {
+                                return res.redirect("/download/" + formatting.binToHex(rlRes[0].DLUUID));
+                            }
+                        });
                     }
                 });
             }
