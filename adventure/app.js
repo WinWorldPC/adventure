@@ -5,6 +5,7 @@
     sessionParser = require("express-session"),
     passport = require("passport"),
     localStrategy = require("passport-local").Strategy,
+    svgCaptcha = require("svg-captcha"),
     marked = require("marked"),
     database = require("./database.js"),
     fs = require("fs"),
@@ -239,6 +240,54 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
         });
     }
 });
+
+function signupPage(req, res, status, message) {
+    var captcha = svgCaptcha.create({ size: 6, noise: 2 });
+    req.session.captcha = captcha;
+
+    return res.status(status || 200).render("signup", {
+        sitePages: sitePages,
+        user: req.user,
+
+        message: message,
+        captcha: captcha.data,
+    });
+}
+
+server.get("/user/signup", function (req, res) {
+    return signupPage(req, res, null, null);
+});
+
+server.post("/user/signup", urlencodedParser, function (req, res) {
+    if (req.body && req.body.username && req.body.password && req.body.captcha && req.body.email) {
+        if (req.body.captcha == req.session.captcha.text) {
+            // check for username existence
+            database.execute("SELECT * FROM `Users` WHERE `ShortName` = ?", [req.body.username], function (slErr, slRes, slFields) {
+                if (slErr) {
+                    return signupPage(req, res, 500, "There was an error checking the database.");
+                } else if (slRes.length > 0) {
+                    return signupPage(req, res, 400, "There is already a user with that name.");
+                } else {
+                    var salt = formatting.createSalt();
+                    var password = formatting.sha256(req.body.password + salt);
+                    database.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`, `Salt`, `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [req.body.username, req.body.email, password, salt, req.ip], function (inErr, inRes, inFields) {
+                        if (inErr) {
+                            return signupPage(req, res, 500, "There was an error creating your account.");
+                        } else {
+                            res.redirect("/user/login");
+                        }
+                    });
+                }
+            });
+        } else {
+            return signupPage(req, res, 400, "The captcha failed verification.");
+        }
+    } else {
+        return signupPage(req, res, 400, "The request was malformed.");
+    }
+});
+
+// Application routes
 
 server.use(require("./libraryRoutes.js")(config, database, sitePages));
 
