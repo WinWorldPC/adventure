@@ -100,6 +100,14 @@ server.post("/user/login", urlencodedParser, function (req, res) {
                 message: "Invalid username or password."
             });
         }
+        if (user.AccountEnabled == "False") {
+            return res.status(400).render("login", {
+                sitePages: sitePages,
+                user: req.user,
+
+                message: "Your account has been disabled."
+            });
+        }
         //passport.js has a logIn user method
         req.logIn(user, function (err) {
             if (err) {
