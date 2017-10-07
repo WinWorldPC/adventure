@@ -83,6 +83,9 @@
         <div class="form-group col">
             <label for="downloadPath">Download path</label>
             <input required type="text" class="form-control" id="downloadPath" name="downloadPath" placeholder="Download path" value="<%= download.DownloadPath %>">
+            <small class="form-text text-muted">
+                This is the "base" path to the file, without the directory containing the library on any server prefixed.
+            </small>
         </div>  
         <div class="form-group col">
             <label for="fileName">File name</label>
