@@ -105,15 +105,22 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
             });
         }
         database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
-            release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
-            release.ProductUUID = formatting.binToHex(release.ProductUUID);
-            return res.render("saRelease", {
-                sitePages: sitePages,
-                user: req.user,
-                
-                release: release,
-                serials: seRes,
-                platformMappingsInverted: constants.platformMappingsInverted
+            database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
+                release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
+                release.ProductUUID = formatting.binToHex(release.ProductUUID);
+                var screenshots = scRes.map(function (x) {
+                    x.ScreenshotFile = config.screenshotBaseUrl + x.ScreenshotFile;
+                    return x;
+                });
+                return res.render("saRelease", {
+                    sitePages: sitePages,
+                    user: req.user,
+
+                    release: release,
+                    serials: seRes,
+                    screenshots: scRes,
+                    platformMappingsInverted: constants.platformMappingsInverted
+                });
             });
         });
     });

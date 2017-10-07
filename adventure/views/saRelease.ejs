@@ -128,7 +128,12 @@
     </div>
     <button type="submit" class="btn btn-primary">Add Serial</button>
 </form>
-<!-- TODO: Screenshots -->
+<h2>Manage screenshots</h2>
+<ul>
+    <% screenshots.forEach(function (i, n, a) { %>
+    <li><a href="<%= i.ScreenshotFile %>"><%= i.ScreenshotTitle %></a></li>
+    <% }); %>
+</ul>
 <h2>Delete release</h2>
 This will delete the release and all extra information (screenshots and serials) associated with it. It will not delete downloads. Are you sure you want to do this?
 <form method="get" action="/sa/deleteRelease/<%= release.ReleaseUUID %>" class="form-inline">
