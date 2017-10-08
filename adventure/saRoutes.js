@@ -1,5 +1,7 @@
 ﻿var express = require("express"),
     bodyParser = require("body-parser"),
+    multer = require("multer"),
+    fs = require("fs"),
     path = require("path"),
     constants = require("./constants.js"),
     middleware = require("./middleware.js"),
@@ -8,6 +10,10 @@
 var config, database, sitePages;
 
 var restrictedRoute = middleware.restrictedRoute;
+var multerStorage = multer.memoryStorage();
+var uploadParser = multer({
+    storage: multerStorage,
+});
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 var server = express.Router();
 
@@ -154,6 +160,59 @@ server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencode
             sitePages: sitePages,
             user: req.user,
             
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.post("/sa/addScreenshot/:release", restrictedRoute("sa"), uploadParser.single("screenshotFile"), function (req, res) {
+    if (req.file && req.body && req.body.screenshotTitle) {
+        var uuid = req.params.release;
+        var uuidAsBuf = formatting.hexToBin(uuid);
+
+        if (!req.file.mimetype.startsWith("image/")) {
+            return res.status(400).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+
+                message: "The file wasn't an image."
+            });
+        }
+        var ext = path.extname(req.file.originalname);
+
+        // generate a filename by making a random filename and appending ext
+        var fileName = formatting.createSalt() + ext;
+        // TODO: Make this configuratable
+        var fullPath = path.join(config.resDirectory, "img", "screenshots", fileName);
+        var dbParams = [uuidAsBuf, fileName, req.body.screenshotTitle];
+        database.execute("INSERT INTO `Screenshots` (ReleaseUUID, ScreenshotFile, ScreenshotTitle) VALUES (?, ?, ?)", dbParams, function (seErr, seRes, seFields) {
+            if (seErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+
+                    message: "The screenshot could not be added to the database."
+                });
+            } else {
+                fs.writeFile(fullPath, req.file.buffer, function (err) {
+                    if (err) {
+                        return res.status(500).render("error", {
+                            sitePages: sitePages,
+                            user: req.user,
+
+                            message: "The screenshot could not be written to disk."
+                        });
+                    } else {
+                        return res.redirect("/sa/release/" + uuid);
+                    }
+                });
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+
             message: "The request was malformed."
         });
     }
