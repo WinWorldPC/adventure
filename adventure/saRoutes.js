@@ -116,6 +116,7 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
                 release.ProductUUID = formatting.binToHex(release.ProductUUID);
                 var screenshots = scRes.map(function (x) {
                     x.ScreenshotFile = config.screenshotBaseUrl + x.ScreenshotFile;
+                    x.ScreenshotUUID = formatting.binToHex(x.ScreenshotUUID);
                     return x;
                 });
                 return res.render("saRelease", {
@@ -206,6 +207,33 @@ server.post("/sa/addScreenshot/:release", restrictedRoute("sa"), uploadParser.si
                         return res.redirect("/sa/release/" + uuid);
                     }
                 });
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.get("/sa/deleteScreenshot/:release/:screenshot", restrictedRoute("sa"), function (req, res) {
+    if (req.params.release && req.params.screenshot) {
+        var uuid = req.params.screenshot;
+        var uuidAsBuf = formatting.hexToBin(uuid);
+        // TODO: delete file (maybe use query string to confirm?)
+        database.execute("DELETE FROM `Screenshots` WHERE `ScreenshotUUID` = ?", [uuidAsBuf], function (scErr, scRes, scFields) {
+            if (scErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+
+                    message: "The screenshot could not be removed from the database."
+                });
+            } else {
+                return res.redirect("/sa/release/" + req.params.release);
             }
         });
     } else {
