@@ -268,6 +268,9 @@ server.get("/user/signup", function (req, res) {
 
 server.post("/user/signup", urlencodedParser, function (req, res) {
     if (req.body && req.body.username && req.body.password && req.body.captcha && req.body.email) {
+        if (/^[A-Za-z0-9-_ ]{4,32}$/.test(req.body.username) == false) {
+            return signupPage(req, res, 400, "The username is invalid.");
+        }
         if (req.body.captcha == req.session.captcha.text) {
             // check for username existence
             database.execute("SELECT * FROM `Users` WHERE `ShortName` = ?", [req.body.username], function (slErr, slRes, slFields) {
