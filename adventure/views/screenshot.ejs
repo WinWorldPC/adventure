@@ -1,0 +1,10 @@
+﻿<%- include("head", {title: title, sitePages: sitePages, user: user}) %>
+<figure class="figure">
+    <!-- it's ok for blank alt because figcaption -->
+    <img src="<%= file %>" class="figure-img img-fluid rounded" alt="" />
+    <figcaption class="figure-caption"><%= title %> </figcaption>
+</figure>
+<div>
+    <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
+</div>
+<%- include("foot") %>

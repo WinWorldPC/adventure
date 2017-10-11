@@ -266,6 +266,7 @@ server.get("/product/:product/:release", function (req, res) {
                         });
                         var screenshots = scRes == null ? null : scRes.map(function (x) {
                             x.ScreenshotFile = config.screenshotBaseUrl + x.ScreenshotFile;
+                            x.ScreenshotUUID = formatting.binToHex(x.ScreenshotUUID);
                             return x;
                         });
                         res.render("release", {
@@ -286,6 +287,32 @@ server.get("/product/:product/:release", function (req, res) {
                 });
             });
         });
+    });
+});
+
+server.get("/screenshot/:release/:screenshot", function (req, res) {
+    var uuid = req.params.screenshot;
+    var uuidAsBuf = formatting.hexToBin(uuid);
+    database.execute("SELECT * FROM `Screenshots` WHERE `ScreenshotUUID` = ?", [uuidAsBuf], function (scErr, scRes, scFields) {
+        if (scErr || scRes == null || scRes.length == 0) {
+            return res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+
+                message: "There was no screenshot."
+            });
+        } else {
+            var screenshot = scRes[0];
+            screenshot.ScreenshotFile = config.screenshotBaseUrl + screenshot.ScreenshotFile;
+            res.render("screenshot", {
+                sitePages: sitePages,
+                user: req.user,
+
+                title: screenshot.ScreenshotTitle,
+                file: screenshot.ScreenshotFile,
+                release: req.params.release
+            });
+        }
     });
 });
 

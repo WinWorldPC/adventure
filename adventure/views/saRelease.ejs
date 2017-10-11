@@ -131,7 +131,7 @@
 <h2>Manage screenshots</h2>
 <ul>
     <% screenshots.forEach(function (i, n, a) { %>
-    <li><a href="<%= i.ScreenshotFile %>"><%= i.ScreenshotTitle %></a> (<a href="/sa/deleteScreenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>">Remove</a>)</li>
+    <li><a href="/screenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>"><%= i.ScreenshotTitle %></a> (<a href="/sa/deleteScreenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>">Remove</a>)</li>
     <% }); %>
 </ul>
 <h3>Add a screenshot</h3>

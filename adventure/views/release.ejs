@@ -42,7 +42,7 @@
                     <% screenshots.forEach(function (i, n, a) { %>
                     <div class="carousel-item <%= n ? '' : 'active' %>">
                         <%# Lazy load images %>
-                        <a href="<%= i.ScreenshotFile %>">
+                        <a href="/screenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>">
                             <%# Carousel captions suck a bit IMHO, so just embrace the hovertext %>
                             <img class="d-block w-100" <%= n ? 'data-src' : 'src' %>="<%= i.ScreenshotFile %>" alt="<%= i.ScreenshotTitle %>" title="<%= i.ScreenshotTitle %>" />
                         </a>

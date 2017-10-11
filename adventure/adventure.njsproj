@@ -66,6 +66,7 @@
     <Content Include="views\saOrphanedReleases.ejs" />
     <Content Include="views\saRelease.ejs" />
     <Content Include="views\saProduct.ejs" />
+    <Content Include="views\screenshot.ejs" />
     <Content Include="views\searchCSE.ejs" />
     <Content Include="views\selectMirror.ejs" />
     <Content Include="views\release.ejs" />
