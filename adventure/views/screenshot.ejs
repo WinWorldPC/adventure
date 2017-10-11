@@ -5,6 +5,19 @@
     <figcaption class="figure-caption"><%= title %> </figcaption>
 </figure>
 <div>
-    <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
+    <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+    <h2>Edit title</h2>
+    <form method="post" action="/sa/editScreenshotTitle/<%= release %>/<%= uuid %>" class="form-inline">
+        <div class="form-group mb-2 mr-sm-2 mb-sm-0">
+            <label class="sr-only" for="title">Title</label>
+            <input required type="text" class="form-control" id="title" name="title" placeholder="Title" value="<%= title %>">
+        </div>
+        <button type="submit" class="btn btn-warning mr-sm-2">Edit title</button>
+        <a href="/sa/release/<%= release %>" class="btn btn-outline-primary mr-sm-2">Cancel</a>
+        <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
+    </form>
+    <% } else { %>
+        <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
+    <% } %>
 </div>
 <%- include("foot") %>

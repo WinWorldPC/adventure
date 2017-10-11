@@ -304,12 +304,14 @@ server.get("/screenshot/:release/:screenshot", function (req, res) {
         } else {
             var screenshot = scRes[0];
             screenshot.ScreenshotFile = config.screenshotBaseUrl + screenshot.ScreenshotFile;
+            screenshot.ScreenshotUUID = formatting.binToHex(screenshot.ScreenshotUUID);
             res.render("screenshot", {
                 sitePages: sitePages,
                 user: req.user,
 
                 title: screenshot.ScreenshotTitle,
                 file: screenshot.ScreenshotFile,
+                uuid: screenshot.ScreenshotUUID,
                 release: req.params.release
             });
         }
