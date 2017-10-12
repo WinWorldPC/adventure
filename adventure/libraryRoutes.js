@@ -266,6 +266,7 @@ server.get("/product/:product/:release", function (req, res) {
                         });
                         var screenshots = scRes == null ? null : scRes.map(function (x) {
                             x.ScreenshotFile = config.screenshotBaseUrl + x.ScreenshotFile;
+                            x.ScreenshotUUID = formatting.binToHex(x.ScreenshotUUID);
                             return x;
                         });
                         res.render("release", {
@@ -286,6 +287,34 @@ server.get("/product/:product/:release", function (req, res) {
                 });
             });
         });
+    });
+});
+
+server.get("/screenshot/:release/:screenshot", function (req, res) {
+    var uuid = req.params.screenshot;
+    var uuidAsBuf = formatting.hexToBin(uuid);
+    database.execute("SELECT * FROM `Screenshots` WHERE `ScreenshotUUID` = ?", [uuidAsBuf], function (scErr, scRes, scFields) {
+        if (scErr || scRes == null || scRes.length == 0) {
+            return res.status(404).render("error", {
+                sitePages: sitePages,
+                user: req.user,
+
+                message: "There was no screenshot."
+            });
+        } else {
+            var screenshot = scRes[0];
+            screenshot.ScreenshotFile = config.screenshotBaseUrl + screenshot.ScreenshotFile;
+            screenshot.ScreenshotUUID = formatting.binToHex(screenshot.ScreenshotUUID);
+            res.render("screenshot", {
+                sitePages: sitePages,
+                user: req.user,
+
+                title: screenshot.ScreenshotTitle,
+                file: screenshot.ScreenshotFile,
+                uuid: screenshot.ScreenshotUUID,
+                release: req.params.release
+            });
+        }
     });
 });
 
@@ -366,30 +395,45 @@ server.get("/download/:download", function (req, res) {
         }
         database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
             database.execute("SELECT * FROM `DownloadMirrors` WHERE `IsOnline` = True", null, function (miErr, miRes, miFields) {
-                // filter out mirrors that aren't online and have the file
-                // HACK: arrays are NOT comparable, so turn them into strings
-                // then munge the buffer into an MU compatible UUID string
-                var mirrors = miRes.filter(function (x) {
-                    return mrRes.map(function (y) {
-                        return y.MirrorUUID.toString("hex");
-                    }).indexOf(x.MirrorUUID.toString("hex")) > -1;
-                }).map(function (x) {
-                    x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
-                    return x;
-                });;
-                
-                if (download.Information) {
-                    download.Information - marked(download.Information);
-                }
-                download.ImageType = constants.fileTypeMappings[download.ImageType];
-                download.FileSize = formatting.formatBytes(download.FileSize);
-                // turn these into the proper links
-                download.DLUUID = formatting.binToHex(download.DLUUID);
-                res.render("selectMirror", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
-                    download: download, mirrors: mirrors
+                database.execute("SELECT * FROM `DownloadHits` WHERE IPAddress = ? AND DownloadTime > CURDATE()", [req.ip], function (idhErr, idhRes, idhFields) {
+                    const anonymousMax = config.downloadMax || 25;
+                    var max = anonymousMax;
+                    if (req.user) {
+                        // Authenicated users get double
+                        max *= 2;
+                        if (req.user.UserFlags.some(function (x) { return x.FlagName == "vip"; })) {
+                            // VIPs get a LOT more (is this reasonable?)
+                            //max = Number.MAX_SAFE_INTEGER; // maybe not
+                            max *= 4;
+                        }
+                    }
+                    // filter out mirrors that aren't online and have the file
+                    // HACK: arrays are NOT comparable, so turn them into strings
+                    // then munge the buffer into an MU compatible UUID string
+                    var mirrors = miRes.filter(function (x) {
+                        return mrRes.map(function (y) {
+                            return y.MirrorUUID.toString("hex");
+                        }).indexOf(x.MirrorUUID.toString("hex")) > -1;
+                    }).map(function (x) {
+                        x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
+                        return x;
+                    });;
+
+                    if (download.Information) {
+                        download.Information - marked(download.Information);
+                    }
+                    download.ImageType = constants.fileTypeMappings[download.ImageType];
+                    download.FileSize = formatting.formatBytes(download.FileSize);
+                    // turn these into the proper links
+                    download.DLUUID = formatting.binToHex(download.DLUUID);
+                    res.render("selectMirror", {
+                        sitePages: sitePages,
+                        user: req.user,
+
+                        download: download, mirrors: mirrors,
+                        usedDownloads: idhRes.length,
+                        downloadLimit: max,
+                    });
                 });
             });
         });

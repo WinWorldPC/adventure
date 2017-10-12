@@ -246,6 +246,33 @@ server.get("/sa/deleteScreenshot/:release/:screenshot", restrictedRoute("sa"), f
     }
 });
 
+server.post("/sa/editScreenshotTitle/:release/:screenshot", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    if (req.params.release && req.params.screenshot && req.body && req.body.title) {
+        var uuid = req.params.screenshot;
+        var uuidAsBuf = formatting.hexToBin(uuid);
+        var newTitle = req.body.title;
+        database.execute("UPDATE `Screenshots` SET `ScreenshotTitle` = ? WHERE `ScreenshotUUID` = ?", [newTitle, uuidAsBuf], function (scErr, scRes, scFields) {
+            if (scErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+
+                    message: "The screenshot title could not be changed."
+                });
+            } else {
+                return res.redirect("/screenshot/" + req.params.release + "/" + uuid);
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+
+            message: "The request was malformed."
+        });
+    }
+});
+
 server.post("/sa/addSerial/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.serial) {
         var uuid = req.params.release;
