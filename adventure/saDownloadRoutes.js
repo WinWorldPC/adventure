@@ -1,6 +1,4 @@
 ﻿var express = require("express"),
-    bodyParser = require("body-parser"),
-    multer = require("multer"),
     fs = require("fs"),
     path = require("path"),
     constants = require("./constants.js"),
@@ -10,11 +8,7 @@
 var config, database, sitePages;
 
 var restrictedRoute = middleware.restrictedRoute;
-var multerStorage = multer.memoryStorage();
-var uploadParser = multer({
-    storage: multerStorage,
-});
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var urlencodedParser = middleware.bodyParser;
 var server = express.Router();
 
 server.get("/sa/orphanedDownloads/", function (req, res) {

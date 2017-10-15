@@ -1,6 +1,5 @@
 ﻿var express = require("express"),
     morgan = require("morgan"),
-    bodyParser = require("body-parser"),
     cookieParser = require("cookie-parser"),
     sessionParser = require("express-session"),
     passport = require("passport"),
@@ -48,7 +47,7 @@ passport.deserializeUser(function (id, cb) {
 // Init server and middleware
 var server = express();
 
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
+var urlencodedParser = middleware.bodyParser;
 server.use(cookieParser());
 server.use(sessionParser({ secret: config.sessionSecret || "hello world", resave: false, saveUninitialized: false }));
 server.use(passport.initialize());
@@ -302,7 +301,9 @@ server.post("/user/signup", urlencodedParser, function (req, res) {
 
 server.use(require("./libraryRoutes.js")(config, database, sitePages));
 
-server.use(require("./saRoutes.js")(config, database, sitePages));
+server.use(require("./saDownloadRoutes.js")(config, database, sitePages));
+server.use(require("./saProductRoutes.js")(config, database, sitePages));
+server.use(require("./saReleaseRoutes.js")(config, database, sitePages));
 
 // this will soak up anything without routes on root
 server.get("/:page", function (req, res) {
