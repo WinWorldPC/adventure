@@ -272,11 +272,11 @@ server.post("/user/signup", urlencodedParser, function (req, res) {
         }
         if (req.body.captcha == req.session.captcha.text) {
             // check for username existence
-            database.execute("SELECT * FROM `Users` WHERE `ShortName` = ?", [req.body.username], function (slErr, slRes, slFields) {
+            database.execute("SELECT * FROM `Users` WHERE `ShortName` = ? OR `Email` = ?", [req.body.username, req.body.email], function (slErr, slRes, slFields) {
                 if (slErr) {
                     return signupPage(req, res, 500, "There was an error checking the database.");
                 } else if (slRes.length > 0) {
-                    return signupPage(req, res, 400, "There is already a user with that name.");
+                    return signupPage(req, res, 400, "There is already a user with that name or email address.");
                 } else {
                     var salt = formatting.createSalt();
                     var password = formatting.sha256(req.body.password + salt);
