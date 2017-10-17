@@ -27,12 +27,20 @@ module.exports = {
     },
 
     hexToBin: function (hex) {
-        return Buffer.from(hex.replace(/-/g, ""), "hex");
+        if (hex) {
+            return Buffer.from(hex.replace(/-/g, ""), "hex");
+        } else {
+            return null;
+        }
     },
 
     binToHex: function (bin) {
-        var s = bin.toString("hex");
-        return s.substr(0, 8) + "-" + s.substr(8, 4) + "-" + s.substr(12, 4) + "-" + s.substr(16, 4) + "-" + s.substr(-12);
+        if (bin) {
+            var s = bin.toString("hex");
+            return s.substr(0, 8) + "-" + s.substr(8, 4) + "-" + s.substr(12, 4) + "-" + s.substr(16, 4) + "-" + s.substr(-12);
+        } else {
+            return null;
+        }
     },
 
     sha256: function (toHash) {

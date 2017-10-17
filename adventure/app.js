@@ -304,6 +304,7 @@ server.use(require("./libraryRoutes.js")(config, database, sitePages));
 server.use(require("./saDownloadRoutes.js")(config, database, sitePages));
 server.use(require("./saProductRoutes.js")(config, database, sitePages));
 server.use(require("./saReleaseRoutes.js")(config, database, sitePages));
+server.use(require("./saMirrorRoutes.js")(config, database, sitePages));
 
 // this will soak up anything without routes on root
 server.get("/:page", function (req, res) {

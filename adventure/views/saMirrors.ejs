@@ -1,0 +1,11 @@
+﻿<%- include("head", {title: "Orphaned releases", sitePages: sitePages, user: user}) %>
+<h1>Mirrors</h1>
+<a class="btn btn-warning" href="/sa/createMirror">Create mirror</a>
+<ul>
+    <% mirrors.forEach(function (i, n, a) { %>
+    <li>
+        <a href="/sa/mirror/<%= i.MirrorUUID %>"><%= i.MirrorName %></a>
+    </li>
+    <% }) %>
+</ul>
+<%- include("foot") %>

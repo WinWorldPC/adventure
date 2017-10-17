@@ -40,6 +40,9 @@
     <Compile Include="gc.js" />
     <Compile Include="libraryRoutes.js" />
     <Compile Include="middleware.js" />
+    <Compile Include="saMirrorRoutes.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="saProductRoutes.js">
       <SubType>Code</SubType>
     </Compile>
@@ -64,10 +67,17 @@
     <Content Include="views\editProfile.ejs" />
     <Content Include="views\login.ejs" />
     <Content Include="views\page.ejs" />
+    <Content Include="views\saCreateMirror.ejs">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="views\saCreateProduct.ejs" />
     <Content Include="views\saCreateDownload.ejs" />
     <Content Include="views\saCreateRelease.ejs" />
     <Content Include="views\saDownload.ejs" />
+    <Content Include="views\saMirror.ejs">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="views\saMirrors.ejs" />
     <Content Include="views\saOrphanedDownloads.ejs" />
     <Content Include="views\saOrphanedReleases.ejs" />
     <Content Include="views\saRelease.ejs" />
