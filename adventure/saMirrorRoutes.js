@@ -49,8 +49,8 @@ server.get("/sa/mirror/:mirror", restrictedRoute("sa"), function (req, res) {
 server.post("/sa/editMirrorMetadata/:mirror", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     if (req.body && req.params.mirror && formatting.isHexString(req.params.mirror)) {
         var uuid = req.params.mirror;
-        var dbParams = [req.body.name, req.body.hostname, formatting.hexToBin(uuid)];
-        database.execute("UPDATE DownloadMirrors SET MirrorName = ?, Hostname = ? WHERE ProductUUID = ?", dbParams, function (prErr, prRes, prFields) {
+        var dbParams = [req.body.name, req.body.hostname, req.body.online ? "True" : "False", req.body.location, req.body.unixUser, req.body.homeDirectory, req.body.downloadDirectory, req.body.country, formatting.hexToBin(uuid)];
+        database.execute("UPDATE DownloadMirrors SET MirrorName = ?, Hostname = ?, IsOnline = ?, Location = ?, UnixUser = ?, HomeDirectory = ?, DownloadDirectory = ?, Country = ? WHERE ProductUUID = ?", dbParams, function (prErr, prRes, prFields) {
             if (prErr) {
                 return res.status(500).render("error", {
                     sitePages: sitePages,
