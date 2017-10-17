@@ -1,7 +1,7 @@
 ﻿<%- include("head", {title: "Editing " + mirror.MirrorName, sitePages: sitePages, user: user}) %>
 <h1>Editing <%= mirror.MirrorName %></h1>
 <h2>Basic metadata</h2>
-<form method="post" action="/sa/editMirrorMetadata/<%= product.ProductUUID %>">
+<form method="post" action="/sa/editMirrorMetadata/<%= mirror.MirrorUUID %>">
     <div class="row">
         <div class="col form-group">
             <label for="name">Name</label>
@@ -10,8 +10,13 @@
         <div class="col form-group">
             <label for="slug">Hostname</label>
             <input required type="text" class="form-control" id="hostname" name="hostname" placeholder="Hostname" value="<%= mirror.Hostname %>">
-            <input type="checkbox" class="form-check-input" id="online" name="online" <%= mirror.IsOnline ? "checked" : "" %> />
         </div>
+    </div>
+    <div class="form-check">
+        <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" id="online" name="online" <%= mirror.IsOnline ? "checked" : "" %> />
+            Mirror is online
+        </label>
     </div>
     <div class="row">
         <div class="col form-group">
@@ -49,7 +54,7 @@
 </form>
 <h2>Delete mirror</h2>
 This will delete the mirror and any download presence information. It will not anything on the server itself. Are you sure you want to do this?
-<form method="get" action="/sa/deleteProduct/<%= mirror.ProductUUID %>" class="form-inline">
+<form method="get" action="/sa/deleteMirror/<%= mirror.MirrorUUID %>" class="form-inline">
     <div class="form-group mb-2 mr-sm-2 mb-sm-0">
         <input class="form-check-input" name="yesPlease" id="saMirrorDeleteCheck" type="checkbox">
         I want to delete this server

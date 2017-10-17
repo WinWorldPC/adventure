@@ -36,7 +36,7 @@ server.get("/sa/mirror/:mirror", restrictedRoute("sa"), function (req, res) {
                 message: "There is no mirror."
             });
         }
-        mirror.ProductUUID = formatting.binToHex(mirror.ProductUUID);
+        mirror.MirrorUUID = formatting.binToHex(mirror.MirrorUUID);
         return res.render("saMirror", {
             sitePages: sitePages,
             user: req.user,
@@ -50,7 +50,7 @@ server.post("/sa/editMirrorMetadata/:mirror", restrictedRoute("sa"), urlencodedP
     if (req.body && req.params.mirror && formatting.isHexString(req.params.mirror)) {
         var uuid = req.params.mirror;
         var dbParams = [req.body.name, req.body.hostname, req.body.online ? "True" : "False", req.body.location, req.body.unixUser, req.body.homeDirectory, req.body.downloadDirectory, req.body.country, formatting.hexToBin(uuid)];
-        database.execute("UPDATE DownloadMirrors SET MirrorName = ?, Hostname = ?, IsOnline = ?, Location = ?, UnixUser = ?, HomeDirectory = ?, DownloadDirectory = ?, Country = ? WHERE ProductUUID = ?", dbParams, function (prErr, prRes, prFields) {
+        database.execute("UPDATE DownloadMirrors SET MirrorName = ?, Hostname = ?, IsOnline = ?, Location = ?, UnixUser = ?, HomeDirectory = ?, DownloadDirectory = ?, Country = ? WHERE MirrorUUID = ?", dbParams, function (prErr, prRes, prFields) {
             if (prErr) {
                 return res.status(500).render("error", {
                     sitePages: sitePages,
@@ -68,6 +68,42 @@ server.post("/sa/editMirrorMetadata/:mirror", restrictedRoute("sa"), urlencodedP
             user: req.user,
 
             message: "The request was malformed."
+        });
+    }
+});
+
+server.get("/sa/deleteMirror/:mirror", restrictedRoute("sa"), function (req, res) {
+    if (req.params.mirror && formatting.isHexString(req.params.mirror) && req.query && req.query.yesPlease) {
+        var uuidAsBuf = formatting.hexToBin(req.params.mirror);
+
+        database.execute("DELETE FROM MirrorContents WHERE MirrorUUID = ?", [uuidAsBuf], function (mcErr, mcRes, mcFields) {
+            if (mcErr) {
+                return res.status(500).render("error", {
+                    sitePages: sitePages,
+                    user: req.user,
+
+                    message: "There was an error removing mirror presence information."
+                });
+            }
+            database.execute("DELETE FROM DownloadMirrors WHERE MirrorUUID = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
+                if (mrErr) {
+                    return res.status(500).render("error", {
+                        sitePages: sitePages,
+                        user: req.user,
+
+                        message: "There was an error removing the mirror."
+                    });
+                } else {
+                    return res.redirect("/sa/mirrors");
+                }
+            });
+        });
+    } else {
+        return res.status(400).render("error", {
+            sitePages: sitePages,
+            user: req.user,
+
+            message: "The request was malformed, or you weren't certain."
         });
     }
 });
