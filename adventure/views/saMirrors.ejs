@@ -4,7 +4,13 @@
 <ul>
     <% mirrors.forEach(function (i, n, a) { %>
     <li>
+        <% if (i.IsOnline == "False") { %>
+        <del>
+        <% } %>
         <a href="/sa/mirror/<%= i.MirrorUUID %>"><%= i.MirrorName %></a>
+        <% if (i.IsOnline == "False") { %>
+        </del>
+        <% } %>
     </li>
     <% }) %>
 </ul>
