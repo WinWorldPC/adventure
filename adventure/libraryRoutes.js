@@ -205,11 +205,11 @@ server.get("/product/:product", function (req, res) {
                 if (release) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
                 } else {
-                    fallback();
+                    return fallback();
                 }
             });
         } else {
-            fallback();
+            return fallback();
         }
     });
 });
