@@ -1,11 +1,11 @@
 {
   "name": "adventure",
   "version": "0.0.0",
-  "description": "adventure",
+  "description": "WinWorld's open library system",
   "main": "app.js",
   "author": {
-    "name": "Calvin",
-    "email": ""
+    "name": "WinWorld",
+    "email": "winworldpc@outlook.com"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
