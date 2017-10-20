@@ -40,6 +40,9 @@
     <Compile Include="gc.js" />
     <Compile Include="libraryRoutes.js" />
     <Compile Include="middleware.js" />
+    <Compile Include="pageRoutes.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="saMirrorRoutes.js">
       <SubType>Code</SubType>
     </Compile>
@@ -50,6 +53,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="saDownloadRoutes.js" />
+    <Compile Include="userRoutes.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Content Include="res\img\favicon.ico" />
     <Content Include="res\js\lazyCarousel.js" />
     <Content Include="config.example.json" />
