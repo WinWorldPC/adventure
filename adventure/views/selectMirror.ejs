@@ -12,6 +12,7 @@
         <% if (download.Information) { %>
         <p><%= download.Information %></p>
         <% } %>
+        <a href="/release/<%= download.ReleaseUUID %>" class="btn btn-outline-primary">Back to release</a>
         <h2>Mirrors</h2>
         <p>
             You have used <%= usedDownloads %> of your current <%= downloadLimit %> downloads. This count will reset daily.

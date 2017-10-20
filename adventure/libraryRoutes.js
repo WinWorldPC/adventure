@@ -427,6 +427,7 @@ server.get("/download/:download", function (req, res) {
                     download.ImageType = constants.fileTypeMappings[download.ImageType];
                     download.FileSize = formatting.formatBytes(download.FileSize);
                     // turn these into the proper links
+                    download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);
                     download.DLUUID = formatting.binToHex(download.DLUUID);
                     res.render("selectMirror", {
                         sitePages: sitePages,
