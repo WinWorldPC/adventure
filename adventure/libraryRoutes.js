@@ -372,7 +372,7 @@ server.get("/downloads/latest.rss", function (req, res) {
     });
 
     // Use LastUpdated instead?
-    database.execute("SELECT * FROM `Downloads` ORDER BY CreatedDate LIMIT 10", [], function (dlErr, dlRes, dlFields) {
+    database.execute("SELECT * FROM `Downloads` ORDER BY CreatedDate DESC LIMIT 10", [], function (dlErr, dlRes, dlFields) {
         if (dlErr || dlRes.length == 0) {
             return res.sendStatus(500);
         } else {
