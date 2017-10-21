@@ -398,8 +398,8 @@ server.get("/downloads/latest.rss", function (req, res) {
                     //]
                 });
             });
-
-            return res.send(feed.xml());
+            
+            return res.type("application/rss+xml").send(feed.xml());
         }
     });
 });
