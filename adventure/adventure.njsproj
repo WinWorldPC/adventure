@@ -116,6 +116,7 @@
     <Folder Include="typings\modules\morgan\" />
     <Folder Include="typings\modules\multer\" />
     <Folder Include="typings\modules\passport-local\" />
+    <Folder Include="typings\modules\rss\" />
     <Folder Include="views\" />
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +130,7 @@
     <TypeScriptCompile Include="typings\modules\morgan\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\multer\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\passport-local\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\rss\index.d.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

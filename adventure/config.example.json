@@ -12,6 +12,7 @@
   "perPage": 25,
   "perPageBounds": 5,
   "cseId": "011581942104060903186:gjhmrz-s6s4",
+  "publicBaseUrl": "http://localhost:3000/",
   "screenshotBaseUrl":  "/res/img/screenshots/",
   "pageDirectory": "pages",
   "viewDirectory": "views",

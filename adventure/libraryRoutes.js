@@ -2,6 +2,7 @@
     bodyParser = require("body-parser"),
     path = require("path"),
     marked = require("marked"),
+    rss = require("rss"),
     constants = require("./constants.js"),
     middleware = require("./middleware.js"),
     formatting = require("./formatting.js");
@@ -360,6 +361,47 @@ server.get("/release/:id", function (req, res) {
             message: "The ID given was malformed."
         });
     }
+});
+
+server.get("/downloads/latest.rss", function (req, res) {
+    var feed = new rss({
+        title: "Latest downloads",
+        generator: "Adventure",
+        feed_url: config.publicBaseUrl + "downloads/latest.rss",
+        site_url: config.publicBaseUrl,
+    });
+
+    // Use LastUpdated instead?
+    database.execute("SELECT * FROM `Downloads` ORDER BY CreatedDate LIMIT 10", [], function (dlErr, dlRes, dlFields) {
+        if (dlErr || dlRes.length == 0) {
+            return res.sendStatus(500);
+        } else {
+            dlRes.map(function (x) {
+                x.DLUUID = formatting.binToHex(x.DLUUID);
+                return x;
+            }).forEach(function (i, n, a) {
+                feed.item({
+                    title: i.Name,
+                    guid: i.DLUUID,
+                    description: marked(i.Information || ""),
+                    url: config.publicBaseUrl + "download/" + i.DLUUID,
+                    date: i.CreatedDate,
+                    //custom_elements: [
+                    //    { "adventure:version": i.Version },
+                    //    { "adventure:rtm": i.RTM },
+                    //    { "adventure:upgrade": i.Upgrade },
+                    //    { "adventure:language": i.Language },
+                    //    { "adventure:arch": i.Arch },
+                    //    { "adventure:file_type": constants.fileTypeMappings[i.ImageType] },
+                    //    { "adventure:file_size": formatting.formatBytes(i.FileSize) },
+                    //    { "adventure:sha1": formatting.binToHex(i.SHA1Sum) },
+                    //]
+                });
+            });
+
+            return res.send(feed.xml());
+        }
+    });
 });
 
 server.get("/download/test/", function (req, res) {
