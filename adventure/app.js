@@ -17,6 +17,10 @@ database.createConnection(config.mysql);
 
 // Init server and middleware
 var server = express();
+server.locals = {
+    config: config,
+    sitePages: sitePages
+};
 server.use(cookieParser());
 server.use(sessionParser({ secret: config.sessionSecret || "hello world", resave: false, saveUninitialized: false }));
 server.use(morgan(config.morganLogFormat));
@@ -32,6 +36,11 @@ if (config.runBehindProxy) {
 
 // Application routes
 server.use(require("./userRoutes.js")(config, database, sitePages));
+server.use(function (req, res, next) {
+    res.locals.user = req.user;
+    next();
+});
+
 server.use(require("./libraryRoutes.js")(config, database, sitePages));
 
 server.use(require("./saDownloadRoutes.js")(config, database, sitePages));

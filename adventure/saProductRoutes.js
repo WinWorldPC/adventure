@@ -16,17 +16,11 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
         var product = prRes[0] || null;
         if (prErr || product == null) {
             res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "There is no product."
             });
         }
         product.ProductUUID = formatting.binToHex(product.ProductUUID);
         return res.render("saProduct", {
-            sitePages: sitePages,
-            user: req.user,
-
             product: product,
             tagMappingsInverted: constants.tagMappingsInverted
         });
@@ -40,9 +34,6 @@ server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencode
         database.execute("UPDATE Products SET Name = ?, Slug = ?, Notes = ?, Type = ?, ApplicationTags = ? WHERE ProductUUID = ?", dbParams, function (prErr, prRes, prFields) {
             if (prErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The product could not be edited."
                 });
             } else {
@@ -51,9 +42,6 @@ server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencode
         });
     } else {
         return res.status(404).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -66,9 +54,6 @@ server.get("/sa/deleteProduct/:product", restrictedRoute("sa"), function (req, r
         database.execute("DELETE FROM Products WHERE ProductUUID = ?", [uuidAsBuf], function (prErr, prRes, prFields) {
             if (prErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There was an error removing the product."
                 });
             } else {
@@ -77,9 +62,6 @@ server.get("/sa/deleteProduct/:product", restrictedRoute("sa"), function (req, r
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed, or you weren't certain."
         });
     }
@@ -87,8 +69,6 @@ server.get("/sa/deleteProduct/:product", restrictedRoute("sa"), function (req, r
 
 server.get("/sa/createProduct", restrictedRoute("sa"), function (req, res) {
     return res.render("saCreateProduct", {
-        sitePages: sitePages,
-        user: req.user,
     });
 });
 
@@ -103,16 +83,10 @@ server.post("/sa/createProduct", restrictedRoute("sa"), urlencodedParser, functi
         database.execute(getNewProductQuery, dbParams, function (dbErr, dbRes, dbFields) {
             if (dbErr || dbRes == null) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There was an error checking the database."
                 });
             } else if (dbRes.length > 0) {
                 return res.status(409).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There is already a product with that slug."
                 });
             } else {
@@ -120,18 +94,12 @@ server.post("/sa/createProduct", restrictedRoute("sa"), urlencodedParser, functi
                 database.execute("INSERT INTO Products (Name, Slug, Type, Notes, DiscussionUUID) VALUES (?, ?, 'Application', '', 0x00000000000000000000000000000000)", dbParams, function (inErr, inRes, inFields) {
                     if (inErr) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-
                             message: "There was an error creating the item."
                         });
                     } else {
                         database.execute(getNewProductQuery, dbParams, function (prErr, prRes, prFields) {
                             if (prErr || prRes == null || prRes.length == 0) {
                                 return res.status(500).render("error", {
-                                    sitePages: sitePages,
-                                    user: req.user,
-
                                     message: "There was an error validating the item."
                                 });
                             } else {
@@ -144,9 +112,6 @@ server.post("/sa/createProduct", restrictedRoute("sa"), urlencodedParser, functi
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }

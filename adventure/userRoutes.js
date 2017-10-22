@@ -36,6 +36,11 @@ passport.deserializeUser(function (id, cb) {
 
 server.use(passport.initialize());
 server.use(passport.session());
+// HACK: Copied here until passport is moved back to main router
+server.use(function (req, res, next) {
+    res.locals.user = req.user;
+    next();
+});
 
 // Auth routes
 server.get("/user/login", function (req, res) {
@@ -43,9 +48,6 @@ server.get("/user/login", function (req, res) {
         return res.redirect(req.get("Referrer") || "/home");
     } else {
         return res.render("login", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: null
         });
     }
@@ -56,26 +58,17 @@ server.post("/user/login", urlencodedParser, function (req, res) {
         if (err) {
             console.log(err);
             return res.status(500).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "There was an error authenticating."
             });
         }
         // if user is not found due to wrong username or password
         if (!user) {
             return res.status(400).render("login", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "Invalid username or password."
             });
         }
         if (user.AccountEnabled == "False") {
             return res.status(400).render("login", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "Your account has been disabled."
             });
         }
@@ -84,9 +77,6 @@ server.post("/user/login", urlencodedParser, function (req, res) {
             if (err) {
                 console.log(err);
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There was an error authenticating."
                 });
             }
@@ -102,9 +92,6 @@ server.post("/user/login", urlencodedParser, function (req, res) {
                 return res.redirect("/home");
             } else {
                 return res.render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>."
                 });
             }
@@ -121,9 +108,6 @@ server.get("/user/logout", function (req, res) {
 // They could use SQL for now, but as we extend, that's infeasible
 server.get("/user/edit", restrictedRoute(), function (req, res) {
     return res.render("editProfile", {
-        sitePages: sitePages,
-        user: req.user,
-
         message: null,
         messageColour: null,
     });
@@ -140,17 +124,11 @@ server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req
                 database.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, id], function (pwErr, pwRes, pwFields) {
                     if (pwErr) {
                         return res.status(500).render("editProfile", {
-                            sitePages: sitePages,
-                            user: req.user,
-
                             message: "There was an error changing your password.",
                             messageColour: "alert-danger",
                         });
                     } else {
                         return res.render("editProfile", {
-                            sitePages: sitePages,
-                            user: req.user,
-
                             message: "Your password change was a success!",
                             messageColour: "alert-success",
                         });
@@ -158,27 +136,18 @@ server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req
                 });
             } else {
                 return res.status(400).render("editProfile", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The new passwords don't match.",
                     messageColour: "alert-danger",
                 });
             }
         } else {
             return res.status(403).render("editProfile", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "The current password given was incorrect.",
                 messageColour: "alert-danger",
             });
         }
     } else {
         return res.status(400).render("editProfile", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed.",
             messageColour: "alert-danger",
         });
@@ -193,17 +162,11 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
         database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [req.body.email, id], function (pwErr, pwRes, pwFields) {
             if (pwErr) {
                 return res.render("editProfile", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There was an error changing your profile.",
                     messageColour: "alert-danger",
                 });
             } else {
                 return res.render("editProfile", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "Your profile change was a success!",
                     messageColour: "alert-success",
                 });
@@ -211,9 +174,6 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
         });
     } else {
         return res.status(400).render("editProfile", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed.",
             messageColour: "alert-danger",
         });
@@ -225,9 +185,6 @@ function signupPage(req, res, status, message) {
     req.session.captcha = captcha;
 
     return res.status(status || 200).render("signup", {
-        sitePages: sitePages,
-        user: req.user,
-
         message: message,
         captcha: captcha.data,
     });

@@ -22,9 +22,6 @@ server.get("/:page", function (req, res) {
             fs.readFile(file, "utf8", function (err, contents) {
                 if (err) {
                     return res.status(500).render("error", {
-                        sitePages: sitePages,
-                        user: req.user,
-
                         message: "The page could not be loaded."
                     });
                 }
@@ -32,9 +29,6 @@ server.get("/:page", function (req, res) {
                 var title = sitePages[req.params.page].title;
                 var supressTitle = sitePages[req.params.page].supressTitle || false;
                 return res.render("page", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     page: page,
                     title: title,
                     supressTitle: supressTitle
@@ -43,9 +37,6 @@ server.get("/:page", function (req, res) {
         }
     } else {
         return res.status(404).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "There is no page by this name."
         });
     }

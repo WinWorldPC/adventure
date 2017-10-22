@@ -8,9 +8,6 @@ function restrictedRoute(flag) {
                 next();
             } else {
                 return res.status(403).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "You aren't allowed to access this route."
                 });
             }

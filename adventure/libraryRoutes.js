@@ -35,9 +35,6 @@ function libraryRoute(req, res) {
             break;
         default:
             return res.status(400).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-                
                 message: "The category given was invalid."
             });
     }
@@ -71,9 +68,6 @@ function libraryRoute(req, res) {
             });
             
             return res.render("libraryOS", {
-                sitePages: sitePages,
-                user: req.user,
-                
                 dos: dos,
                 nix: nix,
                 mac: mac,
@@ -108,9 +102,6 @@ function libraryRoute(req, res) {
                 })
                 // TODO: Special-case OS for rendering the old custom layout
                 res.render("library", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     products: productsFormatted,
                     page: page,
                     pages: pages,
@@ -133,9 +124,6 @@ server.get("/library", function (req, res) {
 // TODO: non-CSE search
 server.get("/search", function (req, res) {
     return res.render("searchCSE", {
-        sitePages: sitePages,
-        user: req.user,
-        
         q: req.query.q,
         cx: config.cseId
     });
@@ -157,9 +145,6 @@ function filesRoute(req, res) {
                 return x;
             });
             res.render("files", {
-                sitePages: sitePages,
-                user: req.user,
-                
                 page: page,
                 pages: pages,
                 pageBounds: config.perPageBounds,
@@ -175,9 +160,6 @@ server.get("/product/:product", function (req, res) {
         var product = prRes[0] || null;
         if (product == null) {
             return res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-                
                 message: "There was no product."
             });
         }
@@ -192,9 +174,6 @@ server.get("/product/:product", function (req, res) {
                         return res.redirect("/sa/createRelease/" + formatting.binToHex(product.ProductUUID));
                     } else {
                         return res.status(404).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
                             message: "The product has no releases."
                         });
                     }
@@ -222,9 +201,6 @@ server.get("/product/:product/:release", function (req, res) {
         var product = prRes[0] || null;
         if (product == null) {
             return res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-                
                 message: "There was no product."
             });
         }
@@ -232,9 +208,6 @@ server.get("/product/:product/:release", function (req, res) {
         database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseDate`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
             if (rlRes == null || rlRes.length == 0) {
                 return res.status(404).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "There was no release."
                 });
             }
@@ -244,9 +217,6 @@ server.get("/product/:product/:release", function (req, res) {
             });
             if (release == null) {
                 return res.status(404).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "There was no release."
                 });
             }
@@ -273,9 +243,6 @@ server.get("/product/:product/:release", function (req, res) {
                             return x;
                         });
                         res.render("release", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
                             product: product,
                             releases: rlRes,
                             release: release,
@@ -299,9 +266,6 @@ server.get("/screenshot/:release/:screenshot", function (req, res) {
     database.execute("SELECT * FROM `Screenshots` WHERE `ScreenshotUUID` = ?", [uuidAsBuf], function (scErr, scRes, scFields) {
         if (scErr || scRes == null || scRes.length == 0) {
             return res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "There was no screenshot."
             });
         } else {
@@ -309,9 +273,6 @@ server.get("/screenshot/:release/:screenshot", function (req, res) {
             screenshot.ScreenshotFile = config.screenshotBaseUrl + screenshot.ScreenshotFile;
             screenshot.ScreenshotUUID = formatting.binToHex(screenshot.ScreenshotUUID);
             res.render("screenshot", {
-                sitePages: sitePages,
-                user: req.user,
-
                 title: screenshot.ScreenshotTitle,
                 file: screenshot.ScreenshotFile,
                 uuid: screenshot.ScreenshotUUID,
@@ -328,9 +289,6 @@ server.get("/release/:id", function (req, res) {
             var release = rlRes[0] || null;
             if (release == null) {
                 return res.status(404).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "There was no release."
                 });
             }
@@ -342,9 +300,6 @@ server.get("/release/:id", function (req, res) {
                         return res.redirect("/sa/release/" + req.params.id);
                     } else {
                         return res.status(404).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
                             message: "There was no product associated."
                         });
                     }
@@ -355,9 +310,6 @@ server.get("/release/:id", function (req, res) {
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-            
             message: "The ID given was malformed."
         });
     }
@@ -407,9 +359,6 @@ server.get("/downloads/latest.rss", function (req, res) {
 server.get("/download/test/", function (req, res) {
     database.execute("SELECT * FROM `DownloadMirrors` WHERE `IsOnline` = True", null, function (miErr, miRes, miFields) {
         res.render("test", {
-            sitePages: sitePages,
-            user: req.user,
-            
             ip: req.ip,
             mirrors: miRes
         });
@@ -419,9 +368,6 @@ server.get("/download/test/", function (req, res) {
 server.get("/download/:download", function (req, res) {
     if (!formatting.isHexString(req.params.download)) {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-            
             message: "The ID given was malformed."
         });
     }
@@ -431,9 +377,6 @@ server.get("/download/:download", function (req, res) {
         if (dlErr || download == null) {
             console.log(dlErr || "[ERR] download was null! /download/" + req.params.download + " refererr: " + req.get("Referrer"));
             return res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-                
                 message: "There was no download."
             });
         }
@@ -472,9 +415,6 @@ server.get("/download/:download", function (req, res) {
                     download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);
                     download.DLUUID = formatting.binToHex(download.DLUUID);
                     res.render("selectMirror", {
-                        sitePages: sitePages,
-                        user: req.user,
-
                         download: download, mirrors: mirrors,
                         usedDownloads: idhRes.length,
                         downloadLimit: max,
@@ -488,9 +428,6 @@ server.get("/download/:download", function (req, res) {
 server.get("/download/:download/from/:mirror", function (req, res) {
     if (!(formatting.isHexString(req.params.download) && formatting.isHexString(req.params.mirror))) {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-            
             message: "The ID given is malformed."
         });
     }
@@ -512,10 +449,7 @@ server.get("/download/:download/from/:mirror", function (req, res) {
             }
         }
         if (idhRes.length > max) {
-            return res.status(429).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-                
+            return res.status(429).render("error", {                
                 message: "You are trying to download too many times. Wait a while, or log in if you haven't to access more."
             });
         }
@@ -524,9 +458,6 @@ server.get("/download/:download/from/:mirror", function (req, res) {
             if (dlErr || download == null) {
                 console.log(dlErr || "[ERR] download was null! /download/" + req.params.download + "/from/" + req.params.mirror + " refererr: " + req.get("Referrer"));
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "There was no download."
                 });
             }
@@ -536,9 +467,6 @@ server.get("/download/:download/from/:mirror", function (req, res) {
                     if (miErr || mirror == null) {
                         console.log(miErr || "[ERR] mirror was null! /download/" + req.params.download + "/from/" + req.params.mirror + " refererr: " + req.get("Referrer"));
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
                             message: "The was no mirror."
                         });
                     }

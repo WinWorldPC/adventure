@@ -14,9 +14,6 @@ var server = express.Router();
 server.get("/sa/orphanedDownloads/", function (req, res) {
     database.execute("SELECT * FROM Downloads WHERE NOT EXISTS (SELECT 1 FROM Releases WHERE Downloads.ReleaseUUID = Releases.ReleaseUUID)", [], function (dlErr, dlRes, dlFields) {
         return res.render("saOrphanedDownloads", {
-            sitePages: sitePages,
-            user: req.user,
-            
             orphans: dlRes.map(function (x) {
                 x.DLUUID = formatting.binToHex(x.DLUUID);
                 return x;
@@ -32,18 +29,12 @@ server.get("/sa/deleteDownload/:download", restrictedRoute("sa"), function (req,
         database.execute("DELETE FROM MirrorContents WHERE DownloadUUID = ?", [uuidAsBuf], function (mcErr, mcRes, mcFields) {
             if (mcErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "There was an error removing mirror presence information."
                 });
             } else {
                 database.execute("DELETE FROM Downloads WHERE DLUUID = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
                     if (dlErr) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
                             message: "There was an error removing the download."
                         });
                     } else {
@@ -55,9 +46,6 @@ server.get("/sa/deleteDownload/:download", restrictedRoute("sa"), function (req,
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-            
             message: "The request was malformed, or you weren't certain."
         });
     }
@@ -68,9 +56,6 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
         var download = dlRes[0] || null;
         if (dlErr || download == null) {
             res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-                
                 message: "There is no product."
             });
         }
@@ -89,9 +74,6 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
                 });
                 
                 return res.render("saDownload", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     download: download,
                     mirrors: mirrors,
                     mirrorContents: mirrorContents,
@@ -115,9 +97,6 @@ server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlenco
         database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, ImageType = ?, FileSize = ?, SHA1Sum = ?, DownloadPath = ?, OriginalPath = ?, FileName = ?, LastUpdated = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "The download could not be edited."
                 });
             } else {
@@ -126,9 +105,6 @@ server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlenco
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-            
             message: "The request was malformed."
         });
     }
@@ -142,9 +118,6 @@ server.get("/sa/downloadMirrorAvailability/:download/:mirror", restrictedRoute("
         database.execute("SELECT * FROM MirrorContents WHERE MirrorUUID = ? && DownloadUUID = ?", dbParams, function (tsErr, tsRes, tsFields) {
             if (tsErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "There was an error checking the database for availability."
                 });
             } else if (tsRes.length == 0) {
@@ -152,9 +125,6 @@ server.get("/sa/downloadMirrorAvailability/:download/:mirror", restrictedRoute("
                 database.execute("INSERT INTO MirrorContents (MirrorUUID, DownloadUUID) VALUES (?, ?)", dbParams, function (inErr, inRes, inFields) {
                     if (inErr) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
                             message: "There was an error making the download available."
                         });
                     } else {
@@ -166,9 +136,6 @@ server.get("/sa/downloadMirrorAvailability/:download/:mirror", restrictedRoute("
                 database.execute("DELETE FROM MirrorContents WHERE MirrorUUID = ? && DownloadUUID = ?", dbParams, function (deErr, deRes, deFields) {
                     if (deErr) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
                             message: "There was an error making the download unavailable."
                         });
                     } else {
@@ -179,9 +146,6 @@ server.get("/sa/downloadMirrorAvailability/:download/:mirror", restrictedRoute("
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-            
             message: "The request was malformed."
         });
     }
@@ -192,17 +156,11 @@ server.get("/sa/createDownload/:release", restrictedRoute("sa"), function (req, 
         var release = rlRes[0] || null;
         if (rlErr || release == null) {
             return res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-                
                 message: "There is no release."
             });
         }
         release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
         return res.render("saCreateDownload", {
-            sitePages: sitePages,
-            user: req.user,
-            
             release: release,
         });
     });
@@ -224,34 +182,22 @@ server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedPars
         database.execute(getNewProductQuery, dbParams, function (dbErr, dbRes, dbFields) {
             if (dbErr || dbRes == null) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "There was an error checking the database."
                 });
             } else if (dbRes.length > 0) {
                 return res.status(409).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-                    
                     message: "There is already a download with these attributes."
                 });
             } else {
                 database.execute("INSERT INTO Downloads (ReleaseUUID, Name, Version, DownloadPath, OriginalPath, FileName, SHA1Sum) VALUES (?, ?, ?, ?, ?, ?, ?)", dbParams, function (inErr, inRes, inFields) {
                     if (inErr) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-                            
                             message: "There was an error creating the item."
                         });
                     } else {
                         database.execute(getNewProductQuery, dbParams, function (rlErr, rlRes, rlFields) {
                             if (rlErr || rlRes == null || rlRes.length == 0) {
                                 return res.status(500).render("error", {
-                                    sitePages: sitePages,
-                                    user: req.user,
-                                    
                                     message: "There was an error validating the item."
                                 });
                             } else {
@@ -264,9 +210,6 @@ server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedPars
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-            
             message: "The request was malformed."
         });
     }

@@ -15,9 +15,6 @@ var server = express.Router();
 server.get("/sa/orphanedReleases/", function (req, res) {
     database.execute("SELECT * FROM Releases WHERE NOT EXISTS (SELECT 1 FROM Products WHERE Products.ProductUUID = Releases.ProductUUID)", [], function (rlErr, rlRes, rlFields) {
         return res.render("saOrphanedReleases", {
-            sitePages: sitePages,
-            user: req.user,
-
             orphans: rlRes.map(function (x) {
                 x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
                 return x;
@@ -33,9 +30,6 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
         var release = rlRes[0] || null;
         if (rlErr || release == null) {
             return res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "There is no release."
             });
         }
@@ -49,9 +43,6 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
                     return x;
                 });
                 return res.render("saRelease", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     release: release,
                     serials: seRes,
                     screenshots: scRes,
@@ -76,9 +67,6 @@ server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencode
         database.execute("UPDATE Releases SET ProductUUID = ?, Name = ?, VendorName = ?, Slug = ?, Notes = ?, InstallInstructions = ?, Platform = ?, Type = ?, ReleaseDate = ?, EndOfLife = ?, FuzzyDate = ?, CPURequirement = ?, RAMRequirement = ?, DiskSpaceRequired = ? WHERE ReleaseUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The release could not be edited."
                 });
             } else {
@@ -87,9 +75,6 @@ server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencode
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -102,9 +87,6 @@ server.post("/sa/addScreenshot/:release", restrictedRoute("sa"), uploadParser.si
 
         if (!req.file.mimetype.startsWith("image/")) {
             return res.status(400).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "The file wasn't an image."
             });
         }
@@ -118,18 +100,12 @@ server.post("/sa/addScreenshot/:release", restrictedRoute("sa"), uploadParser.si
         database.execute("INSERT INTO `Screenshots` (ReleaseUUID, ScreenshotFile, ScreenshotTitle) VALUES (?, ?, ?)", dbParams, function (seErr, seRes, seFields) {
             if (seErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The screenshot could not be added to the database."
                 });
             } else {
                 fs.writeFile(fullPath, req.file.buffer, function (err) {
                     if (err) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-
                             message: "The screenshot could not be written to disk."
                         });
                     } else {
@@ -140,9 +116,6 @@ server.post("/sa/addScreenshot/:release", restrictedRoute("sa"), uploadParser.si
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -156,9 +129,6 @@ server.get("/sa/deleteScreenshot/:release/:screenshot", restrictedRoute("sa"), f
         database.execute("DELETE FROM `Screenshots` WHERE `ScreenshotUUID` = ?", [uuidAsBuf], function (scErr, scRes, scFields) {
             if (scErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The screenshot could not be removed from the database."
                 });
             } else {
@@ -167,9 +137,6 @@ server.get("/sa/deleteScreenshot/:release/:screenshot", restrictedRoute("sa"), f
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -183,9 +150,6 @@ server.post("/sa/editScreenshotTitle/:release/:screenshot", restrictedRoute("sa"
         database.execute("UPDATE `Screenshots` SET `ScreenshotTitle` = ? WHERE `ScreenshotUUID` = ?", [newTitle, uuidAsBuf], function (scErr, scRes, scFields) {
             if (scErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The screenshot title could not be changed."
                 });
             } else {
@@ -194,9 +158,6 @@ server.post("/sa/editScreenshotTitle/:release/:screenshot", restrictedRoute("sa"
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -209,9 +170,6 @@ server.post("/sa/addSerial/:release", restrictedRoute("sa"), urlencodedParser, f
         database.execute("INSERT INTO `Serials` (ReleaseUUID, Serial) VALUES (?, ?)", [uuidAsBuf, req.body.serial], function (seErr, seRes, seFields) {
             if (seErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The serial could not be added."
                 });
             } else {
@@ -220,9 +178,6 @@ server.post("/sa/addSerial/:release", restrictedRoute("sa"), urlencodedParser, f
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -236,9 +191,6 @@ server.get("/sa/removeSerial/:release/:serial", restrictedRoute("sa"), function 
         database.execute("DELETE FROM Serials WHERE ReleaseUUID = ? && Serial = ?", [uuidAsBuf, serial], function (seErr, seRes, seFields) {
             if (seErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The serial could not be removed."
                 });
             } else {
@@ -247,9 +199,6 @@ server.get("/sa/removeSerial/:release/:serial", restrictedRoute("sa"), function 
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -260,17 +209,11 @@ server.get("/sa/createRelease/:product", restrictedRoute("sa"), function (req, r
         var product = prRes[0] || null;
         if (prErr || product == null) {
             return res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "There is no product."
             });
         }
         product.ProductUUID = formatting.binToHex(product.ProductUUID);
         return res.render("saCreateRelease", {
-            sitePages: sitePages,
-            user: req.user,
-
             product: product,
         });
     });
@@ -288,34 +231,22 @@ server.post("/sa/createRelease/:product", restrictedRoute("sa"), urlencodedParse
         database.execute(getNewProductQuery, dbParams, function (dbErr, dbRes, dbFields) {
             if (dbErr || dbRes == null) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There was an error checking the database."
                 });
             } else if (dbRes.length > 0) {
                 return res.status(409).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There is already a release with that slug."
                 });
             } else {
                 database.execute("INSERT INTO Releases (ProductUUID, Name, Slug) VALUES (?, ?, ?)", dbParams, function (inErr, inRes, inFields) {
                     if (inErr) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-
                             message: "There was an error creating the item."
                         });
                     } else {
                         database.execute(getNewProductQuery, dbParams, function (rlErr, rlRes, rlFields) {
                             if (rlErr || rlRes == null || rlRes.length == 0) {
                                 return res.status(500).render("error", {
-                                    sitePages: sitePages,
-                                    user: req.user,
-
                                     message: "There was an error validating the item."
                                 });
                             } else {
@@ -328,9 +259,6 @@ server.post("/sa/createRelease/:product", restrictedRoute("sa"), urlencodedParse
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -343,9 +271,6 @@ server.get("/sa/deleteRelease/:release", restrictedRoute("sa"), function (req, r
         database.execute("DELETE FROM Serials WHERE ReleaseUUID = ?", [uuidAsBuf], function (seErr, seRes, seFields) {
             if (seErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There was an error removing serials."
                 });
             } else {
@@ -353,18 +278,12 @@ server.get("/sa/deleteRelease/:release", restrictedRoute("sa"), function (req, r
                     // TODO: Actually delete files (could be too destructive though)
                     if (scErr) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-
                             message: "There was an error removing screenshots."
                         });
                     } else {
                         database.execute("DELETE FROM Releases WHERE ReleaseUUID = ?", [uuidAsBuf], function (rlErr, rlRes, rlFields) {
                             if (rlErr) {
                                 return res.status(500).render("error", {
-                                    sitePages: sitePages,
-                                    user: req.user,
-
                                     message: "There was an error removing the release."
                                 });
                             } else {
@@ -378,9 +297,6 @@ server.get("/sa/deleteRelease/:release", restrictedRoute("sa"), function (req, r
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed, or you weren't certain."
         });
     }

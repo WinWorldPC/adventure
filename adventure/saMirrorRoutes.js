@@ -14,9 +14,6 @@ var server = express.Router();
 server.get("/sa/mirrors", restrictedRoute("sa"), function (req, res) {
     database.execute("SELECT * FROM DownloadMirrors", [], function (mrErr, mrRes, mrFields) {
         return res.render("saMirrors", {
-            sitePages: sitePages,
-            user: req.user,
-
             mirrors: mrRes.map(function (x) {
                 x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
                 return x;
@@ -30,17 +27,11 @@ server.get("/sa/mirror/:mirror", restrictedRoute("sa"), function (req, res) {
         var mirror = mrRes[0] || null;
         if (mrErr || mirror == null) {
             res.status(404).render("error", {
-                sitePages: sitePages,
-                user: req.user,
-
                 message: "There is no mirror."
             });
         }
         mirror.MirrorUUID = formatting.binToHex(mirror.MirrorUUID);
         return res.render("saMirror", {
-            sitePages: sitePages,
-            user: req.user,
-
             mirror: mirror,
         });
     });
@@ -53,9 +44,6 @@ server.post("/sa/editMirrorMetadata/:mirror", restrictedRoute("sa"), urlencodedP
         database.execute("UPDATE DownloadMirrors SET MirrorName = ?, Hostname = ?, IsOnline = ?, Location = ?, UnixUser = ?, HomeDirectory = ?, DownloadDirectory = ?, Country = ? WHERE MirrorUUID = ?", dbParams, function (prErr, prRes, prFields) {
             if (prErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "The mirror could not be edited."
                 });
             } else {
@@ -64,9 +52,6 @@ server.post("/sa/editMirrorMetadata/:mirror", restrictedRoute("sa"), urlencodedP
         });
     } else {
         return res.status(404).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
@@ -79,18 +64,12 @@ server.get("/sa/deleteMirror/:mirror", restrictedRoute("sa"), function (req, res
         database.execute("DELETE FROM MirrorContents WHERE MirrorUUID = ?", [uuidAsBuf], function (mcErr, mcRes, mcFields) {
             if (mcErr) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There was an error removing mirror presence information."
                 });
             }
             database.execute("DELETE FROM DownloadMirrors WHERE MirrorUUID = ?", [uuidAsBuf], function (mrErr, mrRes, mrFields) {
                 if (mrErr) {
                     return res.status(500).render("error", {
-                        sitePages: sitePages,
-                        user: req.user,
-
                         message: "There was an error removing the mirror."
                     });
                 } else {
@@ -100,9 +79,6 @@ server.get("/sa/deleteMirror/:mirror", restrictedRoute("sa"), function (req, res
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed, or you weren't certain."
         });
     }
@@ -110,8 +86,6 @@ server.get("/sa/deleteMirror/:mirror", restrictedRoute("sa"), function (req, res
 
 server.get("/sa/createMirror", restrictedRoute("sa"), function (req, res) {
     return res.render("saCreateMirror", {
-        sitePages: sitePages,
-        user: req.user,
     });
 });
 
@@ -126,34 +100,22 @@ server.post("/sa/createMirror", restrictedRoute("sa"), urlencodedParser, functio
         database.execute(getNewMirrorQuery, dbParams, function (dbErr, dbRes, dbFields) {
             if (dbErr || dbRes == null) {
                 return res.status(500).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There was an error checking the database."
                 });
             } else if (dbRes.length > 0) {
                 return res.status(409).render("error", {
-                    sitePages: sitePages,
-                    user: req.user,
-
                     message: "There is already a mirror with that name or hostname."
                 });
             } else {
                 database.execute("INSERT INTO DownloadMirrors (MirrorName, Hostname) VALUES (?, ?)", dbParams, function (inErr, inRes, inFields) {
                     if (inErr) {
                         return res.status(500).render("error", {
-                            sitePages: sitePages,
-                            user: req.user,
-
                             message: "There was an error creating the item."
                         });
                     } else {
                         database.execute(getNewMirrorQuery, dbParams, function (mrErr, mrRes, mrFields) {
                             if (mrErr || mrRes == null || mrRes.length == 0) {
                                 return res.status(500).render("error", {
-                                    sitePages: sitePages,
-                                    user: req.user,
-
                                     message: "There was an error validating the item."
                                 });
                             } else {
@@ -166,9 +128,6 @@ server.post("/sa/createMirror", restrictedRoute("sa"), urlencodedParser, functio
         });
     } else {
         return res.status(400).render("error", {
-            sitePages: sitePages,
-            user: req.user,
-
             message: "The request was malformed."
         });
     }
