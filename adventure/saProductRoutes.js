@@ -15,7 +15,7 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `ProductUUID` = ?", [formatting.hexToBin(req.params.product)], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (prErr || product == null) {
-            res.status(404).render("error", {
+            return res.status(404).render("error", {
                 message: "There is no product."
             });
         }
