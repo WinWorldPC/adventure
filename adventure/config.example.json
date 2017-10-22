@@ -1,7 +1,8 @@
 ﻿{
+  "name": "WinWorld",
   "runBehindProxy": false,
-  "enableExperimentalFeatures":  true,
-  "morganLogFormat":  "dev",
+  "enableExperimentalFeatures": true,
+  "morganLogFormat": "dev",
   "mysql": {
     "database": "winworld",
     "host": "localhost",
@@ -13,8 +14,8 @@
   "perPageBounds": 5,
   "cseId": "011581942104060903186:gjhmrz-s6s4",
   "publicBaseUrl": "http://localhost:3000/",
-  "screenshotBaseUrl":  "/res/img/screenshots/",
+  "screenshotBaseUrl": "/res/img/screenshots/",
   "pageDirectory": "pages",
   "viewDirectory": "views",
-  "resDirectory":  "res"
+  "resDirectory": "res"
 }

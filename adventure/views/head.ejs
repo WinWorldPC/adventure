@@ -22,11 +22,11 @@ ga('send', 'pageview');
     <link rel="stylesheet" href="/res/css/stickyFooter.css" />
     <!-- RSS feeds -->
     <link rel="alternate" type="application/rss+xml" title="Latest downloads" href="/downloads/latest.rss" />
-    <title>WinWorld: <%= title %></title>
+    <title><%= config.name %>: <%= title %></title>
 </head>
 <body>
     <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/home">WinWorld</a>
+        <a class="navbar-brand" href="/home"><%= config.name %></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
