@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: "Editing " + product.Name, sitePages: sitePages, user: user}) %>
+﻿<%- include("head", {title: "Editing " + product.Name}) %>
 <h1>Editing <%= product.Name %></h1>
 <h2>Basic metadata</h2>
 <form method="post" action="/sa/editProductMetadata/<%= product.ProductUUID %>">

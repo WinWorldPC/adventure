@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: "Add a download for " + release.Name, sitePages: sitePages, user: user}) %>
+﻿<%- include("head", {title: "Add a download for " + release.Name}) %>
 <h1>Add a download for <%= release.Name %></h1>
 Fill in a name for the release, a version number, the path to the representing file, and a SHA1 checksum. The other fields can be filled in when the release is created.
 <form method="post" action="/sa/createDownload/<%= release.ReleaseUUID %>">

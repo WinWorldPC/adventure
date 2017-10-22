@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: "Add a release for " + product.Name, sitePages: sitePages, user: user}) %>
+﻿<%- include("head", {title: "Add a release for " + product.Name}) %>
 <h1>Add a release for <%= product.Name %></h1>
 Fill in a name for the release, and the slug for the URL. The other fields can be filled in when the release is created.
 <form method="post" action="/sa/createRelease/<%= product.ProductUUID %>">

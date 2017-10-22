@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: "Editing " + release.Name, sitePages: sitePages, user: user}) %>
+﻿<%- include("head", {title: "Editing " + release.Name}) %>
 <h1>Editing <%= release.Name %></h1>
 <h2>Basic metadata</h2>
 <form method="post" action="/sa/editReleaseMetadata/<%= release.ReleaseUUID %>">

@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: "Editing " + mirror.MirrorName, sitePages: sitePages, user: user}) %>
+﻿<%- include("head", {title: "Editing " + mirror.MirrorName}) %>
 <h1>Editing <%= mirror.MirrorName %></h1>
 <h2>Basic metadata</h2>
 <form method="post" action="/sa/editMirrorMetadata/<%= mirror.MirrorUUID %>">
