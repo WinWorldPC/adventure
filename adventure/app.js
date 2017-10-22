@@ -12,6 +12,7 @@
 // HACK: BOM must die
 var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEFF/, ""));
 var sitePages = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titles.json"), "utf8").replace(/^\uFEFF/, ""));
+var headerFragment = fs.readFileSync(config.headerFragment, "utf8").replace(/^\uFEFF/, "");
 
 database.createConnection(config.mysql);
 
@@ -19,7 +20,8 @@ database.createConnection(config.mysql);
 var server = express();
 server.locals = {
     config: config,
-    sitePages: sitePages
+    sitePages: sitePages,
+    headerFragment: headerFragment,
 };
 server.use(cookieParser());
 server.use(sessionParser({ secret: config.sessionSecret || "hello world", resave: false, saveUninitialized: false }));

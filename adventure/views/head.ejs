@@ -1,25 +1,12 @@
 ﻿<!DOCTYPE html>
-<%# Note that non-WinWorld sites will need to have an out-of-repo views directory so they can alter branding in this file. %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <meta name="generator" content="Adventure" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="WinWorld is a free online museum dedicated to the preservation of old software." />
-    <meta name="keywords" content="winworld, winboards, abandonware, technology, museum, dos, windows, microsoft, apple" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-    <!-- Google Analytics -->
-    <script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-107975036-1', 'auto');
-ga('send', 'pageview');
-    </script>
-    <!-- End Google Analytics -->
     <link rel="stylesheet" href="/res/css/stickyFooter.css" />
+    <%- headerFragment %>
     <!-- RSS feeds -->
     <link rel="alternate" type="application/rss+xml" title="Latest downloads" href="/downloads/latest.rss" />
     <title><%= config.name %>: <%= title %></title>

@@ -56,6 +56,9 @@
     <Compile Include="userRoutes.js">
       <SubType>Code</SubType>
     </Compile>
+    <Content Include="res\headerFragment.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="res\img\favicon.ico" />
     <Content Include="res\js\lazyCarousel.js" />
     <Content Include="config.example.json" />
