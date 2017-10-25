@@ -1,7 +1,7 @@
 ﻿<%- include("head", {title: "Editing user " + editingUser.ShortName}) %>
 <h1>Editing user <var><%= editingUser.ShortName  %></var></h1>
 <h2>Change password</h2>
-<form method="post" action="/sa/user/changepw" class="mb-2">
+<form method="post" action="/sa/user/changepw/<%= editingUser.UserID %>" class="mb-2">
     <div class="form-group">
         <label for="newPassword">New password</label>
         <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="New password">
@@ -13,7 +13,7 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 <h2>Edit profile</h2>
-<form method="post" action="/sa/user/edit" class="mb-2">
+<form method="post" action="/sa/user/edit/<%= editingUser.UserID %>" class="mb-2">
     <div class="form-group">
         <label for="email">Email address</label>
         <input type="email" class="form-control" id="email" name="email" placeholder="email" value="<%= editingUser.Email %>">

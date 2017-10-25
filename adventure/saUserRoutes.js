@@ -21,11 +21,11 @@ server.get("/sa/enterUser", restrictedRoute("sa"), function (req, res) {
 server.post("/sa/redirectToUserEdit", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     database.userByName(req.body.name, function (err, user) {
         if (err) {
-            return res.render("error", {
-                message: "There was an error fetching from the database.."
+            return res.status(500).render("error", {
+                message: "There was an error fetching from the database."
             });
         } else if (user == null) {
-            return res.render("error", {
+            return res.status(404).render("error", {
                 message: "There was no user."
             });
         } else {
@@ -37,19 +37,71 @@ server.post("/sa/redirectToUserEdit", restrictedRoute("sa"), urlencodedParser, f
 server.get("/sa/user/:userId", restrictedRoute("sa"), function (req, res) {
     database.userById(formatting.hexToBin(req.params.userId), function (err, user) {
         if (err) {
-            return res.render("error", {
-                message: "There was an error fetching from the database.."
+            return res.status(500).render("error", {
+                message: "There was an error fetching from the database."
             });
         } else if (user == null) {
-            return res.render("error", {
+            return res.status(404).render("error", {
                 message: "There was no user."
             });
         } else {
+            user.UserID = formatting.binToHex(user.UserID);
             res.render("saUser", {
                 editingUser: user
             });
         }
     });
+});
+
+server.post("/sa/user/changepw/:userId", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    if (req.body && req.body.newPassword && req.body.newPasswordR) {
+        var uuidAsBuf = formatting.hexToBin(req.params.userId);
+        if (req.body.newPassword == req.body.newPasswordR) {
+            var salt = formatting.createSalt();
+            var newPassword = formatting.sha256(req.body.newPassword + salt);
+            // HACK: nasty way to demangle UInt8Array
+            var id = formatting.hexToBin(req.user.UserID.toString("hex"));
+            database.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, uuidAsBuf], function (pwErr, pwRes, pwFields) {
+                if (pwErr) {
+                    return res.status(500).render("error", {
+                        message: "There was an error changing the user's password."
+                    });
+                } else {
+                    return res.redirect("/sa/user/" + req.params.userId);
+                }
+            });
+        } else {
+            return res.status(400).render("error", {
+                message: "The new passwords don't match."
+            });
+        }
+    } else {
+        return res.status(400).render("error", {
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.post("/sa/user/edit/:userId", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    // TODO: Extend as we extend editable profile options (none for now)
+    if (req.body && req.body.email) {
+        var uuidAsBuf = formatting.hexToBin(req.params.userId);
+        // HACK: nasty way to demangle UInt8Array
+        var id = formatting.hexToBin(req.user.UserID.toString("hex"));
+        database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [req.body.email, uuidAsBuf], function (pwErr, pwRes, pwFields) {
+            if (pwErr) {
+                return res.status(500).render("error", {
+                    message: "There was an error changing the user's profile."
+                });
+            } else {
+                return res.redirect("/sa/user/" + req.params.userId);
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            message: "The request was malformed."
+        });
+    }
 });
 
 module.exports = function (c, d, p) {
