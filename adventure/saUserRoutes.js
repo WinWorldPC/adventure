@@ -47,7 +47,8 @@ server.get("/sa/user/:userId", restrictedRoute("sa"), function (req, res) {
         } else {
             user.UserID = formatting.binToHex(user.UserID);
             res.render("saUser", {
-                editingUser: user
+                editingUser: user,
+                userFlags: database.userFlags,
             });
         }
     });
@@ -92,6 +93,46 @@ server.post("/sa/user/edit/:userId", restrictedRoute("sa"), urlencodedParser, fu
             if (pwErr) {
                 return res.status(500).render("error", {
                     message: "There was an error changing the user's profile."
+                });
+            } else {
+                return res.redirect("/sa/user/" + req.params.userId);
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.post("/sa/user/addFlag/:userId", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    if (req.body && req.body.flag) {
+        var uuidAsBuf = formatting.hexToBin(req.params.userId)
+        var flag = database.userFlags.filter(function (x) { return x.FlagName == req.body.flag })[0].FlagUUID;
+        database.execute("INSERT INTO UserFlagHolders (FlagUUID, UserUUID) VALUES (?, ?)", [flag, uuidAsBuf], function (flErr, flRes, flFields) {
+            if (flErr) {
+                return res.status(500).render("error", {
+                    message: "There was an error adding the flag."
+                });
+            } else {
+                return res.redirect("/sa/user/" + req.params.userId);
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            message: "The request was malformed."
+        });
+    }
+});
+
+server.get("/sa/user/removeFlag/:userId/:flagName", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    if (req.params.flagName) {
+        var uuidAsBuf = formatting.hexToBin(req.params.userId)
+        var flag = database.userFlags.filter(function (x) { return x.FlagName == req.params.flagName })[0].FlagUUID;
+        database.execute("DELETE FROM UserFlagHolders WHERE FlagUUID = ? && UserUUID = ?", [flag, uuidAsBuf], function (flErr, flRes, flFields) {
+            if (flErr) {
+                return res.status(500).render("error", {
+                    message: "There was an error removing the flag."
                 });
             } else {
                 return res.redirect("/sa/user/" + req.params.userId);

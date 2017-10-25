@@ -22,8 +22,19 @@
 </form>
 <h2>Flags</h2>
 <ul>
-<% editingUser.UserFlags.forEach(function (i, n, a) { %>
-    <li><%= i.LongName %></li>
-<% }); %>
+    <% editingUser.UserFlags.forEach(function (i, n, a) { %>
+    <li><%= i.LongName %> (<a href="/sa/user/removeFlag/<%= editingUser.UserID %>/<%= i.FlagName %>">Remove</a>)</li>
+    <% }); %>
 </ul>
+<form method="post" action="/sa/user/addFlag/<%= editingUser.UserID %>" class="form-inline">
+    <div class="form-group mb-2 mr-sm-2 mb-sm-0">
+        <label class="sr-only" for="newFlag">Add Flag</label>
+        <select required class="form-control" id="newFlag" name="flag">
+            <% userFlags.forEach(function (i, n, a) { %>
+            <option value="<%= i.FlagName %>"><%= i.LongName %></option>
+            <% }); %>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Flag</button>
+</form>
 <%- include("foot") %>
