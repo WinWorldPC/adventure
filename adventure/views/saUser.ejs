@@ -1,0 +1,29 @@
+﻿<%- include("head", {title: "Editing user " + editingUser.ShortName}) %>
+<h1>Editing user <var><%= editingUser.ShortName  %></var></h1>
+<h2>Change password</h2>
+<form method="post" action="/sa/user/changepw" class="mb-2">
+    <div class="form-group">
+        <label for="newPassword">New password</label>
+        <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="New password">
+    </div>
+    <div class="form-group">
+        <label for="newPasswordR">New password (repeat)</label>
+        <input type="password" class="form-control" id="newPasswordR" name="newPasswordR" placeholder="New password (repeat)">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<h2>Edit profile</h2>
+<form method="post" action="/sa/user/edit" class="mb-2">
+    <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="email" value="<%= editingUser.Email %>">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<h2>Flags</h2>
+<ul>
+<% editingUser.UserFlags.forEach(function (i, n, a) { %>
+    <li><%= i.LongName %></li>
+<% }); %>
+</ul>
+<%- include("foot") %>

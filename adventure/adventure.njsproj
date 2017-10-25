@@ -53,6 +53,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="saDownloadRoutes.js" />
+    <Compile Include="saUserRoutes.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="userRoutes.js">
       <SubType>Code</SubType>
     </Compile>
@@ -83,6 +86,9 @@
     <Content Include="views\saCreateDownload.ejs" />
     <Content Include="views\saCreateRelease.ejs" />
     <Content Include="views\saDownload.ejs" />
+    <Content Include="views\saEnterUser.ejs">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="views\saMirror.ejs">
       <SubType>Code</SubType>
     </Content>
@@ -91,6 +97,9 @@
     <Content Include="views\saOrphanedReleases.ejs" />
     <Content Include="views\saRelease.ejs" />
     <Content Include="views\saProduct.ejs" />
+    <Content Include="views\saUser.ejs">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="views\screenshot.ejs" />
     <Content Include="views\searchCSE.ejs" />
     <Content Include="views\selectMirror.ejs" />

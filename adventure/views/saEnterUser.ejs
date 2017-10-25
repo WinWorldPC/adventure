@@ -1,0 +1,13 @@
+﻿<%- include("head", {title: "Enter username"}) %>
+<h1>Enter username</h1>
+Fill in the user's name to perform administrative actions.
+<form method="post" action="/sa/redirectToUserEdit">
+    <div class="row">
+        <div class="form-group col">
+            <label for="name">Name</label>
+            <input required type="text" class="form-control" id="name" name="name" placeholder="Name">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<%- include("foot") %>
