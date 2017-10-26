@@ -3,21 +3,6 @@
     <% for (var i in categoryMappings) { %>
     <a class="nav-link <%= 'operating-systems' == i ? 'active' : '' %>" href="/library/<%= i %>"><%= categoryMappings[i] %></a>
     <% } %>
-    <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
-    <div class="btn-group">
-        <div id="orphanDropdown" class="dropdown btn-group">
-            <button class="btn btn-warning dropdown-toggle" type="button" id="orphanDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Oprhans...
-            </button>
-            <div class="dropdown-menu" aria-labelledby="orphanDropdownButton">
-                <a class="dropdown-item" href="/sa/orphanedReleases">Orphaned releases</a>
-                <a class="dropdown-item" href="/sa/orphanedDownloads">Orphaned downloads</a>
-            </div>
-        </div>
-        <a class="btn btn-warning" href="/sa/mirrors">Manage mirrors</a>
-        <a class="btn btn-warning" href="/sa/createProduct">Create product</a>
-    </div>
-    <% } %>
 </nav>
 <div class="row">
     <div class="col-md-3">
