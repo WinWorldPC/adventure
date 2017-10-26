@@ -123,7 +123,7 @@ function libraryRoute(req, res) {
 server.get("/library/:category", libraryRoute);
 server.get("/library/:category/:tag", libraryRoute);
 server.get("/library", function (req, res) {
-    return res.redirect("/library/operating-systems");
+    return res.redirect("/library/" + config.defaultCategory);
 });
 
 // TODO: non-CSE search
