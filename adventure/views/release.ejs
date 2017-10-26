@@ -100,7 +100,7 @@
                     }
                     %>
                     <a href="/library/<%= typeLink %>"><%= product.Type %></a>
-                    <% if (product.Type == "Application" && product.ApplicationTags) { %>
+                    <% if (config.taggableCategories.some(function(x) { return x == product.Type}) && product.ApplicationTags) { %>
                         <% product.ApplicationTags.split(",").forEach(function(i, n, a) { %>
                         <a class="badge badge-secondary" href="/library/applications/<%= tagMappingsInverted[i] %>"><%= i %></a>
                         <% }) %>
