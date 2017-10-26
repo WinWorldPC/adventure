@@ -74,6 +74,9 @@ function libraryRoute(req, res) {
                 win: win,
                 os2: os2,
                 other: other,
+
+                categoryMappings: constants.categoryMappings,
+                categoryMappingsInverted: constants.categoryMappingsInverted
             });
         });
     } else {
@@ -109,7 +112,9 @@ function libraryRoute(req, res) {
                     category: req.params.category,
                     tag: req.params.tag,
                     tagMappingsInverted: constants.tagMappingsInverted,
-                    platformMappingsInverted: constants.platformMappingsInverted
+                    platformMappingsInverted: constants.platformMappingsInverted,
+                    categoryMappings: constants.categoryMappings,
+                    categoryMappingsInverted: constants.categoryMappingsInverted
                 });
             });
         });
@@ -251,7 +256,9 @@ server.get("/product/:product/:release", function (req, res) {
                             downloads: downloads,
                             
                             tagMappingsInverted: constants.tagMappingsInverted,
-                            platformMappingsInverted: constants.platformMappingsInverted
+                            platformMappingsInverted: constants.platformMappingsInverted,
+                            categoryMappings: constants.categoryMappings,
+                            categoryMappingsInverted: constants.categoryMappingsInverted
                         });
                     });
                 });

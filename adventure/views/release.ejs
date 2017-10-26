@@ -79,30 +79,10 @@
             <dl id="infoSheetBody" class="card-body" role="tabpanel" aria-labelledby="infoSheetHeader">
                 <dt>Product type</dt>
                 <dd>
-                    <%
-                    var typeLink = "";
-                    switch (product.Type) {
-                    case "OS":
-                    typeLink = "operating-systems";
-                    break;
-                    case "System":
-                    typeLink = "sys";
-                    break;
-                    case "Game":
-                    typeLink = "games";
-                    break;
-                    case "DevTool":
-                    typeLink = "dev";
-                    break;
-                    case "Application":
-                    typeLink = "applications";
-                    break;
-                    }
-                    %>
-                    <a href="/library/<%= typeLink %>"><%= product.Type %></a>
+                    <a href="/library/<%= categoryMappingsInverted[product.Type] %>"><%= product.Type %></a>
                     <% if (config.taggableCategories.some(function(x) { return x == product.Type}) && product.ApplicationTags) { %>
                         <% product.ApplicationTags.split(",").forEach(function(i, n, a) { %>
-                        <a class="badge badge-secondary" href="/library/applications/<%= tagMappingsInverted[i] %>"><%= i %></a>
+                        <a class="badge badge-secondary" href="/library/<%= categoryMappingsInverted[product.Type] %>/<%= tagMappingsInverted[i] %>"><%= i %></a>
                         <% }) %>
                     <% } %>
                 </dd>
@@ -141,7 +121,7 @@
                 <dd>
                 <%# Keep items unique by using Set %>
                 <% new Set(release.Platform.split(",")).forEach(function(j) { %>
-                    <a class="badge badge-info" href="/library/<%= typeLink %>/<%= platformMappingsInverted[j] %>"><%= j %></a>
+                    <a class="badge badge-info" href="/library/<%= categoryMappingsInverted[product.Type] %>/<%= platformMappingsInverted[j] %>"><%= j %></a>
                 <% }) %>
                 </dd>
                 <% } %>

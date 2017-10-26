@@ -5,6 +5,7 @@
     }, {});
 }
 
+// adjust to match your schema
 var tagMappings = {
     'tag-word-processor': 'Word Processor',
     'tag-spreadsheet': 'Spreadsheet',
@@ -59,6 +60,14 @@ var fileTypeMappings = {
     "VBOX": "VirtualBox",
 };
 var fileTypeMappingsInverted = invert(fileTypeMappings);
+var categoryMappings = {
+    'operating-systems': 'OS',
+    'applications': 'Game',
+    'games': 'Application',
+    'dev': 'DevTool',
+    'sys': 'System'
+};
+var categoryMappingsInverted = invert(categoryMappings);
 
 // These are fixed values that aren't useful to be configurable.
 module.exports = {
@@ -70,4 +79,6 @@ module.exports = {
     // TODO: These could be localizable one day?
     fileTypeMappings: fileTypeMappings,
     fileTypeMappingsInverted: fileTypeMappingsInverted,
+    categoryMappings: categoryMappings,
+    categoryMappingsInverted: categoryMappingsInverted,
 };
