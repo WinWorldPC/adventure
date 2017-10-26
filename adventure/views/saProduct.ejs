@@ -32,7 +32,6 @@
             <option <%= product.Type == "System" ? "selected" : "" %>>System</option>
         </select>
     </div>
-    <% if (product.Type == "Application") { %>
     <div class="form-group">
         <label for="applicationTags">Tags</label>
         <select multiple class="form-control" id="applicationTags" name="applicationTags">
@@ -41,7 +40,6 @@
             <% }); %>
         </select>
     </div>
-    <% } %>
     <button type="submit" class="btn btn-primary">Submit</button>
     <a class="btn btn-outline-primary" href="/product/<%= product.Slug %>">Cancel</a>
 </form>
