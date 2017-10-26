@@ -76,7 +76,7 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="tagDropdownButton">
                 <% for (var i in tagMappingsInverted) { %>
-                <a class="dropdown-item" href="/library/applications/<%= tagMappingsInverted[i] %>"><%= i %></a>
+                <a class="dropdown-item" href="/library/<%= category %>/<%= tagMappingsInverted[i] %>"><%= i %></a>
                 <% } %>
             </div>
         </div>
