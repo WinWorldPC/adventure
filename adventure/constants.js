@@ -62,8 +62,8 @@ var fileTypeMappings = {
 var fileTypeMappingsInverted = invert(fileTypeMappings);
 var categoryMappings = {
     'operating-systems': 'OS',
-    'applications': 'Game',
-    'games': 'Application',
+    'applications': 'Application',
+    'games': 'Game',
     'dev': 'DevTool',
     'sys': 'System'
 };

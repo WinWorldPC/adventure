@@ -22,7 +22,9 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
         product.ProductUUID = formatting.binToHex(product.ProductUUID);
         return res.render("saProduct", {
             product: product,
-            tagMappingsInverted: constants.tagMappingsInverted
+            tagMappingsInverted: constants.tagMappingsInverted,
+            categoryMappings: constants.categoryMappings,
+            categoryMappingsInverted: constants.categoryMappingsInverted
         });
     });
 });

@@ -25,11 +25,9 @@
     <div class="form-group">
         <label for="type">Type</label>
         <select required class="form-control" id="type" name="type">
-            <option <%= product.Type == "OS" ? "selected" : "" %>>OS</option>
-            <option <%= product.Type == "Application" ? "selected" : "" %>>Application</option>
-            <option <%= product.Type == "Game" ? "selected" : "" %>>Game</option>
-            <option <%= product.Type == "DevTool" ? "selected" : "" %>>DevTool</option>
-            <option <%= product.Type == "System" ? "selected" : "" %>>System</option>
+            <% for (var i in categoryMappingsInverted) { %>
+            <option <%= product.Type == i ? "selected" : "" %>><%= i %></option>
+            <% } %>
         </select>
     </div>
     <% if (config.taggableCategories.some(function(x) { return x == product.Type})) { %>
