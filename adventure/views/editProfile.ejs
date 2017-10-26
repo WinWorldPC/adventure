@@ -29,4 +29,10 @@
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+<h2>Flags</h2>
+<ul>
+    <% user.UserFlags.forEach(function (i, n, a) { %>
+    <li><%= i.LongName %></li>
+    <% }); %>
+</ul>
 <%- include("foot") %>
