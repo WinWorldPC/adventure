@@ -49,5 +49,16 @@ module.exports = {
 
     createSalt: function () {
         return crypto.randomBytes(32).toString("hex");
+    },
+
+    invertObject: function (o) {
+        if (o == null) {
+            debugger;
+        }
+
+        return Object.keys(o).reduce(function (obj, key) {
+            obj[o[key]] = key;
+            return obj;
+        }, {});
     }
 };

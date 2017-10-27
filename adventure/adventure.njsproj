@@ -34,7 +34,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
-    <Compile Include="constants.js" />
     <Compile Include="database.js" />
     <Compile Include="formatting.js" />
     <Compile Include="gc.js" />

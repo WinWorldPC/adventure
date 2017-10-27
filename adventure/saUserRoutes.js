@@ -4,7 +4,6 @@
     passport = require("passport"),
     localStrategy = require("passport-local").Strategy,
     svgCaptcha = require("svg-captcha"),
-    constants = require("./constants.js"),
     middleware = require("./middleware.js"),
     formatting = require("./formatting.js");
 

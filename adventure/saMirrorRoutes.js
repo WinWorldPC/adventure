@@ -1,7 +1,6 @@
 ﻿var express = require("express"),
     fs = require("fs"),
     path = require("path"),
-    constants = require("./constants.js"),
     middleware = require("./middleware.js"),
     formatting = require("./formatting.js");
 

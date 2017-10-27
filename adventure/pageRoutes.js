@@ -2,7 +2,6 @@
     fs = require("fs"),
     path = require("path"),
     marked = require("marked"),
-    constants = require("./constants.js"),
     middleware = require("./middleware.js"),
     formatting = require("./formatting.js");
 

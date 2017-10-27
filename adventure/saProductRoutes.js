@@ -1,7 +1,6 @@
 ﻿var express = require("express"),
     fs = require("fs"),
     path = require("path"),
-    constants = require("./constants.js"),
     middleware = require("./middleware.js"),
     formatting = require("./formatting.js");
 
@@ -22,9 +21,9 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
         product.ProductUUID = formatting.binToHex(product.ProductUUID);
         return res.render("saProduct", {
             product: product,
-            tagMappingsInverted: constants.tagMappingsInverted,
-            categoryMappings: constants.categoryMappings,
-            categoryMappingsInverted: constants.categoryMappingsInverted
+            tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
+            categoryMappings: config.constants.categoryMappings,
+            categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
         });
     });
 });

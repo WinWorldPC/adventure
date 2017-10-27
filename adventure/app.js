@@ -5,7 +5,6 @@
     database = require("./database.js"),
     fs = require("fs"),
     path = require("path"),
-    constants = require("./constants.js"),
     formatting = require("./formatting.js"),
     middleware = require("./middleware.js");
 

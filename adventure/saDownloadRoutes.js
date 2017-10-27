@@ -1,7 +1,6 @@
 ﻿var express = require("express"),
     fs = require("fs"),
     path = require("path"),
-    constants = require("./constants.js"),
     middleware = require("./middleware.js"),
     formatting = require("./formatting.js");
 
@@ -77,8 +76,8 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
                     download: download,
                     mirrors: mirrors,
                     mirrorContents: mirrorContents,
-                    fileTypeMappings: constants.fileTypeMappings,
-                    fileTypeMappingsInverted: constants.fileTypeMappingsInverted,
+                    fileTypeMappings: config.constants.fileTypeMappings,
+                    fileTypeMappingsInverted: formatting.invertObject(config.constants.fileTypeMappings),
                 });
             });
         });

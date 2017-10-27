@@ -3,7 +3,6 @@
     path = require("path"),
     marked = require("marked"),
     rss = require("rss"),
-    constants = require("./constants.js"),
     middleware = require("./middleware.js"),
     formatting = require("./formatting.js");
 
@@ -75,8 +74,8 @@ function libraryRoute(req, res) {
                 os2: os2,
                 other: other,
 
-                categoryMappings: constants.categoryMappings,
-                categoryMappingsInverted: constants.categoryMappingsInverted
+                categoryMappings: config.constants.categoryMappings,
+                categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
             });
         });
     } else {
@@ -86,9 +85,9 @@ function libraryRoute(req, res) {
         // with old site (because library pages link to tags in descriptions)
         if (req.params.tag != null) {
             if (req.params.tag.indexOf("tag-") == 0) {
-                tag = constants.tagMappings[req.params.tag] || null;
+                tag = config.constants.tagMappings[req.params.tag] || null;
             } else if (req.params.tag.indexOf("platform-") == 0) {
-                platform = constants.platformMappings[req.params.tag] || null;
+                platform = config.constants.platformMappings[req.params.tag] || null;
             }
         }
         // HACK: I am EXTREMELY not proud of ANY of these queries
@@ -111,10 +110,10 @@ function libraryRoute(req, res) {
                     pageBounds: config.perPageBounds,
                     category: req.params.category,
                     tag: req.params.tag,
-                    tagMappingsInverted: constants.tagMappingsInverted,
-                    platformMappingsInverted: constants.platformMappingsInverted,
-                    categoryMappings: constants.categoryMappings,
-                    categoryMappingsInverted: constants.categoryMappingsInverted
+                    tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
+                    platformMappingsInverted: formatting.invertObject(config.constants.tagMappings),
+                    categoryMappings: config.constants.categoryMappings,
+                    categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
                 });
             });
         });
@@ -144,7 +143,7 @@ function filesRoute(req, res) {
         database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL ORDER BY `FileName` LIMIT ?,?", [(page - 1) * config.perPage, config.perPage], function (fiErr, fiRes, fiFields) {
             var files = fiRes.map(function (x) {
                 x.FileSize = formatting.formatBytes(x.FileSize);
-                x.ImageType = constants.fileTypeMappings[x.ImageType];
+                x.ImageType = config.constants.fileTypeMappings[x.ImageType];
                 x.DLUUID = formatting.binToHex(x.DLUUID);
                 x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
                 return x;
@@ -238,7 +237,7 @@ server.get("/product/:product/:release", function (req, res) {
                         release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
                         var downloads = dlRes.map(function (x) {
                             x.FileSize = formatting.formatBytes(x.FileSize);
-                            x.ImageType = constants.fileTypeMappings[x.ImageType];
+                            x.ImageType = config.constants.fileTypeMappings[x.ImageType];
                             x.DLUUID = formatting.binToHex(x.DLUUID);
                             return x;
                         });
@@ -254,11 +253,11 @@ server.get("/product/:product/:release", function (req, res) {
                             serials: seRes,
                             screenshots: screenshots,
                             downloads: downloads,
-                            
-                            tagMappingsInverted: constants.tagMappingsInverted,
-                            platformMappingsInverted: constants.platformMappingsInverted,
-                            categoryMappings: constants.categoryMappings,
-                            categoryMappingsInverted: constants.categoryMappingsInverted
+
+                            tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
+                            platformMappingsInverted: formatting.invertObject(config.constants.tagMappings),
+                            categoryMappings: config.constants.categoryMappings,
+                            categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
                         });
                     });
                 });
@@ -351,7 +350,7 @@ server.get("/downloads/latest.rss", function (req, res) {
                     //    { "adventure:upgrade": i.Upgrade },
                     //    { "adventure:language": i.Language },
                     //    { "adventure:arch": i.Arch },
-                    //    { "adventure:file_type": constants.fileTypeMappings[i.ImageType] },
+                    //    { "adventure:file_type": config.constants.fileTypeMappings[i.ImageType] },
                     //    { "adventure:file_size": formatting.formatBytes(i.FileSize) },
                     //    { "adventure:sha1": formatting.binToHex(i.SHA1Sum) },
                     //]
@@ -416,7 +415,7 @@ server.get("/download/:download", function (req, res) {
                     if (download.Information) {
                         download.Information - marked(download.Information);
                     }
-                    download.ImageType = constants.fileTypeMappings[download.ImageType];
+                    download.ImageType = config.constants.fileTypeMappings[download.ImageType];
                     download.FileSize = formatting.formatBytes(download.FileSize);
                     // turn these into the proper links
                     download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);

@@ -1,7 +1,6 @@
 ﻿var express = require("express"),
     fs = require("fs"),
     path = require("path"),
-    constants = require("./constants.js"),
     middleware = require("./middleware.js"),
     formatting = require("./formatting.js");
 
@@ -46,7 +45,7 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
                     release: release,
                     serials: seRes,
                     screenshots: scRes,
-                    platformMappingsInverted: constants.platformMappingsInverted
+                    platformMappingsInverted: formatting.invertObject(config.constants.platformMappings)
                 });
             });
         });
