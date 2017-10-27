@@ -1,6 +1,7 @@
 ﻿var express = require("express"),
     fs = require("fs"),
     path = require("path"),
+    querystring = require('querystring'),
     passport = require("passport"),
     localStrategy = require("passport-local").Strategy,
     svgCaptcha = require("svg-captcha"),
@@ -226,20 +227,38 @@ server.post("/user/signup", urlencodedParser, function (req, res) {
 });
 
 server.get("/user/vanillaSSO", function (req, res) {
+    if (req.query.client_id != config.vanillaClientId) {
+        return res.send(req.query.callback + "(" + JSON.stringify({
+            error: "invalid_client",
+            message: "Client ID does not match.",
+        }) + ")");
+    }
+
+    if (req.query.timestamp && formatting.sha256(req.query.timestamp + config.vanillaSecret) != req.query.signature) {
+        return res.send(req.query.callback + "(" + JSON.stringify({
+            error: "invalid_signature",
+            message: "Signature does not match.",
+        }) + ")");
+    }
+
     var builtObject;
 
     if (req.user) {
+        // built pre-sorted array
         builtObject = {
-            uniqueid: formatting.binToHex(req.user.UserID),
-            name: req.user.ShortName,
             email: req.user.Email,
+            name: req.user.ShortName,
             roles: "member",
-
-            client_id: req.query.client_id
+            uniqueid: formatting.binToHex(req.user.UserID),
         };
         if (req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
             builtObject.roles = "member,administrator";
         }
+        // for crypto's sake
+        var qs = querystring.stringify(builtObject);
+        // append items that dont need to be signed/sorted
+        builtObject.client_id = req.query.client_id;
+        builtObject.signature = formatting.sha256(qs + config.vanillaSecret);
     } else {
         builtObject = {
             name: ""
