@@ -234,7 +234,9 @@ server.get("/user/vanillaSSO", function (req, res) {
         }) + ")");
     }
 
-    if (req.query.timestamp && formatting.sha256(req.query.timestamp + config.vanillaSecret) != req.query.signature) {
+    if (req.query.timestamp == null) {
+        // send stub as recommended?
+    } else if (formatting.sha256(req.query.timestamp + config.vanillaSecret) != req.query.signature) {
         return res.send(req.query.callback + "(" + JSON.stringify({
             error: "invalid_signature",
             message: "Signature does not match.",
@@ -243,7 +245,7 @@ server.get("/user/vanillaSSO", function (req, res) {
 
     var builtObject;
 
-    if (req.user) {
+    if (req.user && req.query.timestamp != null) {
         // built pre-sorted array
         builtObject = {
             email: req.user.Email,
@@ -259,7 +261,13 @@ server.get("/user/vanillaSSO", function (req, res) {
         // append items that dont need to be signed/sorted
         builtObject.client_id = req.query.client_id;
         builtObject.signature = formatting.sha256(qs + config.vanillaSecret);
+    } else if (req.user) {
+        // build a stub for authed but not signed
+        builtObject = {
+            name: req.user.ShortName
+        };
     } else {
+        // nothin'
         builtObject = {
             name: ""
         };
