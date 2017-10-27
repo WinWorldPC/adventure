@@ -225,6 +225,30 @@ server.post("/user/signup", urlencodedParser, function (req, res) {
     }
 });
 
+server.get("/user/vanillaSSO", function (req, res) {
+    var builtObject;
+
+    if (req.user) {
+        builtObject = {
+            uniqueid: formatting.binToHex(req.user.UserID),
+            name: req.user.ShortName,
+            email: req.user.Email,
+            roles: "member",
+
+            client_id: req.query.client_id
+        };
+        if (req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+            builtObject.roles = "member,administrator";
+        }
+    } else {
+        builtObject = {
+            name: ""
+        };
+    }
+    console.log(JSON.stringify(builtObject));
+    res.send(req.query.callback + "(" + JSON.stringify(builtObject) + ")");
+});
+
 module.exports = function (c, d, p) {
     config = c
     database = d;
