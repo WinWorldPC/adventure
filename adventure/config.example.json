@@ -82,7 +82,7 @@
     },
 
     "categoryMappings": {
-      "operatingsystems": "OS",
+      "operating-systems": "OS",
       "applications": "Application",
       "games": "Game",
       "dev": "DevTool",
