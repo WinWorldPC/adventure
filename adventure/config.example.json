@@ -16,6 +16,8 @@
   "perPage": 25,
   "perPageBounds": 5,
   "cseId": "011581942104060903186:gjhmrz-s6s4",
+  "useVanilla": true,
+  "vanillaBaseUrl": "http://localhost/vanilla/",
   "vanillaSecret": "secret",
   "vanillaClientId": "1",
   "publicBaseUrl": "http://localhost:3000/",
