@@ -158,7 +158,7 @@
     <tbody>
         <% (downloads || []).forEach(function(i, n, a) {%>
         <tr>
-            <td><a href="/download/<%= i.DLUUID %>"><%= i.Name %></a></td>
+            <td><a href="/download/<%= i.DLUUID %>" title="<%= i.FileName %>"><%= i.Name %></a></td>
             <td>
                 <%= i.Version %>
                 <span class="downloadTagPrerelease badge badge-warning"><%= i.RTM == "True" ? "" : "Prerelease" %></span>
