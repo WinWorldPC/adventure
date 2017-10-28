@@ -261,8 +261,11 @@ server.get("/user/vanillaSSO", function (req, res) {
             roles: "member",
             uniqueid: formatting.binToHex(req.user.UserID),
         };
+        if (req.user.UserFlags.some(function (x) { return x.FlagName == "vip"; })) {
+            builtObject.roles += ",VIP";
+        }
         if (req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
-            builtObject.roles = "member,administrator";
+            builtObject.roles += ",administrator";
         }
         // for crypto's sake
         var qs = querystring.stringify(builtObject);
