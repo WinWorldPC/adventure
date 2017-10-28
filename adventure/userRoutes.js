@@ -283,7 +283,6 @@ server.get("/user/vanillaSSO", function (req, res) {
             name: ""
         };
     }
-    console.log(JSON.stringify(builtObject));
     res.send(req.query.callback + "(" + JSON.stringify(builtObject) + ")");
 });
 
