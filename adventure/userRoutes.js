@@ -159,18 +159,26 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
     if (req.body && req.body.email) {
         // HACK: nasty way to demangle UInt8Array
         var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-        database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [req.body.email, id], function (pwErr, pwRes, pwFields) {
-            if (pwErr) {
-                return res.render("editProfile", {
-                    message: "There was an error changing your profile.",
+        database.execute("SELECT * FROM `Users` WHERE `Email` = ?", [req.body.email], function (slErr, slRes, slFields) {
+            if (slRes.length > 0 && slRes[0].UserID.toString("hex") != req.user.UserID.toString("hex")) {
+                return res.status(400).render("editProfile", {
+                    message: "The email is in use.",
                     messageColour: "alert-danger",
                 });
-            } else {
-                return res.render("editProfile", {
-                    message: "Your profile change was a success!",
-                    messageColour: "alert-success",
-                });
             }
+            database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [req.body.email, id], function (pwErr, pwRes, pwFields) {
+                if (pwErr) {
+                    return res.render("editProfile", {
+                        message: "There was an error changing your profile.",
+                        messageColour: "alert-danger",
+                    });
+                } else {
+                    return res.render("editProfile", {
+                        message: "Your profile change was a success!",
+                        messageColour: "alert-success",
+                    });
+                }
+            });
         });
     } else {
         return res.status(400).render("editProfile", {
