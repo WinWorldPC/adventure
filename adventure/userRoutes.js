@@ -244,7 +244,8 @@ server.get("/user/vanillaSSO", function (req, res) {
 
     if (req.query.timestamp == null) {
         // send stub as recommended?
-    } else if (formatting.sha256(req.query.timestamp + config.vanillaSecret) != req.query.signature) {
+    } else if (Number(req.query.timestamp) - 300 > Date.now() &&
+        formatting.sha256(req.query.timestamp + config.vanillaSecret) != req.query.signature) {
         return res.send(req.query.callback + "(" + JSON.stringify({
             error: "invalid_signature",
             message: "Signature does not match.",
