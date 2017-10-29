@@ -241,6 +241,11 @@ server.post("/user/signup", urlencodedParser, function (req, res) {
 });
 
 server.get("/user/vanillaSSO", function (req, res) {
+    if (!config.useVanilla) {
+        // no reason for this if disabled
+        return res.sendStatus(404);
+    }
+
     if (req.query.client_id != config.vanillaClientId) {
         return res.send(req.query.callback + "(" + JSON.stringify({
             error: "invalid_client",
