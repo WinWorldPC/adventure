@@ -271,7 +271,7 @@ server.get("/user/vanillaSSO", function (req, res) {
         // for crypto's sake
         var qs = querystring.stringify(builtObject);
         // append items that dont need to be signed/sorted
-        builtObject.client_id = req.query.client_id;
+        builtObject.client_id = config.vanillaClientId;
         builtObject.signature = formatting.sha256(qs + config.vanillaSecret);
     } else if (req.user) {
         // build a stub for authed but not signed

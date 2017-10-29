@@ -47,6 +47,10 @@ module.exports = {
         return crypto.createHash("sha256").update(toHash).digest("hex");
     },
 
+    hmacsha1: function (toHash, salt) {
+        return crypto.createHmac("sha1", salt).update(toHash).digest("hex");
+    },
+
     createSalt: function () {
         return crypto.randomBytes(32).toString("hex");
     },
@@ -60,5 +64,9 @@ module.exports = {
             obj[o[key]] = key;
             return obj;
         }, {});
+    },
+    
+    b64encode: function (str) {
+        return new Buffer(str, "utf8").toString("base64");
     }
 };

@@ -246,6 +246,30 @@ server.get("/product/:product/:release", function (req, res) {
                             x.ScreenshotUUID = formatting.binToHex(x.ScreenshotUUID);
                             return x;
                         });
+
+                        // for vanilla
+                        var ssoString;
+                        if (config.useVanilla && req.user) {
+                            var builtObject = {
+                                email: req.user.Email,
+                                name: req.user.ShortName,
+                                roles: "member",
+                                uniqueid: formatting.binToHex(req.user.UserID),
+                            };
+                            if (req.user.UserFlags.some(function (x) { return x.FlagName == "vip"; })) {
+                                builtObject.roles += ",VIP";
+                            }
+                            if (req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+                                builtObject.roles += ",administrator";
+                            }
+                            builtObject.client_id = config.vanillaClientId;
+                            var jsonObject = JSON.stringify(builtObject);
+                            var b64Object = formatting.b64encode(jsonObject);
+                            var ts = Date.now().toString();
+                            var sign = formatting.hmacsha1(b64Object + " " + ts, config.vanillaSecret);
+                            ssoString = b64Object + " " + sign + " " + ts + " hmacsha1";
+                        }
+
                         res.render("release", {
                             product: product,
                             releases: rlRes,
@@ -257,7 +281,9 @@ server.get("/product/:product/:release", function (req, res) {
                             tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
                             platformMappingsInverted: formatting.invertObject(config.constants.tagMappings),
                             categoryMappings: config.constants.categoryMappings,
-                            categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
+                            categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings),
+
+                            ssoString: ssoString
                         });
                     });
                 });
