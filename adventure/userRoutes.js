@@ -48,7 +48,8 @@ server.get("/user/login", function (req, res) {
         return res.redirect(req.get("Referrer") || "/home");
     } else {
         return res.render("login", {
-            message: null
+            message: null,
+            target: req.query.target
         });
     }
 });
@@ -58,18 +59,21 @@ server.post("/user/login", urlencodedParser, function (req, res) {
         if (err) {
             console.log(err);
             return res.status(500).render("error", {
-                message: "There was an error authenticating."
+                message: "There was an error authenticating.",
+                target: req.query.target
             });
         }
         // if user is not found due to wrong username or password
         if (!user) {
             return res.status(400).render("login", {
-                message: "Invalid username or password."
+                message: "Invalid username or password.",
+                target: req.query.target
             });
         }
         if (user.AccountEnabled == "False") {
             return res.status(400).render("login", {
-                message: "Your account has been disabled."
+                message: "Your account has been disabled.",
+                target: req.query.target
             });
         }
         //passport.js has a logIn user method
@@ -77,7 +81,8 @@ server.post("/user/login", urlencodedParser, function (req, res) {
             if (err) {
                 console.log(err);
                 return res.status(500).render("error", {
-                    message: "There was an error authenticating."
+                    message: "There was an error authenticating.",
+                    target: req.query.target
                 });
             }
 
@@ -89,10 +94,11 @@ server.post("/user/login", urlencodedParser, function (req, res) {
 
             // The user has an insecure password and should change it.
             if (user.Salt) {
-                return res.redirect("/home");
+                return res.redirect(req.query.target || "/home");
             } else {
                 return res.render("error", {
-                    message: "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>."
+                    message: "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>.",
+                    target: req.query.target
                 });
             }
         });
