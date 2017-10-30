@@ -26,7 +26,7 @@
                 <% Object.keys(sitePages).forEach(function (i, n, a) { %>
                 <% if (sitePages[i].show) { %>
                 <li class="nav-item">
-                    <a class="nav-link" href="/<%= i %>"><%= sitePages[i].title %></a>
+                    <a class="nav-link" href="/<%= sitePages[i].redirectTo || i %>"><%= sitePages[i].title %></a>
                 </li>
                 <% } %>
                 <% }); %>
