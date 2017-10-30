@@ -50,6 +50,12 @@ server.use(require("./saReleaseRoutes.js")(config, database, sitePages));
 server.use(require("./saMirrorRoutes.js")(config, database, sitePages));
 server.use(require("./saUserRoutes.js")(config, database, sitePages));
 
+if (config.useVanilla) {
+    server.get("/forum", function (req, res) {
+        return res.render("vanillaForumEmbed");
+    });
+}
+
 // handle last because pages soaks up root routes
 server.use(require("./pageRoutes.js")(config, database, sitePages));
 
