@@ -172,7 +172,7 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
                     messageColour: "alert-danger",
                 });
             }
-            database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [req.body.email, id], function (pwErr, pwRes, pwFields) {
+            database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [config.usersCanEditEmail ? req.body.email : req.user.Email, id], function (pwErr, pwRes, pwFields) {
                 if (pwErr) {
                     return res.render("editProfile", {
                         message: "There was an error changing your profile.",

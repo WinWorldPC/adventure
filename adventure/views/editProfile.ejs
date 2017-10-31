@@ -21,6 +21,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+<% if (config.usersCanEditEmail) { %>
 <h2>Edit profile</h2>
 <form method="post" action="/user/edit" class="mb-2">
     <div class="form-group">
@@ -29,6 +30,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+<% } %>
 <h2>Flags</h2>
 <ul>
     <% user.UserFlags.forEach(function (i, n, a) { %>
