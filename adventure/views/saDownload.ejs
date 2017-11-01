@@ -114,11 +114,11 @@ Mirrors that are shown as striken out are not online. Toggling mirror presence w
     <% }); %>
 </ul>
 <h2>Delete download</h2>
-This will delete the release and mirror presence information. It will not delete the files on mirrors. Are you sure you want to do this?
+This will delete the download and mirror presence information. It will not delete the files on mirrors. Are you sure you want to do this?
 <form method="get" action="/sa/deleteDownload/<%= download.DLUUID %>" class="form-inline">
     <div class="form-group mb-2 mr-sm-2 mb-sm-0">
         <input class="form-check-input" name="yesPlease" id="saReleaseDeleteCheck" type="checkbox">
-        I want to delete this release
+        I want to delete this download
     </div>
     <button type="submit" id="saDownloadDeleteSubmit" class="btn btn-danger">Delete Download</button>
 </form>
