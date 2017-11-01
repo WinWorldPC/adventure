@@ -4,7 +4,19 @@
 <form method="post" action="/sa/editReleaseMetadata/<%= release.ReleaseUUID %>">
     <div class="form-group">
         <label for="productUUID">Associated product</label>
-        <input required type="text" class="form-control" id="productUUID" name="productUUID" placeholder="Associated product UUID" value="<%= release.ProductUUID %>">
+        <select required class="form-control" id="productUUID" name="productUUID">
+            <option style="font-style: italic" value="" <%= release.ProductUUID == null ? "selected" : "" %>>Orphaned release</option>
+            <optgroup label="All products">
+                <% availProducts.forEach(function (i, n, a) { %>
+                <option value="<%= i.ProductUUID %>" <%= release.ProductUUID == i.ProductUUID ? "selected" : "" %>>
+                    <%= i.Name %>
+                </option>
+                <% }); %>
+            </optgroup>
+        </select>
+        <noscript>
+            <input required type="text" class="form-control" id="productUUID" name="productUUID" placeholder="Associated product UUID" value="<%= release.ProductUUID %>">
+        </noscript>
     </div>
     <div class="row">
         <div class="form-group col">
