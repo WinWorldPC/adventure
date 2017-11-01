@@ -61,23 +61,31 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
         database.execute("SELECT * FROM `MirrorContents` WHERE `DownloadUUID` = ?", [download.DLUUID], function (mrErr, mrRes, mrFields) {
             //  WHERE `IsOnline` = True
             database.execute("SELECT * FROM `DownloadMirrors`", null, function (miErr, miRes, miFields) {
-                download.DLUUID = formatting.binToHex(download.DLUUID);
-                download.ReleaseUUID = download.ReleaseUUID ? formatting.binToHex(download.ReleaseUUID) : null;
-                var mirrors = miRes.map(function (x) {
-                    x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
-                    return x;
-                });
-                var mirrorContents = mrRes.map(function (x) {
-                    x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
-                    return x;
-                });
-                
-                return res.render("saDownload", {
-                    download: download,
-                    mirrors: mirrors,
-                    mirrorContents: mirrorContents,
-                    fileTypeMappings: config.constants.fileTypeMappings,
-                    fileTypeMappingsInverted: formatting.invertObject(config.constants.fileTypeMappings),
+                // for attachment dropdown; should also order releases when grouped too
+                database.execute("SELECT Releases.Name AS ReleaseName,Releases.ReleaseUUID AS ReleaseUUID,Products.Name AS ProductName FROM Products JOIN Releases USING(ProductUUID) ORDER BY Products.Name", null, function (prErr, prRes, prFields) {
+                    download.DLUUID = formatting.binToHex(download.DLUUID);
+                    download.ReleaseUUID = download.ReleaseUUID ? formatting.binToHex(download.ReleaseUUID) : null;
+                    var mirrors = miRes.map(function (x) {
+                        x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
+                        return x;
+                    });
+                    var mirrorContents = mrRes.map(function (x) {
+                        x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
+                        return x;
+                    });
+                    var availReleases = formatting.groupBy(prRes.map(function (x) {
+                        x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
+                        return x;
+                    }), "ProductName");
+
+                    return res.render("saDownload", {
+                        download: download,
+                        mirrors: mirrors,
+                        mirrorContents: mirrorContents,
+                        availReleases: availReleases,
+                        fileTypeMappings: config.constants.fileTypeMappings,
+                        fileTypeMappingsInverted: formatting.invertObject(config.constants.fileTypeMappings),
+                    });
                 });
             });
         });
