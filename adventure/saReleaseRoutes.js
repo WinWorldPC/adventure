@@ -32,27 +32,34 @@ server.get("/sa/release/:release", restrictedRoute("sa"), function (req, res) {
                 message: "There is no release."
             });
         }
-        database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
-            database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
-                // available products for combobox
-                database.execute("SELECT `ProductUUID`,`Name` FROM `Products` ORDER BY `Name`", [], function (prErr, prRes, prFields) {
-                    release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
-                    release.ProductUUID = formatting.binToHex(release.ProductUUID);
-                    var screenshots = scRes.map(function (x) {
-                        x.ScreenshotFile = config.screenshotBaseUrl + x.ScreenshotFile;
-                        x.ScreenshotUUID = formatting.binToHex(x.ScreenshotUUID);
-                        return x;
-                    });
-                    var availProducts = prRes.map(function (x) {
-                        x.ProductUUID = formatting.binToHex(x.ProductUUID);
-                        return x;
-                    });
-                    return res.render("saRelease", {
-                        release: release,
-                        serials: seRes,
-                        screenshots: scRes,
-                        availProducts: availProducts,
-                        platformMappingsInverted: formatting.invertObject(config.constants.platformMappings)
+        database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
+            database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
+                database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
+                    // available products for combobox
+                    database.execute("SELECT `ProductUUID`,`Name` FROM `Products` ORDER BY `Name`", [], function (prErr, prRes, prFields) {
+                        release.ReleaseUUID = formatting.binToHex(release.ReleaseUUID);
+                        release.ProductUUID = formatting.binToHex(release.ProductUUID);
+                        var downloads = dlRes.map(function (x) {
+                            x.DLUUID = formatting.binToHex(x.DLUUID);
+                            return x;
+                        });
+                        var screenshots = scRes.map(function (x) {
+                            x.ScreenshotFile = config.screenshotBaseUrl + x.ScreenshotFile;
+                            x.ScreenshotUUID = formatting.binToHex(x.ScreenshotUUID);
+                            return x;
+                        });
+                        var availProducts = prRes.map(function (x) {
+                            x.ProductUUID = formatting.binToHex(x.ProductUUID);
+                            return x;
+                        });
+                        return res.render("saRelease", {
+                            release: release,
+                            downloads: downloads,
+                            serials: seRes,
+                            screenshots: scRes,
+                            availProducts: availProducts,
+                            platformMappingsInverted: formatting.invertObject(config.constants.platformMappings)
+                        });
                     });
                 });
             });

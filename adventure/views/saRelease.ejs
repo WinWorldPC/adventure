@@ -124,6 +124,14 @@
     <button type="submit" class="btn btn-primary">Submit</button>
     <a class="btn btn-outline-primary" href="/release/<%= release.ReleaseUUID %>">Cancel</a>
 </form>
+<h2>Downloads</h2>
+<ul>
+    <% downloads.forEach(function (i, n, a) { %>
+    <li>
+        <a href="/download/<%= i.DLUUID %>"><%= i.Name %></a> (<a href="/sa/download/<%= i.DLUUID %>">Edit</a>)
+    </li>
+    <% }) %>
+</ul>
 <h2>Manage serials</h2>
 <ul>
     <% serials.forEach(function (i, n, a) { %>
