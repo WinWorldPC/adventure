@@ -280,6 +280,9 @@ server.get("/user/vanillaSSO", function (req, res) {
             builtObject.roles += ",administrator";
         }
         // for crypto's sake
+        // WARNING: Vanilla uses behaviour that DOES NOT match JavaScript stringify,
+        // set line 148 of functions.jsconnect.php to:
+        // $String = http_build_query($Data, NULL, '&', PHP_QUERY_RFC3986);
         var qs = querystring.stringify(builtObject);
         // append items that dont need to be signed/sorted
         builtObject.client_id = config.vanillaClientId;
