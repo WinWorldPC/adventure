@@ -111,7 +111,7 @@ function libraryRoute(req, res) {
                     category: req.params.category,
                     tag: req.params.tag,
                     tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
-                    platformMappingsInverted: formatting.invertObject(config.constants.tagMappings),
+                    platformMappingsInverted: formatting.invertObject(config.constants.platformMappings),
                     categoryMappings: config.constants.categoryMappings,
                     categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
                 });
