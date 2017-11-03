@@ -1,5 +1,6 @@
 ﻿var express = require("express"),
     morgan = require("morgan"),
+    flash = require("flash"),
     cookieParser = require("cookie-parser"),
     sessionParser = require("express-session"),
     database = require("./database.js"),
@@ -24,6 +25,7 @@ server.locals = {
 };
 server.use(cookieParser());
 server.use(sessionParser({ secret: config.sessionSecret || "hello world", resave: false, saveUninitialized: false }));
+server.use(flash());
 server.use(morgan(config.morganLogFormat));
 // if it's not there, don't use it - theoretically then, nginx could be handling it
 if (config.resDirectory) {

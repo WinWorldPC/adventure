@@ -1,10 +1,5 @@
 ﻿<%- include("head", {title: "Signup"}) %>
 <h1>Signup</h1>
-<% if (message) { %>
-<div class="alert alert-warning">
-    <%= message %>
-</div>
-<% } %>
 <form method="post" action="/user/signup">
     <div class="form-group">
         <label for="username">Username</label>

@@ -48,7 +48,6 @@ server.get("/user/login", function (req, res) {
         return res.redirect(req.get("Referrer") || "/home");
     } else {
         return res.render("login", {
-            message: null,
             target: req.query.target
         });
     }
@@ -58,21 +57,21 @@ server.post("/user/login", urlencodedParser, function (req, res) {
     passport.authenticate("local", function (err, user, info) {
         if (err) {
             console.log(err);
-            return res.status(500).render("error", {
-                message: "There was an error authenticating.",
+            req.flash("danger", "There was an error authenticating.");
+            return res.status(500).render("login", {
                 target: req.query.target
             });
         }
         // if user is not found due to wrong username or password
         if (!user) {
+            req.flash("danger", "Invalid username or password.");
             return res.status(400).render("login", {
-                message: "Invalid username or password.",
                 target: req.query.target
             });
         }
         if (user.AccountEnabled == "False") {
+            req.flash("danger", "Your account has been disabled.");
             return res.status(400).render("login", {
-                message: "Your account has been disabled.",
                 target: req.query.target
             });
         }
@@ -80,8 +79,8 @@ server.post("/user/login", urlencodedParser, function (req, res) {
         req.logIn(user, function (err) {
             if (err) {
                 console.log(err);
-                return res.status(500).render("error", {
-                    message: "There was an error authenticating.",
+                req.flash("danger", "There was an error authenticating.");
+                return res.status(500).render("login", {
                     target: req.query.target
                 });
             }
@@ -93,14 +92,10 @@ server.post("/user/login", urlencodedParser, function (req, res) {
             });
 
             // The user has an insecure password and should change it.
-            if (user.Salt) {
-                return res.redirect(req.query.target || "/home");
-            } else {
-                return res.render("error", {
-                    message: "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>.",
-                    target: req.query.target
-                });
+            if (!user.Salt) {
+                req.flash("warning", "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>.");
             }
+            return res.redirect(req.query.target || "/home");
         });
     })(req, res);
 });
@@ -113,10 +108,7 @@ server.get("/user/logout", function (req, res) {
 // TODO: Refactor these routes for admins to edit other profiles
 // They could use SQL for now, but as we extend, that's infeasible
 server.get("/user/edit", restrictedRoute(), function (req, res) {
-    return res.render("editProfile", {
-        message: null,
-        messageColour: null,
-    });
+    return res.render("editProfile");
 });
 
 server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req, res) {
@@ -129,34 +121,24 @@ server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req
                 var id = formatting.hexToBin(req.user.UserID.toString("hex"));
                 database.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, id], function (pwErr, pwRes, pwFields) {
                     if (pwErr) {
-                        return res.status(500).render("editProfile", {
-                            message: "There was an error changing your password.",
-                            messageColour: "alert-danger",
-                        });
+                        req.flash("danger", "There was an error changing your password.");
+                        return res.status(500).render("editProfile");
                     } else {
-                        return res.render("editProfile", {
-                            message: "Your password change was a success!",
-                            messageColour: "alert-success",
-                        });
+                        req.flash("success", "Your password change was a success!");
+                        return res.render("editProfile");
                     }
                 });
             } else {
-                return res.status(400).render("editProfile", {
-                    message: "The new passwords don't match.",
-                    messageColour: "alert-danger",
-                });
+                req.flash("danger", "The new passwords don't match.");
+                return res.status(400).render("editProfile");
             }
         } else {
-            return res.status(403).render("editProfile", {
-                message: "The current password given was incorrect.",
-                messageColour: "alert-danger",
-            });
+            req.flash("danger", "The current password given was incorrect.");
+            return res.status(403).render("editProfile");
         }
     } else {
-        return res.status(400).render("editProfile", {
-            message: "The request was malformed.",
-            messageColour: "alert-danger",
-        });
+        req.flash("danger", "The request was malformed.");
+        return res.status(400).render("editProfile");
     }
 });
 
@@ -167,30 +149,22 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
         var id = formatting.hexToBin(req.user.UserID.toString("hex"));
         database.execute("SELECT * FROM `Users` WHERE `Email` = ?", [req.body.email], function (slErr, slRes, slFields) {
             if (slRes.length > 0 && slRes[0].UserID.toString("hex") != req.user.UserID.toString("hex")) {
-                return res.status(400).render("editProfile", {
-                    message: "The email is in use.",
-                    messageColour: "alert-danger",
-                });
+                req.flash("danger", "The email is in use.");
+                return res.status(400).render("editProfile");
             }
             database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [config.usersCanEditEmail ? req.body.email : req.user.Email, id], function (pwErr, pwRes, pwFields) {
                 if (pwErr) {
-                    return res.render("editProfile", {
-                        message: "There was an error changing your profile.",
-                        messageColour: "alert-danger",
-                    });
+                    req.flash("danger", "There was an error changing your profile.");
+                    return res.status(500).render("editProfile");
                 } else {
-                    return res.render("editProfile", {
-                        message: "Your profile change was a success!",
-                        messageColour: "alert-success",
-                    });
+                    req.flash("success", "Your profile change was a success!");
+                    return res.render("editProfile");
                 }
             });
         });
     } else {
-        return res.status(400).render("editProfile", {
-            message: "The request was malformed.",
-            messageColour: "alert-danger",
-        });
+        req.flash("danger", "The request was malformed.");
+        return res.status(400).render("editProfile");
     }
 });
 
@@ -198,8 +172,10 @@ function signupPage(req, res, status, message) {
     var captcha = svgCaptcha.create({ size: 6, noise: 2 });
     req.session.captcha = captcha;
 
+    if (message)
+        req.flash("danger", message);
+
     return res.status(status || 200).render("signup", {
-        message: message,
         captcha: captcha.data,
     });
 }
@@ -227,6 +203,7 @@ server.post("/user/signup", urlencodedParser, function (req, res) {
                         if (inErr) {
                             return signupPage(req, res, 500, "There was an error creating your account.");
                         } else {
+                            req.flash("success", "Your account has been successfully made. You can log in now.");
                             res.redirect("/user/login");
                         }
                     });
