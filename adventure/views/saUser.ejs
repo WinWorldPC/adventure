@@ -14,6 +14,12 @@
 </form>
 <h2>Edit profile</h2>
 <form method="post" action="/sa/user/edit/<%= editingUser.UserID %>" class="mb-2">
+    <div class="form-check">
+        <label class="form-check-label">
+            <input class="form-check-input" name="enabled" type="checkbox" <%= editingUser.AccountEnabled == "True" ? "checked" : "" %>>
+            Account enabled
+        </label>
+    </div>
     <div class="form-group">
         <label for="email">Email address</label>
         <input type="email" class="form-control" id="email" name="email" placeholder="email" value="<%= editingUser.Email %>">

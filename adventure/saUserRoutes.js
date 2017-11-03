@@ -88,7 +88,7 @@ server.post("/sa/user/edit/:userId", restrictedRoute("sa"), urlencodedParser, fu
         var uuidAsBuf = formatting.hexToBin(req.params.userId);
         // HACK: nasty way to demangle UInt8Array
         var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-        database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [req.body.email, uuidAsBuf], function (pwErr, pwRes, pwFields) {
+        database.execute("UPDATE Users SET Email = ?, AccountEnabled = ? WHERE UserID = ?", [req.body.email, req.body.enabled ? "True" : "False", uuidAsBuf], function (pwErr, pwRes, pwFields) {
             if (pwErr) {
                 return res.status(500).render("error", {
                     message: "There was an error changing the user's profile."
