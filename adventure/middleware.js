@@ -12,7 +12,7 @@ function restrictedRoute(flag) {
                 });
             }
         } else {
-            return res.redirect("/user/login");
+            return res.redirect("/user/login?target=" + (req.method == "GET" ? req.path : req.get("Referrer")));
         }
     };
 }
