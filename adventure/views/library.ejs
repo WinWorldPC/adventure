@@ -29,7 +29,7 @@
     <% if (pages > 1) { %>
     <ul id="libraryPagination" class="pagination mr-auto">
         <%# HACK: How the hell does EJS get a string when we passed a number? %>
-        <% page = Number(page) %>
+        <% page = Number(page); pageBounds = config.perPageBounds; %>
         <%# Anyways, do bounds checking so we can make the pagination manageable. %>
         <% if (page - pageBounds > 1) { %>
                 <li class="page-item">

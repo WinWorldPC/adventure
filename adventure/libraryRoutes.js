@@ -107,7 +107,6 @@ function libraryRoute(req, res) {
                     products: productsFormatted,
                     page: page,
                     pages: pages,
-                    pageBounds: config.perPageBounds,
                     category: req.params.category,
                     tag: req.params.tag,
                     tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
@@ -151,7 +150,6 @@ function filesRoute(req, res) {
             res.render("files", {
                 page: page,
                 pages: pages,
-                pageBounds: config.perPageBounds,
                 files: files
             });
         });

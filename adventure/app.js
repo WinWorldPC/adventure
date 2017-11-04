@@ -50,6 +50,7 @@ server.use(require("./saDownloadRoutes.js")(config, database, sitePages));
 server.use(require("./saProductRoutes.js")(config, database, sitePages));
 server.use(require("./saReleaseRoutes.js")(config, database, sitePages));
 server.use(require("./saMirrorRoutes.js")(config, database, sitePages));
+server.use(require("./saContributionRoutes.js")(config, database));
 server.use(require("./saUserRoutes.js")(config, database, sitePages));
 
 // handle last because pages soaks up root routes

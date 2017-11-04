@@ -42,6 +42,9 @@
     <Compile Include="pageRoutes.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="saContributionRoutes.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="saMirrorRoutes.js">
       <SubType>Code</SubType>
     </Compile>
@@ -69,6 +72,7 @@
     <Content Include="pages\home.md" />
     <Content Include="pages\titles.json" />
     <Content Include="res\css\stickyFooter.css" />
+    <Content Include="views\saContributions.ejs" />
     <Content Include="views\foot.ejs" />
     <Content Include="views\head.ejs" />
     <Content Include="views\files.ejs" />
