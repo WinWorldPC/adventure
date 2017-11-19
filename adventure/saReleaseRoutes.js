@@ -229,6 +229,7 @@ server.get("/sa/createRelease/:product", restrictedRoute("sa"), function (req, r
         product.ProductUUID = formatting.binToHex(product.ProductUUID);
         return res.render("saCreateRelease", {
             product: product,
+            slug: req.query.slug || ""
         });
     });
 });

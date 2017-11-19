@@ -9,7 +9,7 @@ Fill in a name for the product, and the slug for the URL. The other fields can b
         </div>
         <div class="form-group col">
             <label for="slug">Slug</label>
-            <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" pattern="^[0-9A-Za-z-]+$">
+            <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" pattern="^[0-9A-Za-z-]+$" value="<%= slug %>">
             <small class="form-text text-muted">
                 Alphanumeric characters and hyphen only. This must be unique.
             </small>

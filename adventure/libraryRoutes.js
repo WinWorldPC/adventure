@@ -161,9 +161,14 @@ server.get("/product/:product", function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) {
-            return res.status(404).render("error", {
-                message: "There was no product."
-            });
+            if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+                req.flash("warning", "There was no product. You can create one now.");
+                return res.redirect("/sa/createProduct?slug=" + req.params.product);
+            } else {
+                return res.status(404).render("error", {
+                    message: "There was no product."
+                });
+            }
         }
         
         var fallback = function () {
@@ -173,6 +178,7 @@ server.get("/product/:product", function (req, res) {
                     return res.redirect("/product/" + product.Slug + "/" + release.Slug);
                 } else {
                     if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+                        req.flash("warning", "The product has no releases. You can create one now.");
                         return res.redirect("/sa/createRelease/" + formatting.binToHex(product.ProductUUID));
                     } else {
                         return res.status(404).render("error", {
@@ -202,25 +208,40 @@ server.get("/product/:product/:release", function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) {
-            return res.status(404).render("error", {
-                message: "There was no product."
-            });
+            if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+                req.flash("warning", "There was no product. You can create one now.");
+                return res.redirect("/sa/createProduct?slug=" + req.params.product);
+            } else {
+                return res.status(404).render("error", {
+                    message: "There was no product."
+                });
+            }
         }
         
         database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseDate`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
             if (rlRes == null || rlRes.length == 0) {
-                return res.status(404).render("error", {
-                    message: "There was no release."
-                });
+                if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+                    req.flash("warning", "The product has no releases. You can create one now.");
+                    return res.redirect("/sa/createRelease/" + formatting.binToHex(product.ProductUUID));
+                } else {
+                    return res.status(404).render("error", {
+                        message: "The product has no releases."
+                    });
+                }
             }
             var release = rlRes.find(function (x) {
                 if (x.Slug == req.params.release)
                     return x;
             });
             if (release == null) {
-                return res.status(404).render("error", {
-                    message: "There was no release."
-                });
+                if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
+                    req.flash("warning", "The product has no release by that name. You can create one now.");
+                    return res.redirect("/sa/createRelease/" + formatting.binToHex(product.ProductUUID) + "?slug=" + req.params.release);
+                } else {
+                    return res.status(404).render("error", {
+                        message: "There was no release by that name."
+                    });
+                }
             }
             database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
                 database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {

@@ -70,6 +70,7 @@ server.get("/sa/deleteProduct/:product", restrictedRoute("sa"), function (req, r
 
 server.get("/sa/createProduct", restrictedRoute("sa"), function (req, res) {
     return res.render("saCreateProduct", {
+        slug: req.query.slug || ""
     });
 });
 

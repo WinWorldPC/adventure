@@ -9,7 +9,7 @@ Fill in a name for the release, and the slug for the URL. The other fields can b
         </div>
         <div class="form-group col">
             <label for="slug">Slug</label>
-            <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" pattern="^[0-9A-Za-z-]+$">
+            <input required type="text" class="form-control" id="slug" name="slug" placeholder="Slug" pattern="^[0-9A-Za-z-]+$" value="<%= slug %>">
             <small class="form-text text-muted">
                 Alphanumeric characters and hyphen only. This must be unique.
             </small>
@@ -17,6 +17,6 @@ Fill in a name for the release, and the slug for the URL. The other fields can b
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
     <a class="btn btn-outline-primary" href="/product/<%= product.Slug %>">Cancel</a>
-    <a class="btn btn-outline-primary" href="/sa/product/<%= product.ProductUUID %>">Edit</a>
+    <a class="btn btn-outline-primary" href="/sa/product/<%= product.ProductUUID %>">Cancel and Edit Product</a>
 </form>
 <%- include("foot") %>
