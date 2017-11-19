@@ -87,7 +87,23 @@
       "games": "Game",
       "dev": "DevTool",
       "sys": "System"
-    }
+    },
+
+    "arch": [
+      "x86",
+      "x86-32",
+      "m68k",
+      "ppc",
+      "amd64",
+      "mos6502",
+      "ppc64",
+      "SPARC",
+      "SPARC64",
+      "MIPS",
+      "MIPS64",
+      "Alpha",
+      "Other"
+    ]
   }
 
 }
