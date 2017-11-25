@@ -12,18 +12,28 @@ var server = express.Router();
 
 server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
     database.execute("SELECT * FROM `Products` WHERE `ProductUUID` = ?", [formatting.hexToBin(req.params.product)], function (prErr, prRes, prFields) {
-        var product = prRes[0] || null;
-        if (prErr || product == null) {
-            return res.status(404).render("error", {
-                message: "There is no product."
+        database.execute("SELECT `Name`,`ReleaseUUID` FROM `Releases` WHERE `ProductUUID` = ?", [formatting.hexToBin(req.params.product)], function (rlErr, rlRes, rlFields) {
+            var product = prRes[0] || null;
+            var releases = rlRes.map(function (x) {
+                x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
+                return x;
             });
-        }
-        product.ProductUUID = formatting.binToHex(product.ProductUUID);
-        return res.render("saProduct", {
-            product: product,
-            tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
-            categoryMappings: config.constants.categoryMappings,
-            categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
+            if (prErr || product == null) {
+                return res.status(404).render("error", {
+                    message: "There is no product."
+                });
+            }
+            product.ProductUUID = formatting.binToHex(product.ProductUUID);
+            if (product.DefaultRelease) {
+                product.DefaultRelease = formatting.binToHex(product.DefaultRelease);
+            }
+            return res.render("saProduct", {
+                product: product,
+                releases: releases,
+                tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
+                categoryMappings: config.constants.categoryMappings,
+                categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
+            });
         });
     });
 });
@@ -31,8 +41,10 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
 server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     if (req.body && req.params.product && formatting.isHexString(req.params.product)) {
         var uuid = req.params.product;
-        var dbParams = [req.body.name, req.body.slug, req.body.notes, req.body.type, req.body.applicationTags || "", formatting.hexToBin(uuid)];
-        database.execute("UPDATE Products SET Name = ?, Slug = ?, Notes = ?, Type = ?, ApplicationTags = ? WHERE ProductUUID = ?", dbParams, function (prErr, prRes, prFields) {
+        var defaultRelease = req.body.defaultRelease || "";   
+        var defaultReleaseAsUuid = formatting.isHexString(defaultRelease) ? formatting.hexToBin(defaultRelease) : null;
+        var dbParams = [req.body.name, req.body.slug, req.body.notes, req.body.type, req.body.applicationTags || "", defaultReleaseAsUuid, formatting.hexToBin(uuid)];
+        database.execute("UPDATE Products SET Name = ?, Slug = ?, Notes = ?, Type = ?, ApplicationTags = ?, DefaultRelease = ? WHERE ProductUUID = ?", dbParams, function (prErr, prRes, prFields) {
             if (prErr) {
                 return res.status(500).render("error", {
                     message: "The product could not be edited."
