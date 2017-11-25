@@ -70,7 +70,7 @@
         <div class="form-group col">
             <label for="sha1Sum">SHA1 checksum</label>
             <input required type="text" class="form-control" id="sha1Sum" name="sha1Sum" placeholder="SHA1 checksum"
-                   style="font-family:monospace" pattern="^[0-9a-f]{40}$" value="<%= download.SHA1Sum.toString('hex') %>">
+                   style="font-family:monospace" pattern="^[0-9A-Fa-f]{40}$" value="<%= download.SHA1Sum.toString('hex') %>">
         </div>
         <div class="form-group col">
             <label for="fileSize">File size</label>

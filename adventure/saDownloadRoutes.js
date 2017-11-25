@@ -93,7 +93,7 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
 });
 
 server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlencodedParser, function (req, res) {
-    if (req.body && req.params.download && formatting.isHexString(req.params.download) && formatting.isHexString(req.body.releaseUUID) && /^[0-9a-f]{40}$/.test(req.body.sha1Sum)) {
+    if (req.body && req.params.download && formatting.isHexString(req.params.download) && formatting.isHexString(req.body.releaseUUID) && /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)) {
         var uuid = req.params.download;
         var releaseUuidAsBuf = formatting.hexToBin(req.body.releaseUUID);
         var arch = req.body.arch || "";
@@ -176,7 +176,7 @@ server.get("/sa/createDownload/:release", restrictedRoute("sa"), function (req, 
 server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     const getNewProductQuery = "SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? && `Name` = ? && `Version` = ? && `DownloadPath` = ? && `OriginalPath` = ? && `FileName` = ? && `SHA1Sum` = ?";
     
-    if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.downloadPath && req.body.name && req.body.version && /^[0-9a-f]{40}$/.test(req.body.sha1Sum)) {
+    if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.downloadPath && req.body.name && req.body.version && /^[0-9A_Fa-f]{40}$/.test(req.body.sha1Sum)) {
         // check for dupe
         var uuidAsBuf = formatting.hexToBin(req.params.release);
         var downloadPath = req.body.downloadPath;
