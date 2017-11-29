@@ -1,5 +1,12 @@
 ﻿<%- include("head", {title: "Editing user " + editingUser.ShortName}) %>
 <h1>Editing user <var><%= editingUser.ShortName  %></var></h1>
+<h2>Details</h2>
+<form>
+    <div class="form-group">
+        <label for="regDate">Registration date</label>
+        <input readonly type="text" class="form-control" id="regDate" name="regDate" placeholder="Registration date" value="<%= editingUser.RegistrationTime %>">
+    </div>
+</form>
 <h2>Change password</h2>
 <form method="post" action="/sa/user/changepw/<%= editingUser.UserID %>" class="mb-2">
     <div class="form-group">
@@ -22,7 +29,7 @@
     </div>
     <div class="form-group">
         <label for="email">Email address</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="email" value="<%= editingUser.Email %>">
+        <input type="email" class="form-control" id="email" name="email" placeholder="Email address" value="<%= editingUser.Email %>">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

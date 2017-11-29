@@ -1,5 +1,12 @@
 ﻿<%- include("head", {title: "Edit profile"}) %>
 <h1>Edit profile</h1>
+<h2>Details</h2>
+<form>
+    <div class="form-group">
+        <label for="regDate">Registration date</label>
+        <input readonly type="text" class="form-control" id="regDate" name="regDate" placeholder="Registration date" value="<%= user.RegistrationTime %>">
+    </div>
+</form>
 <h2>Change password</h2>
 <form method="post" action="/user/changepw" class="mb-2">
     <div class="form-group">
@@ -16,20 +23,27 @@
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
-<% if (config.usersCanEditEmail) { %>
 <h2>Edit profile</h2>
 <form method="post" action="/user/edit" class="mb-2">
+    <% if (config.usersCanEditEmail) { %>
     <div class="form-group">
         <label for="email">Email address</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="email" value="<%= user.Email %>">
+        <input type="email" class="form-control" id="email" name="email" placeholder="Email address" value="<%= user.Email %>">
     </div>
+    <% } else { %>
+    <div class="form-group">
+        <label for="email">Email address</label>
+        <input readonly type="email" class="form-control" id="email" name="email" placeholder="Email address" value="<%= user.Email %>">
+    </div>
+    <% } %>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
-<% } %>
+<% if (user.UserFlags && user.UserFlags.length > 0) { %>
 <h2>Flags</h2>
 <ul>
     <% user.UserFlags.forEach(function (i, n, a) { %>
     <li><%= i.LongName %></li>
     <% }); %>
 </ul>
+<% } %>
 <%- include("foot") %>
