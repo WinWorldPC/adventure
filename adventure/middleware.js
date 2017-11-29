@@ -12,7 +12,8 @@ function restrictedRoute(flag) {
                 });
             }
         } else {
-            return res.redirect("/user/login?target=" + (req.method == "GET" ? req.path : req.get("Referrer")));
+            req.flash("warning", "You need to log in to access this route.");
+            return res.redirect("/user/login?target=" + res.locals.loginRedirectTarget);
         }
     };
 }

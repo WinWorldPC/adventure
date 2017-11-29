@@ -38,11 +38,12 @@ if (config.runBehindProxy) {
 }
 
 // Application routes
-server.use(require("./userRoutes.js")(config, database, sitePages));
 server.use(function (req, res, next) {
     res.locals.user = req.user;
+    res.locals.loginRedirectTarget = (req.method == "GET" ? req.path : req.get("Referrer")) || "";
     next();
 });
+server.use(require("./userRoutes.js")(config, database, sitePages));
 
 server.use(require("./libraryRoutes.js")(config, database, sitePages));
 
