@@ -176,7 +176,7 @@ server.get("/sa/createDownload/:release", restrictedRoute("sa"), function (req, 
 server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     const getNewProductQuery = "SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? && `Name` = ? && `Version` = ? && `DownloadPath` = ? && `OriginalPath` = ? && `FileName` = ? && `SHA1Sum` = ?";
     
-    if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.downloadPath && req.body.name && req.body.version && /^[0-9A_Fa-f]{40}$/.test(req.body.sha1Sum)) {
+    if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.downloadPath && req.body.name && req.body.version && /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)) {
         // check for dupe
         var uuidAsBuf = formatting.hexToBin(req.params.release);
         var downloadPath = req.body.downloadPath;
