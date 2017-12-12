@@ -54,7 +54,7 @@
         <label for="arch">Processor architecture</label>
         <select multiple class="form-control" id="arch" name="arch">
             <% config.constants.arch.forEach(function (i, n, a) { %>
-            <option <%= download.Arch && download.Arch == i ? "selected" : "" %> value="<%= i %>"><%= i %></option>
+            <option <%= download.Arch && download.Arch.split(',').some(x => x == i) ? "selected" : "" %> value="<%= i %>"><%= i %></option>
             <% }); %>
         </select>
     </div>
