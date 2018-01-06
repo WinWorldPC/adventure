@@ -57,11 +57,7 @@ server.post("/sa/user/changepw/:userId", restrictedRoute("sa"), urlencodedParser
     if (req.body && req.body.newPassword && req.body.newPasswordR) {
         var uuidAsBuf = formatting.hexToBin(req.params.userId);
         if (req.body.newPassword == req.body.newPasswordR) {
-            var salt = formatting.createSalt();
-            var newPassword = formatting.sha256(req.body.newPassword + salt);
-            // HACK: nasty way to demangle UInt8Array
-            var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-            database.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, uuidAsBuf], function (pwErr, pwRes, pwFields) {
+            database.userChangePassword(req.user.UserID, req.body.newPassword, function (pwErr) {
                 if (pwErr) {
                     return res.status(500).render("error", {
                         message: "There was an error changing the user's password."

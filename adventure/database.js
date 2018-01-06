@@ -38,6 +38,12 @@ module.exports = {
     // TODO: Turn raw queries from routes into more usable functions (abstract away SQL)
     
     userFlags: [],
+    populateUserFlags: function () {
+        this.execute("SELECT * FROM `UserFlags`", [], function (ufErr, ufRes, ufFields) {
+            // first, init userFlags
+            this.userFlags = ufRes;
+        });
+    },
     userGetFlags: function (id, cb) {
         this.execute("SELECT DISTINCT `FlagUUID`,`UserUUID` FROM `UserFlagHolders` WHERE `UserUUID` = ?", [formatting.hexToBin(id)], function (fhErr, fhRes, fhFields) {
             var flags = fhRes.map(function (x) {
@@ -72,4 +78,11 @@ module.exports = {
             }
         });
     },
+    userChangePassword: function (userId, password, cb) {
+        var salt = formatting.createSalt();
+        var newPassword = formatting.sha256(password + salt);
+        this.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, userId], function (pwErr, pwRes, pwFields) {
+            cb(pwErr);
+        });
+    }
 };

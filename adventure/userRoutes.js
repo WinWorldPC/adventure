@@ -18,8 +18,10 @@ passport.use("local", new localStrategy({ usernameField: "username", passwordFie
     database.userByName(username, function (err, user) {
         if (err) { return cb(err); }
         if (!user) { return cb(null, false); }
-        // wtf
-        if (user.Password != formatting.sha256(password + (user.Salt || ""))) { return cb(null, false); }
+        var givenPassword = formatting.sha256(password + (user.Salt || ""));
+        if (user.Password != givenPassword) {
+            return cb(null, false);
+        }
         return cb(null, user);
     });
 }));
@@ -115,11 +117,7 @@ server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req
     if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
         if (formatting.sha256(req.body.password + (req.user.Salt || "")) == req.user.Password) {
             if (req.body.newPassword == req.body.newPasswordR) {
-                var salt = formatting.createSalt();
-                var newPassword = formatting.sha256(req.body.newPassword + salt);
-                // HACK: nasty way to demangle UInt8Array
-                var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-                database.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, id], function (pwErr, pwRes, pwFields) {
+                database.userChangePassword(req.user.UserID, req.body.newPassword, function (pwErr) {
                     if (pwErr) {
                         req.flash("danger", "There was an error changing your password.");
                         return res.status(500).render("editProfile");
@@ -284,10 +282,7 @@ module.exports = function (c, d, p) {
     sitePages = p;
     
     // init user flags once we're connected
-    database.execute("SELECT * FROM `UserFlags`", [], function (ufErr, ufRes, ufFields) {
-        // first, init userFlags
-        database.userFlags = ufRes;
-    });
+    database.populateUserFlags();
 
     return server;
 }

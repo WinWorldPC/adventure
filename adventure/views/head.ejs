@@ -81,7 +81,7 @@
         <div id="messages">
             <% while (message = flash.shift()) { %>
             <div class="alert alert-<%= message.type %>">
-                <%= message.message %>
+                <%- message.message %>
             </div>
             <% } %>
         </div>
