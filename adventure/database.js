@@ -38,11 +38,14 @@ module.exports = {
     // TODO: Turn raw queries from routes into more usable functions (abstract away SQL)
     
     userFlags: [],
-    populateUserFlags: function () {
+    userFlagsPopulate: function () {
         this.execute("SELECT * FROM `UserFlags`", [], function (ufErr, ufRes, ufFields) {
             // first, init userFlags
             this.userFlags = ufRes;
         });
+    },
+    userFlagByName: function (name) {
+        return this.userFlags.filter(function (x) { return x.FlagName == name })[0].FlagUUID;
     },
     userGetFlags: function (id, cb) {
         this.execute("SELECT DISTINCT `FlagUUID`,`UserUUID` FROM `UserFlagHolders` WHERE `UserUUID` = ?", [formatting.hexToBin(id)], function (fhErr, fhRes, fhFields) {
@@ -106,6 +109,18 @@ module.exports = {
     userEditProfile: function (id, enabled, email, cb) {
         this.execute("UPDATE Users SET Email = ?, AccountEnabled = ? WHERE UserID = ?", [email, enabled, id], function (prErr, prRes, prFields) {
             cb(prErr);
+        });
+    },
+    userAddFlag: function (id, flag, cb) {
+        var flag = this.userFlagByName(flag);
+        this.execute("INSERT INTO UserFlagHolders (FlagUUID, UserUUID) VALUES (?, ?)", [flag, id], function (flErr, flRes, flFields) {
+            cb(flErr)
+        });
+    },
+    userRemoveFlag: function (id, flag, cb) {
+        var flag = this.userFlagByName(flag);
+        this.execute("DELETE FROM UserFlagHolders WHERE FlagUUID = ? && UserUUID = ?", [flag, id], function (flErr, flRes, flFields) {
+            cb(flErr)
         });
     }
 };

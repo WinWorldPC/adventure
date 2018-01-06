@@ -280,7 +280,7 @@ module.exports = function (c, d, p) {
     sitePages = p;
     
     // init user flags once we're connected
-    database.populateUserFlags();
+    database.userFlagsPopulate();
 
     return server;
 }
