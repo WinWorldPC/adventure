@@ -86,13 +86,9 @@ server.post("/user/login", urlencodedParser, function (req, res) {
                     target: req.query.target
                 });
             }
-
-            // Update LastSeenTime
-            var id = formatting.hexToBin(user.UserID.toString("hex"));
-            database.execute("UPDATE Users SET LastSeenTime = NOW() WHERE UserId = ?", [id], function (lsErr, lsRes, lsFields) {
-                // we can wait this one out
+            database.userUpdateLastSeenTime(user.UserID, function (lsErr) {
+                req.flash("warning", "Your last login time couldn't be updated.");
             });
-
             // The user has an insecure password and should change it.
             if (!user.Salt) {
                 req.flash("warning", "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>.");

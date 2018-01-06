@@ -78,6 +78,11 @@ module.exports = {
             }
         });
     },
+    userUpdateLastSeenTime: function (id, cb) {
+        this.execute("UPDATE Users SET LastSeenTime = NOW() WHERE UserId = ?", [id], function (lsErr, lsRes, lsFields) {
+            cb(lsErr);
+        });
+    },
     userChangePassword: function (userId, password, cb) {
         var salt = formatting.createSalt();
         var newPassword = formatting.sha256(password + salt);
