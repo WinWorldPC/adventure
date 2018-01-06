@@ -82,8 +82,6 @@ server.post("/sa/user/edit/:userId", restrictedRoute("sa"), urlencodedParser, fu
     // TODO: Extend as we extend editable profile options (none for now)
     if (req.body && req.body.email) {
         var uuidAsBuf = formatting.hexToBin(req.params.userId);
-        // HACK: nasty way to demangle UInt8Array
-        var id = formatting.hexToBin(req.user.UserID.toString("hex"));
         var enabled = req.body.enabled ? "True" : "False";
         database.userEditProfile(uuidAsBuf, enabled, req.body.email, function (prErr) {
             if (prErr) {

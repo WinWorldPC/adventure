@@ -31,7 +31,7 @@ passport.serializeUser(function (user, cb) {
 });
 passport.deserializeUser(function (id, cb) {
     database.userById(formatting.hexToBin(id), function (err, user) {
-        if (err) { return cb(err); }
+        if (err || user == null) { return cb(err); }
         cb(null, user);
     });
 });
@@ -143,7 +143,7 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
         var id = formatting.hexToBin(req.user.UserID.toString("hex"));
         // check for existing user with email
         database.userByEmail(req.body.email, function (slErr, slRes) {
-            if (slRes.length > 0 && slRes[0].UserID.toString("hex") != req.user.UserID.toString("hex")) {
+            if (slRes && slRes.UserID.toString("hex") != req.user.UserID.toString("hex")) {
                 req.flash("danger", "The email is in use.");
                 return res.status(400).render("editProfile");
             }
@@ -187,20 +187,26 @@ server.post("/user/signup", urlencodedParser, function (req, res) {
         }
         if (req.body.captcha == req.session.captcha.text) {
             // check for username existence
-            database.execute("SELECT * FROM `Users` WHERE `ShortName` = ? OR `Email` = ?", [req.body.username, req.body.email], function (slErr, slRes, slFields) {
-                if (slErr) {
+            database.userByEmail(req.body.email, function (ueErr, ueRes) {
+                if (ueErr) {
                     return signupPage(req, res, 500, "There was an error checking the database.");
-                } else if (slRes.length > 0) {
+                } else if (ueRes) {
                     return signupPage(req, res, 400, "There is already a user with that name or email address.");
                 } else {
-                    var salt = formatting.createSalt();
-                    var password = formatting.sha256(req.body.password + salt);
-                    database.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`, `Salt`, `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [req.body.username, req.body.email, password, salt, req.ip], function (inErr, inRes, inFields) {
-                        if (inErr) {
-                            return signupPage(req, res, 500, "There was an error creating your account.");
+                    database.userByName(req.body.username, function (unErr, unRes) {
+                        if (unErr) {
+                            return signupPage(req, res, 500, "There was an error checking the database.");
+                        } else if (unRes) {
+                            return signupPage(req, res, 400, "There is already a user with that name or email address.");
                         } else {
-                            req.flash("success", "Your account has been successfully made. You can log in now.");
-                            res.redirect("/user/login");
+                            database.userCreate(req.body.username, req.body.email, req.body.password, req.ip, function (inErr) {
+                                if (inErr) {
+                                    return signupPage(req, res, 500, "There was an error creating your account.");
+                                } else {
+                                    req.flash("success", "Your account has been successfully made. You can log in now.");
+                                    res.redirect("/user/login");
+                                }
+                            });
                         }
                     });
                 }

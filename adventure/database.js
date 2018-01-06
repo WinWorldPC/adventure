@@ -48,7 +48,7 @@ module.exports = {
         return this.userFlags.filter(function (x) { return x.FlagName == name })[0].FlagUUID;
     },
     userGetFlags: function (id, cb) {
-        this.execute("SELECT DISTINCT `FlagUUID`,`UserUUID` FROM `UserFlagHolders` WHERE `UserUUID` = ?", [formatting.hexToBin(id)], function (fhErr, fhRes, fhFields) {
+        this.execute("SELECT DISTINCT `FlagUUID`,`UserUUID` FROM `UserFlagHolders` WHERE `UserUUID` = ?", [id], function (fhErr, fhRes, fhFields) {
             var flags = fhRes.map(function (x) {
                 return module.exports.userFlags.find(function (z) { return z.FlagUUID.toString("hex") == x.FlagUUID.toString("hex") });
             });
@@ -58,10 +58,12 @@ module.exports = {
     userByName: function (username, cb) {
         this.execute("SELECT * FROM `Users` WHERE `ShortName` = ?", [username], function (uErr, uRes, uFields) {
             var user = uRes[0] || null;
-            if (uErr || user == null) {
+            if (uErr) {
                 return cb(uErr, null);
+            } else if (user == null) {
+                return cb(null, null);
             } else {
-                module.exports.userGetFlags(user.UserID.toString("hex"), function (err, flags) {
+                module.exports.userGetFlags(user.UserID, function (err, flags) {
                     user.UserFlags = flags;
                     return cb(null, user);
                 });
@@ -71,10 +73,12 @@ module.exports = {
     userByEmail: function (email, cb) {
         this.execute("SELECT * FROM `Users` WHERE `Email` = ?", [email], function (uErr, uRes, uFields) {
             var user = uRes[0] || null;
-            if (uErr || user == null) {
+            if (uErr) {
                 return cb(uErr, null);
+            } else if (user == null) {
+                return cb(null, null);
             } else {
-                module.exports.userGetFlags(user.UserID.toString("hex"), function (err, flags) {
+                module.exports.userGetFlags(user.UserID, function (err, flags) {
                     user.UserFlags = flags;
                     return cb(null, user);
                 });
@@ -84,10 +88,12 @@ module.exports = {
     userById: function (id, cb) {
         this.execute("SELECT * FROM `Users` WHERE `UserID` = ?", [id], function (uErr, uRes, uFields) {
             var user = uRes[0] || null;
-            if (uErr || user == null) {
+            if (uErr) {
                 return cb(uErr, null);
+            } else if (user == null) {
+                return cb(null, null);
             } else {
-                module.exports.userGetFlags(user.UserID.toString("hex"), function (err, flags) {
+                module.exports.userGetFlags(user.UserID, function (err, flags) {
                     user.UserFlags = flags;
                     return cb(null, user);
                 });
@@ -122,5 +128,12 @@ module.exports = {
         this.execute("DELETE FROM UserFlagHolders WHERE FlagUUID = ? && UserUUID = ?", [flag, id], function (flErr, flRes, flFields) {
             cb(flErr)
         });
-    }
+    },
+    userCreate: function (username, email, password, ip, cb) {
+        var salt = formatting.createSalt();
+        var newPassword = formatting.sha256(password + salt);
+        database.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`, `Salt`, `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [username, email, newPassword, salt, ip], function (inErr, inRes, inFields) {
+            cb(inErr);
+        });
+    },
 };
