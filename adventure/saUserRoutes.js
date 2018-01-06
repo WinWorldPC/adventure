@@ -57,7 +57,7 @@ server.post("/sa/user/changepw/:userId", restrictedRoute("sa"), urlencodedParser
     if (req.body && req.body.newPassword && req.body.newPasswordR) {
         var uuidAsBuf = formatting.hexToBin(req.params.userId);
         if (req.body.newPassword == req.body.newPasswordR) {
-            database.userChangePassword(req.user.UserID, req.body.newPassword, function (pwErr) {
+            database.userChangePassword(uuidAsBuf, req.body.newPassword, function (pwErr) {
                 if (pwErr) {
                     return res.status(500).render("error", {
                         message: "There was an error changing the user's password."
@@ -84,8 +84,9 @@ server.post("/sa/user/edit/:userId", restrictedRoute("sa"), urlencodedParser, fu
         var uuidAsBuf = formatting.hexToBin(req.params.userId);
         // HACK: nasty way to demangle UInt8Array
         var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-        database.execute("UPDATE Users SET Email = ?, AccountEnabled = ? WHERE UserID = ?", [req.body.email, req.body.enabled ? "True" : "False", uuidAsBuf], function (pwErr, pwRes, pwFields) {
-            if (pwErr) {
+        var enabled = req.body.enabled ? "True" : "False";
+        database.userEditProfile(uuidAsBuf, enabled, req.body.email, function (prErr) {
+            if (prErr) {
                 return res.status(500).render("error", {
                     message: "There was an error changing the user's profile."
                 });

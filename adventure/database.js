@@ -52,8 +52,21 @@ module.exports = {
             return cb(fhErr, flags);
         });
     },
-    userByName: function (email, cb) {
-        this.execute("SELECT * FROM `Users` WHERE `ShortName` = ?", [email], function (uErr, uRes, uFields) {
+    userByName: function (username, cb) {
+        this.execute("SELECT * FROM `Users` WHERE `ShortName` = ?", [username], function (uErr, uRes, uFields) {
+            var user = uRes[0] || null;
+            if (uErr || user == null) {
+                return cb(uErr, null);
+            } else {
+                module.exports.userGetFlags(user.UserID.toString("hex"), function (err, flags) {
+                    user.UserFlags = flags;
+                    return cb(null, user);
+                });
+            }
+        });
+    },
+    userByEmail: function (email, cb) {
+        this.execute("SELECT * FROM `Users` WHERE `Email` = ?", [email], function (uErr, uRes, uFields) {
             var user = uRes[0] || null;
             if (uErr || user == null) {
                 return cb(uErr, null);
@@ -83,11 +96,16 @@ module.exports = {
             cb(lsErr);
         });
     },
-    userChangePassword: function (userId, password, cb) {
+    userChangePassword: function (id, password, cb) {
         var salt = formatting.createSalt();
         var newPassword = formatting.sha256(password + salt);
-        this.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, userId], function (pwErr, pwRes, pwFields) {
+        this.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, id], function (pwErr, pwRes, pwFields) {
             cb(pwErr);
+        });
+    },
+    userEditProfile: function (id, enabled, email, cb) {
+        this.execute("UPDATE Users SET Email = ?, AccountEnabled = ? WHERE UserID = ?", [email, enabled, id], function (prErr, prRes, prFields) {
+            cb(prErr);
         });
     }
 };

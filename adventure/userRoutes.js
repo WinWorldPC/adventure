@@ -141,13 +141,15 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
     if (req.body && req.body.email) {
         // HACK: nasty way to demangle UInt8Array
         var id = formatting.hexToBin(req.user.UserID.toString("hex"));
-        database.execute("SELECT * FROM `Users` WHERE `Email` = ?", [req.body.email], function (slErr, slRes, slFields) {
+        // check for existing user with email
+        database.userByEmail(req.body.email, function (slErr, slRes) {
             if (slRes.length > 0 && slRes[0].UserID.toString("hex") != req.user.UserID.toString("hex")) {
                 req.flash("danger", "The email is in use.");
                 return res.status(400).render("editProfile");
             }
-            database.execute("UPDATE Users SET Email = ? WHERE UserID = ?", [config.usersCanEditEmail ? req.body.email : req.user.Email, id], function (pwErr, pwRes, pwFields) {
-                if (pwErr) {
+            var newEmail = config.usersCanEditEmail ? req.body.email : req.user.Email;
+            database.userEditProfile(req.user.UserID, req.user.AccountEnabled, newEmail, function (prErr) {
+                if (prErr) {
                     req.flash("danger", "There was an error changing your profile.");
                     return res.status(500).render("editProfile");
                 } else {
