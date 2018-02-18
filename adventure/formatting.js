@@ -1,4 +1,5 @@
-﻿var crypto = require("crypto");
+﻿var bcrypt = require('bcryptjs');
+var crypto = require("crypto");
 
 module.exports = {
     roundToPrecision: function(number, precision) {
@@ -53,6 +54,24 @@ module.exports = {
 
     createSalt: function () {
         return crypto.randomBytes(32).toString("hex");
+    },
+
+    generateHashPassword: function(password, cb) {
+        return bcrypt.hash(password, 12, cb);
+    },
+
+    checkPassword: function(specified, salt, storedPassword, cb) {
+        if (storedPassword.startsWith("$2a$")) {
+            // hashed with bcrypt
+            return bcrypt.compare(specified, storedPassword, function(err, success) {
+                cb(err, success, false)
+            })
+        } else {
+            // hashed with salted SHA-256 and should be upgraded
+            setImmediate(function() {
+                cb(null, crypto.timingSafeEqual(storedPassword, formatting.sha256(password + (salt || "")), false))
+            })
+        }
     },
 
     invertObject: function (o) {
