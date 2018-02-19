@@ -132,7 +132,7 @@ module.exports = {
     userCreate: function (username, email, password, ip, cb) {
         var salt = formatting.createSalt();
         var newPassword = formatting.sha256(password + salt);
-        database.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`, `Salt`, `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [username, email, newPassword, salt, ip], function (inErr, inRes, inFields) {
+        this.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`, `Salt`, `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [username, email, newPassword, salt, ip], function (inErr, inRes, inFields) {
             cb(inErr);
         });
     },
