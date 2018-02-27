@@ -64,7 +64,7 @@ module.exports = {
         if (storedPassword.startsWith("$2a$")) {
             // hashed with bcrypt
             return bcrypt.compare(specified, storedPassword, function(err, success) {
-                cb(err, success, false)
+                cb(err, success, true)
             })
         } else {
             // hashed with salted SHA-256 and should be upgraded
