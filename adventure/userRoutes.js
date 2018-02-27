@@ -30,8 +30,9 @@ passport.use("local", new localStrategy({ usernameField: "username", passwordFie
                 database.userChangePassword(user.UserID, password, function(upgradeErr) {
                     return cb(upgradeErr, user);
                 })
+            } else {
+                return cb(null, user);
             }
-            return cb(null, user);
         })
     });
 }));
