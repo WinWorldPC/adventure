@@ -131,7 +131,7 @@ module.exports = {
     },
     userCreate: function (username, email, password, ip, cb) {
         formatting.hashPassword(password, function(err, hash) {
-            database.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`,  `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [username, email, hash, ip], function (inErr, inRes, inFields) {
+            this.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`,  `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [username, email, hash, ip], function (inErr, inRes, inFields) {
                 cb(inErr);
             });
         })
