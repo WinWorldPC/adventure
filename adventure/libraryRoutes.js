@@ -541,17 +541,16 @@ server.post("/check-x-sendfile", urlencodedParser, function (req, res) {
     console.log("[INFO] check-x-sendfile: url encoded and decoded are " + file + " and " + decodeURIComponent(file));
     file = decodeURIComponent(file);
     var ip = req.body.ip;
-    // mirror thing striped the initial ./ sometimes, concat a "%" and use LIKE to grab it
-    // TODO: maybe thats a bit overzealous
-    database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` LIKE CONCAT(\"%\", ?)", [file], function (dhErr, dhRes, dhFields) {
+    // mirror thing striped the initial ./ sometimes try with and without
+    database.execute("SELECT DLUUID FROM `Downloads` WHERE `DownloadPath` = ? OR `DownloadPath` = CONCAT(\"./\", ?)", [file, file], function (dhErr, dhRes, dhFields) {
         var dl = dhRes[0] || null;
         if (dl == null) {
             console.log("[ERR] check-x-sendfile failed, null download! false for/on " + file + "/" + ip);
             return res.status(403).send("false");
         }
         database.execute("SELECT * FROM `DownloadHits` WHERE `IPAddress` = ? AND `DownloadUUID` = ?", [ip, dl.DLUUID], function (dhErr, dhRes, dhFields) {
-            console.log("check-x-sendfile: " + dhRes.length ? "true" : "false" + " for/on " + file + " (" + formatting.binToHex(dl.DLUUID) + ")/" + ip);
-            return res.send(dhRes.length ? "true" : "false");
+            console.log("[INFO] check-x-sendfile: " + (dhRes.length ? "true" : "false") + " for/on " + file + " (" + formatting.binToHex(dl.DLUUID) + ")/" + ip);
+            return res.send(dhRes.length ? "true" : ("potentially invalid download ID: " + formatting.binToHex(dl.DLUUID)));
         });
     });
 });
