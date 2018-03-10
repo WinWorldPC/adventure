@@ -22,18 +22,24 @@ server.get("/sa/mirrors", restrictedRoute("sa"), function (req, res) {
 });
 
 server.get("/sa/mirror/:mirror", restrictedRoute("sa"), function (req, res) {
-    database.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [formatting.hexToBin(req.params.mirror)], function (mrErr, mrRes, mrFields) {
-        var mirror = mrRes[0] || null;
-        if (mrErr || mirror == null) {
-            res.status(404).render("error", {
-                message: "There is no mirror."
+    if (req.params.mirror && formatting.isHexString(req.params.mirror)) {
+        database.execute("SELECT * FROM `DownloadMirrors` WHERE `MirrorUUID` = ?", [formatting.hexToBin(req.params.mirror)], function (mrErr, mrRes, mrFields) {
+            var mirror = mrRes[0] || null;
+            if (mrErr || mirror == null) {
+                res.status(404).render("error", {
+                    message: "There is no mirror."
+                });
+            }
+            mirror.MirrorUUID = formatting.binToHex(mirror.MirrorUUID);
+            return res.render("saMirror", {
+                mirror: mirror,
             });
-        }
-        mirror.MirrorUUID = formatting.binToHex(mirror.MirrorUUID);
-        return res.render("saMirror", {
-            mirror: mirror,
         });
-    });
+    } else {
+        return res.status(404).render("error", {
+            message: "The request was malformed."
+        });
+    }
 });
 
 server.post("/sa/editMirrorMetadata/:mirror", restrictedRoute("sa"), urlencodedParser, function (req, res) {

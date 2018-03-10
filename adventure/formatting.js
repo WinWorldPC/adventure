@@ -22,8 +22,10 @@ module.exports = {
         return string.replace(/(.*)\r?\n\r?\n.*/g, "$1");
     },
 
-    isHexString: function (string) {
-        return /^[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}$/.test(string);
+    isHexString: function (s) {
+        if (s && typeof (s) == "string") {
+            return /^[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}$/.test(s);
+        } else return false;
     },
 
     hexToBin: function (hex) {
