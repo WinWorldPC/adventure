@@ -118,7 +118,7 @@ server.post("/sa/createMirror", restrictedRoute("sa"), urlencodedParser, functio
                                     message: "There was an error validating the item."
                                 });
                             } else {
-                                return res.redirect("/sa/mirror/" + mrRes[0].Slug);
+                                return res.redirect("/sa/mirror/" + formatting.binToHex(mrRes[0].MirrorUUID));
                             }
                         });
                     }
