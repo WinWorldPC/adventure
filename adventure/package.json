@@ -3,10 +3,19 @@
   "version": "0.0.0",
   "description": "WinWorld's open library system",
   "main": "app.js",
+  "license": "AGPL-3.0-or-later",
   "author": {
     "name": "WinWorld",
     "email": "winworldpc@outlook.com"
   },
+  "contributors": [
+    {
+      "name": "Calvin Buckley",
+      "email": "calvin@cmpct.info"
+    }
+  ],
+  "repository": "https://github.com/WinWorldPC/adventure",
+  "bugs": "https://github.com/WinWorldPC/adventure/issues",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
