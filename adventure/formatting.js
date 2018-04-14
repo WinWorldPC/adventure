@@ -72,8 +72,8 @@ module.exports = {
             // hashed with salted SHA-256 and should be upgraded
             var saltedSpecified = this.sha256(specified + (salt || ""));
             // because we can't use timingSafeEqual on strings
-            var storedAsBuf = Buffer.from(storedPassword);
-            var saltedAsBuf = Buffer.from(saltedSpecified);
+            var storedAsBuf = Buffer.from(storedPassword, "hex");
+            var saltedAsBuf = Buffer.from(saltedSpecified, "hex");
             if (storedAsBuf.length != saltedAsBuf.length) {
                 // what the hell
                 cb(null, false, false);
