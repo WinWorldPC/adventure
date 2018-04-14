@@ -68,8 +68,12 @@ module.exports = {
             })
         } else {
             // hashed with salted SHA-256 and should be upgraded
+            var saltedSpecified = this.sha256(specified + (salt || ""));
+            // because we can't use timingSafeEqual on strings
+            var storedAsBuf = Buffer.from(storedPassword);
+            var saltedAsBuf = Buffer.from(saltedSpecified);
             setImmediate(function() {
-                cb(null, crypto.timingSafeEqual(storedPassword, formatting.sha256(password + (salt || "")), false))
+                cb(null, crypto.timingSafeEqual(storedAsBuf, saltedAsBuf, false))
             })
         }
     },

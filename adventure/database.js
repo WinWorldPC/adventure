@@ -106,7 +106,7 @@ module.exports = {
         });
     },
     userChangePassword: function (id, password, cb) {
-        formatting.generateHashPassword(password, function(err, hash) {
+        formatting.generateHashPassword(password, (err, hash) => {
             this.execute("UPDATE Users SET Password = ? WHERE UserID = ?", [hash, id], function (pwErr, pwRes, pwFields) {
                 cb(pwErr);
             });
