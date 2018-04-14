@@ -74,8 +74,12 @@ module.exports = {
             // because we can't use timingSafeEqual on strings
             var storedAsBuf = Buffer.from(storedPassword);
             var saltedAsBuf = Buffer.from(saltedSpecified);
+            if (storedAsBuf.length != saltedAsBuf.length) {
+                // what the hell
+                cb(null, false, false);
+            }
             setImmediate(function() {
-                cb(null, crypto.timingSafeEqual(storedAsBuf, saltedAsBuf, false))
+                cb(null, crypto.timingSafeEqual(storedAsBuf, saltedAsBuf, false));
             })
         }
     },
