@@ -126,6 +126,7 @@
     <Folder Include="typings\globals\" />
     <Folder Include="typings\globals\node\" />
     <Folder Include="typings\modules\" />
+    <Folder Include="typings\modules\bcryptjs\" />
     <Folder Include="typings\modules\body-parser\" />
     <Folder Include="typings\modules\cookie-parser\" />
     <Folder Include="typings\modules\ejs\" />
@@ -140,6 +141,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="typings\globals\node\index.d.ts" />
     <TypeScriptCompile Include="typings\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\bcryptjs\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\body-parser\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\cookie-parser\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\ejs\index.d.ts" />
