@@ -106,11 +106,11 @@ module.exports = {
         });
     },
     userChangePassword: function (id, password, cb) {
-        var salt = formatting.createSalt();
-        var newPassword = formatting.sha256(password + salt);
-        this.execute("UPDATE Users SET Password = ?, Salt = ? WHERE UserID = ?", [newPassword, salt, id], function (pwErr, pwRes, pwFields) {
-            cb(pwErr);
-        });
+        formatting.generateHashPassword(password, (err, hash) => {
+            this.execute("UPDATE Users SET Password = ? WHERE UserID = ?", [hash, id], function (pwErr, pwRes, pwFields) {
+                cb(pwErr);
+            });
+        })
     },
     userEditProfile: function (id, enabled, email, cb) {
         this.execute("UPDATE Users SET Email = ?, AccountEnabled = ? WHERE UserID = ?", [email, enabled, id], function (prErr, prRes, prFields) {
@@ -130,10 +130,10 @@ module.exports = {
         });
     },
     userCreate: function (username, email, password, ip, cb) {
-        var salt = formatting.createSalt();
-        var newPassword = formatting.sha256(password + salt);
-        this.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`, `Salt`, `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [username, email, newPassword, salt, ip], function (inErr, inRes, inFields) {
-            cb(inErr);
-        });
+        formatting.hashPassword(password, function(err, hash) {
+            this.execute("INSERT INTO `Users` (`ShortName`, `Email`, `Password`,  `RegistrationIP`) VALUES (?, ?, ?, ?, ?)", [username, email, hash, ip], function (inErr, inRes, inFields) {
+                cb(inErr);
+            });
+        })
     },
 };

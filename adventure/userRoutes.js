@@ -18,11 +18,22 @@ passport.use("local", new localStrategy({ usernameField: "username", passwordFie
     database.userByName(username, function (err, user) {
         if (err) { return cb(err); }
         if (!user) { return cb(null, false); }
-        var givenPassword = formatting.sha256(password + (user.Salt || ""));
-        if (user.Password != givenPassword) {
-            return cb(null, false);
-        }
-        return cb(null, user);
+        formatting.checkPassword(password, user.Salt, user.Password, function(err, success, secure) {
+            if (err) {
+                return cb(err);
+            }
+            if (!success) {
+                return cb(null, false);
+            }
+            if (!secure) {
+                // transparently upgrade this password
+                database.userChangePassword(user.UserID, password, function(upgradeErr) {
+                    return cb(upgradeErr, user);
+                })
+            } else {
+                return cb(null, user);
+            }
+        })
     });
 }));
 passport.serializeUser(function (user, cb) {
@@ -89,10 +100,6 @@ server.post("/user/login", urlencodedParser, function (req, res) {
             database.userUpdateLastSeenTime(user.UserID, function (lsErr) {
                 req.flash("warning", "Your last login time couldn't be updated.");
             });
-            // The user has an insecure password and should change it.
-            if (!user.Salt) {
-                req.flash("warning", "Your password was stored in an insecure way - you need to <a href='/user/edit'>update it</a>.");
-            }
             return res.redirect(req.query.target || "/home");
         });
     })(req, res);
@@ -111,7 +118,17 @@ server.get("/user/edit", restrictedRoute(), function (req, res) {
 
 server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req, res) {
     if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
-        if (formatting.sha256(req.body.password + (req.user.Salt || "")) == req.user.Password) {
+        formatting.checkPassword(req.body.password, req.user.Salt, req.user.Password, function(checkErr, success) {
+            if (checkErr) {
+                req.flash("danger", "There was an error validating your password.");
+                return res.status(500).render("editProfile");
+            }
+
+            if (!success) {
+                req.flash("danger", "The current password given was incorrect.");
+                return res.status(403).render("editProfile");
+            }
+
             if (req.body.newPassword == req.body.newPasswordR) {
                 database.userChangePassword(req.user.UserID, req.body.newPassword, function (pwErr) {
                     if (pwErr) {
@@ -126,10 +143,7 @@ server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req
                 req.flash("danger", "The new passwords don't match.");
                 return res.status(400).render("editProfile");
             }
-        } else {
-            req.flash("danger", "The current password given was incorrect.");
-            return res.status(403).render("editProfile");
-        }
+        })
     } else {
         req.flash("danger", "The request was malformed.");
         return res.status(400).render("editProfile");

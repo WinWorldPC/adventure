@@ -8,6 +8,7 @@
     "email": "winworldpc@outlook.com"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
     "ejs": "^2.5.7",
