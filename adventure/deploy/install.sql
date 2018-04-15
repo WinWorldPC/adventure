@@ -284,7 +284,7 @@ ROW_FORMAT=
 INSERT INTO `UserFlags` (`FlagUUID`, `FlagName`, `LongName`, `SystemFlag`, `Preemptive`, `PublicVisible`, `FlagColour`) VALUES (0x25C5A043C3867BC2B311C3A4C29D7100, 'sa', 'Site Admin', 'True', 'False', 'True', 'primary');
 INSERT INTO `UserFlags` (`FlagUUID`, `FlagName`, `LongName`, `SystemFlag`, `Preemptive`, `PublicVisible`, `FlagColour`) VALUES (0x3EC2B140127BC2B311C3A4C29D710015, 'vip', 'VIP Member', 'False', 'False', 'True', 'success');
 
-INSERT INTO `Users` (`UserID`, `Email`, `AccountEnabled`, `Password`, `Salt`, `ShortName`, `RegistrationTime`, `LastSeenTime`, `RegistrationIP`, `ThemeName`) VALUES (0x7B05DE4D3F2111E88D2AFA163E9022F0, 'root@localhost', 'True', '057ba03d6c44104863dc7361fe4578965d1887360f90a0895882e58a6248fc86', '', 'admin', '2014-08-13 10:42:20', '2018-04-07 00:27:28', '', 'default');
+INSERT INTO `Users` (`UserID`, `Email`, `AccountEnabled`, `Password`, `Salt`, `ShortName`, `RegistrationTime`, `LastSeenTime`, `RegistrationIP`, `ThemeName`) VALUES (0x7B05DE4D3F2111E88D2AFA163E9022F0, 'root@localhost', 'True', '$2a$12$I7Z0lrQFyxgRFgWVB8FX1.FYpJDEN7Z5x4Mp4a7I8bT26G3OU8USa', '', 'admin', '2014-08-13 10:42:20', '2018-04-07 00:27:28', '', 'default');
 
 INSERT INTO `UserFlagHolders` (`FlagUUID`, `UserUUID`, `Added`) VALUES (0x25C5A043C3867BC2B311C3A4C29D7100, 0x7B05DE4D3F2111E88D2AFA163E9022F0, '2017-08-02 04:26:41');
 
