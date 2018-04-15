@@ -76,11 +76,10 @@ module.exports = {
             var saltedAsBuf = Buffer.from(saltedSpecified, "hex");
             if (storedAsBuf.length != saltedAsBuf.length) {
                 // what the hell
-                cb(null, false, false);
+                setImmediate(cb, null, false, false);
+            } else {
+                setImmediate(cb, null, crypto.timingSafeEqual(storedAsBuf, saltedAsBuf, false));
             }
-            setImmediate(function() {
-                cb(null, crypto.timingSafeEqual(storedAsBuf, saltedAsBuf, false));
-            })
         }
     },
 
