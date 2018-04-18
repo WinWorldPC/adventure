@@ -1,6 +1,7 @@
 ﻿{
   "name": "WinWorld",
   "headerFragment": "res/headerFragment.html",
+  "footerFragment": "res/footerFragment.html",
   "runBehindProxy": false,
   "enableExperimentalFeatures": true,
   "morganLogFormat": "dev",

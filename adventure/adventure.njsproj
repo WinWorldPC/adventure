@@ -64,6 +64,9 @@
     <Content Include="deploy\install.sql">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="res\footerFragment.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="res\headerFragment.html">
       <SubType>Code</SubType>
     </Content>

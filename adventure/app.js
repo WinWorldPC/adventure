@@ -13,6 +13,7 @@
 var config = JSON.parse(fs.readFileSync(process.argv[2], "utf8").replace(/^\uFEFF/, ""));
 var sitePages = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titles.json"), "utf8").replace(/^\uFEFF/, ""));
 var headerFragment = fs.readFileSync(config.headerFragment, "utf8").replace(/^\uFEFF/, "");
+var footerFragment = fs.readFileSync(config.footerFragment, "utf8").replace(/^\uFEFF/, "");
 
 database.createConnection(config.mysql);
 
@@ -22,6 +23,7 @@ server.locals = {
     config: config,
     sitePages: sitePages,
     headerFragment: headerFragment,
+    footerFragment: footerFragment,
 };
 server.use(cookieParser());
 server.use(sessionParser({ secret: config.sessionSecret || "hello world", resave: false, saveUninitialized: false }));
