@@ -78,6 +78,9 @@
     <Content Include="pages\home.md" />
     <Content Include="pages\titles.json" />
     <Content Include="res\css\stickyFooter.css" />
+    <Content Include="views\recoverPassword.ejs">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="views\saContributions.ejs" />
     <Content Include="views\foot.ejs" />
     <Content Include="views\head.ejs" />

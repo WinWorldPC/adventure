@@ -11,6 +11,10 @@
     "password": "password",
     "user": "root"
   },
+  "mailTransport": {
+    "jsonTransport":  true
+  },
+  "mailFrom":  "WinWorld <noreply@winworldpc.com>",
   "specialCaseLibraryOS": true,
   "defaultCategory": "operating-systems",
   "taggableCategories": [ "Application" ],

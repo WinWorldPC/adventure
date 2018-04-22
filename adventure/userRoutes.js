@@ -110,8 +110,6 @@ server.get("/user/logout", function (req, res) {
     return res.redirect("/home");
 });
 
-// TODO: Refactor these routes for admins to edit other profiles
-// They could use SQL for now, but as we extend, that's infeasible
 server.get("/user/edit", restrictedRoute(), function (req, res) {
     return res.render("editProfile");
 });
@@ -292,6 +290,108 @@ server.get("/user/vanillaSSO", function (req, res) {
         };
     }
     res.send(req.query.callback + "(" + JSON.stringify(builtObject) + ")");
+});
+
+server.get("/user/recoverpw", function (req, res) {
+    if (req.user) {
+        req.flash("info", "You are already logged in an account.");
+        return res.redirect("/user/edit");
+    }
+    return res.render("recoverPassword");
+});
+
+server.post("/user/recoverpw", urlencodedParser, function (req, res) {
+    // TODO: configurable
+    const mailBody = function (id) {
+        return "You have requested to recover your account by creating a new password. "
+            + "Visit this link to begin the process.\n\n"
+            + config.publicBaseUrl + "user/recoverpw/" + id;
+    }
+
+    if (req.user) {
+        req.flash("info", "You are already logged in an account.");
+        return res.redirect("/user/edit");
+    }
+    if (!req.body || !req.body.email) {
+        req.flash("danger", "The request was malformed.");
+        return res.status(400).render("recoverPassword");
+    }
+    const email = req.body.email
+    database.userByEmail(email, function (ueErr, ueRes) {
+        if (ueErr) {
+            req.flash("danger", "There was an error checking the database.");
+            return res.render("recoverPassword");
+        } else if (!ueRes) {
+            req.flash("danger", "No user has that email address.");
+            return res.status(400).render("recoverPassword");
+        }
+        // check if one exists
+        const id = ueRes.UserID;
+        database.userGetRecoverPasswordByUserId(id, function (rpErr, rpRes) {
+            if (rpErr) {
+                req.flash("danger", "There was an error checking the database.");
+                return res.status(500).render("recoverPassword");
+            } else if (rpRes) {
+                req.flash("danger", "You have already requested to recover your password recently.");
+                return res.status(409).render("recoverPassword");
+            }
+            database.userCreateRecoverPassword(id, function (rcErr, rcRes) {
+                if (rcErr || !rcRes || !rcRes.RequestID) {
+                    req.flash("danger", "There was an error creating a recovery request.");
+                    return res.status(500).render("recoverPassword");
+                }
+                const reqId = formatting.binToHex(rcRes.RequestID);
+
+                // now write an email....
+                req.app.locals.mailTransport.sendMail({
+                    from: config.mailFrom,
+                    to: email,
+                    subject: "Password recovery request from " + config.name,
+                    text: mailBody(reqId)
+                }, (mailErr, mailInfo) => {
+                    if (mailErr) {
+                        req.flash("danger", "There was an error sending the email.");
+                        return res.status(500).render("recoverPassword");
+                    }
+
+                    req.flash("success", "Your password recovery request has been sent and should arrive soon.");
+                    return res.render("recoverPassword");
+                });
+            });
+        });
+    });
+});
+
+server.get("/user/recoverpw/:id", function (req, res) {
+    if (req.user) {
+        req.flash("info", "You are already logged in an account.");
+        return res.redirect("/user/edit");
+    }
+    if (!req.params.id) {
+        req.flash("danger", "The request was malformed.");
+        return res.status(400).redirect("/user/recoverpw");
+    }
+    const idAsBin = formatting.hexToBin(req.params.id);
+    database.userGetRecoverPasswordById(idAsBin, function (rpErr, rpRes) {
+        if (rpErr) {
+            req.flash("danger", "There was an error checking the database.");
+            return res.status(500).render("recoverPassword");
+        } else if (!rpRes) {
+            req.flash("danger", "There was no such request.");
+            return res.status(404).render("recoverPassword");
+        }
+        const newPassword = formatting.createSalt();
+        database.userChangePassword(rpRes.UserID, newPassword, function (pwErr) {
+            if (pwErr) {
+                req.flash("danger", "There was an error changing your password.");
+                return res.status(500).render("recoverPassword");
+            }
+            req.flash("success", "<p>A temporary password has been created for you: <code>"
+                + newPassword
+                + "</code>.</p><p>Please change this the next time you log in.</p>");
+            return res.redirect("/user/login");
+        });
+    });
 });
 
 module.exports = function (c, d, p) {

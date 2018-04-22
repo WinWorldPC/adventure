@@ -136,4 +136,39 @@ module.exports = {
             });
         })
     },
+    userCreateRecoverPassword: function (userId, cb) {
+        this.execute("INSERT INTO UserRecoverPasswordRequests (UserID) VALUES (?)", [userId], (rpErr, rpRes, rpFields) => {
+            if (rpErr) {
+                cb(rpErr, null);
+            } else {
+                // now return the ID since we want that
+                this.userGetRecoverPasswordByUserId(userId, cb);
+            }
+        });
+    },
+    userGetRecoverPasswordByUserId: function (userId, cb) {
+        this.execute("SELECT * FROM UserRecoverPasswordRequests WHERE UserID = ?", [userId], function (rpErr, rpRes, rpFields) {
+            var rp = rpRes[0] || null;
+            if (rpErr) {
+                cb(rpErr, null);
+            } else {
+                cb(null, rp);
+            }
+        });
+    },
+    userGetRecoverPasswordById: function (id, cb) {
+        this.execute("SELECT * FROM UserRecoverPasswordRequests WHERE RequestID = ?", [id], function (rpErr, rpRes, rpFields) {
+            var rp = rpRes[0] || null;
+            if (rpErr) {
+                cb(rpErr, null);
+            } else {
+                cb(null, rp);
+            }
+        });
+    },
+    userRemoveRecoverPasswordById: function (id, cb) {
+        this.execute("DELETE FROM UserRecoverPasswordRequests WHERE RequestID = ?", [id], function (rpErr, rpRes, rpFields) {
+            cb(flErr)
+        });
+    },
 };

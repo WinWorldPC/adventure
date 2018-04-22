@@ -3,6 +3,7 @@
     flash = require("flash"),
     cookieParser = require("cookie-parser"),
     sessionParser = require("express-session"),
+    mailer = require('nodemailer'),
     database = require("./database.js"),
     fs = require("fs"),
     path = require("path"),
@@ -15,6 +16,8 @@ var sitePages = JSON.parse(fs.readFileSync(path.join(config.pageDirectory, "titl
 var headerFragment = fs.readFileSync(config.headerFragment, "utf8").replace(/^\uFEFF/, "");
 var footerFragment = fs.readFileSync(config.footerFragment, "utf8").replace(/^\uFEFF/, "");
 
+var mailTransport = mailer.createTransport(config.mailTransport);
+
 database.createConnection(config.mysql);
 
 // Init server and middleware
@@ -22,6 +25,7 @@ var server = express();
 server.locals = {
     config: config,
     sitePages: sitePages,
+    mailTransport: mailTransport,
     headerFragment: headerFragment,
     footerFragment: footerFragment,
 };
