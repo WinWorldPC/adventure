@@ -1,41 +1,5 @@
 ﻿-- Adventure database install script
 
--- These triggers will create new UUIDs for each item type addressable by UUIDs.
--- The definer should match the SQL user you use for Adventure.
-
-CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateContribution` BEFORE INSERT ON `Contributions` FOR EACH ROW BEGIN
-    SET NEW.ContributionUUID = UUIDBIN(UUID());
-END
-
-CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateDownload` BEFORE INSERT ON `Downloads` FOR EACH ROW BEGIN
-    SET New.DLUUID = UUIDBIN(UUID());
-END
-
-CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateFlags` BEFORE INSERT ON `UserFlags` FOR EACH ROW BEGIN
-	SET NEW.FlagUUID = UUIDBIN(UUID());
-END
-
-CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateMirror` BEFORE INSERT ON `DownloadMirrors` FOR EACH ROW BEGIN
-    SET NEW.MirrorUUID = UUIDBIN(UUID());
-END
-
-CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateProduct` BEFORE INSERT ON `Products` FOR EACH ROW BEGIN
-	SET NEW.ProductUUID = UUIDBIN(UUID());
-END
-
-CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateRelease` BEFORE INSERT ON `Releases` FOR EACH ROW BEGIN
-   SET NEW.ReleaseUUID = UUIDBIN(UUID());
-END
-
-CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateScreenshot` BEFORE INSERT ON `Screenshots` FOR EACH ROW BEGIN
-	SET NEW.ScreenshotUUID = UUIDBIN(UUID());
-END
-
-CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateUser` BEFORE INSERT ON `Users` FOR EACH ROW BEGIN
-	SET NEW.UserID = UUIDBIN(UUID());
-	SET NEW.RegistrationTime = NOW();
-END
-
 -- These tables contain site contents.
 -- Any sets in a column must match what's in your "config.json."
 
@@ -275,6 +239,59 @@ COLLATE='utf8_unicode_ci'
 ENGINE=Aria
 ROW_FORMAT=
 ;
+
+CREATE TABLE `UserRecoverPasswordRequests` (
+	`RequestID` BINARY(16) NOT NULL,
+	`UserID` BINARY(16) NOT NULL,
+	`DateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`RequestID`),
+	UNIQUE INDEX `UserID` (`UserID`),
+	UNIQUE INDEX `RequestID` (`RequestID`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+-- These triggers will create new UUIDs for each item type addressable by UUIDs.
+-- The definer should match the SQL user you use for Adventure.
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateContribution` BEFORE INSERT ON `Contributions` FOR EACH ROW BEGIN
+    SET NEW.ContributionUUID = UUIDBIN(UUID());
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateDownload` BEFORE INSERT ON `Downloads` FOR EACH ROW BEGIN
+    SET New.DLUUID = UUIDBIN(UUID());
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateFlags` BEFORE INSERT ON `UserFlags` FOR EACH ROW BEGIN
+	SET NEW.FlagUUID = UUIDBIN(UUID());
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateMirror` BEFORE INSERT ON `DownloadMirrors` FOR EACH ROW BEGIN
+    SET NEW.MirrorUUID = UUIDBIN(UUID());
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateProduct` BEFORE INSERT ON `Products` FOR EACH ROW BEGIN
+	SET NEW.ProductUUID = UUIDBIN(UUID());
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateRelease` BEFORE INSERT ON `Releases` FOR EACH ROW BEGIN
+   SET NEW.ReleaseUUID = UUIDBIN(UUID());
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateScreenshot` BEFORE INSERT ON `Screenshots` FOR EACH ROW BEGIN
+	SET NEW.ScreenshotUUID = UUIDBIN(UUID());
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateUser` BEFORE INSERT ON `Users` FOR EACH ROW BEGIN
+	SET NEW.UserID = UUIDBIN(UUID());
+	SET NEW.RegistrationTime = NOW();
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `BeforeCreateRecoverPassword` BEFORE INSERT ON `UserRecoverPasswordRequests` FOR EACH ROW BEGIN
+	SET NEW.RequestID = UUIDBIN(UUID());
+	SET NEW.DateCreated = NOW();
+END
 
 -- This is to create an administrative user and initial flags.
 -- By default, the user's password is "changeme" - for obvious reasons, change this!
