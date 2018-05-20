@@ -94,11 +94,11 @@
                 <!-- TODO: Should fuzzy date-->
                 <% if (release.ReleaseDate && release.ReleaseDate.getTime()) { %>
                 <dt>Release date</dt>
-                <dd><%= release.FuzzyDate ? release.ReleaseDate.getFullYear() : release.ReleaseDate.toDateString() %></dd>
+                <dd><%= release.FuzzyDate == "True" ? release.ReleaseDate.getFullYear() : release.ReleaseDate.toDateString() %></dd>
                 <% } %>
                 <% if (release.EndOfLife && release.EndOfLife.getTime()) { %>
                 <dt>End of life date</dt>
-                <dd><%= release.FuzzyDate ? release.EndOfLife.getFullYear() : release.EndOfLife.toDateString() %></dd>
+                <dd><%= release.FuzzyDate == "True" ? release.EndOfLife.getFullYear() : release.EndOfLife.toDateString() %></dd>
                 <% } %>
                 <% if (release.CPURequirement) { %>
                 <dt>Minimum CPU</dt>
