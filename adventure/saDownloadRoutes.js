@@ -96,7 +96,8 @@ server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlenco
     if (req.body && req.params.download && formatting.isHexString(req.params.download) && formatting.isHexString(req.body.releaseUUID) && /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)) {
         var uuid = req.params.download;
         var releaseUuidAsBuf = formatting.hexToBin(req.body.releaseUUID);
-        var arch = req.body.arch || "";
+	// HACK: oh god mysql2 isn't putting arrays into updates for sets properly?
+        var arch = req.body.arch ? req.body.arch.join(",") : "";
         var rtm = req.body.rtm ? "True" : "False";
         var upgrade = req.body.upgrade ? "True" : "False";
         var sha1Sum = Buffer.from(req.body.sha1Sum, "hex");
