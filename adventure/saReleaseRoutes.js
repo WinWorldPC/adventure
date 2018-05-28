@@ -71,7 +71,13 @@ server.post("/sa/editReleaseMetadata/:release", restrictedRoute("sa"), urlencode
     if (req.body && req.params.release && formatting.isHexString(req.params.release) && formatting.isHexString(req.body.productUUID)) {
         var uuid = req.params.release;
         var productUuidAsBuf = formatting.hexToBin(req.body.productUUID);
-        var platform = req.body.platform || "";
+        var platform = "";
+        // Same hack as in saDownloadRoutes
+        if (req.body.platform && typeof req.body.platform === "string") {
+            platform = req.body.platform;
+        } else if (req.body.platform && Array.isArray(req.body.platform)) {
+            platform = req.body.platform.join(",");
+        }   
         var releaseDate = req.body.releaseDate ? new Date(req.body.releaseDate) : null;
         var endOfLife = req.body.endOfLife ? new Date(req.body.endOfLife) : null;
         var fuzzyDate = req.body.fuzzyDate ? "True" : "False";
