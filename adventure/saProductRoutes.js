@@ -43,13 +43,7 @@ server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencode
         var uuid = req.params.product;
         var defaultRelease = req.body.defaultRelease || "";   
         var defaultReleaseAsUuid = formatting.isHexString(defaultRelease) ? formatting.hexToBin(defaultRelease) : null;
-        var applicationTags = "";
-        // Same hack as in saDownloadRoutes
-        if (req.body.applicationTags && typeof req.body.applicationTags === "string") {
-            applicationTags = req.body.applicationTags;
-        } else if (req.body.applicationTags && Array.isArray(req.body.applicationTags)) {
-            applicationTags = req.body.applicationTags.join(",");
-        }   
+        var applicationTags = formatting.dbStringifySelect(req.body.applicationTags);
         var dbParams = [req.body.name, req.body.slug, req.body.notes, req.body.type, applicationTags, defaultReleaseAsUuid, formatting.hexToBin(uuid)];
         database.execute("UPDATE Products SET Name = ?, Slug = ?, Notes = ?, Type = ?, ApplicationTags = ?, DefaultRelease = ? WHERE ProductUUID = ?", dbParams, function (prErr, prRes, prFields) {
             if (prErr) {

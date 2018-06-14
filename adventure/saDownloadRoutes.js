@@ -97,12 +97,7 @@ server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlenco
         var uuid = req.params.download;
         var releaseUuidAsBuf = formatting.hexToBin(req.body.releaseUUID);
         // HACK: oh god mysql2 isn't putting arrays into updates for sets properly?
-        var arch = "";
-        if (req.body.arch && typeof req.body.arch === "string") {
-            arch = req.body.arch;
-        } else if (req.body.arch && Array.isArray(req.body.arch)) {
-            arch = req.body.arch.join(",");
-        }   
+        var arch = formatting.dbStringifySelect(req.body.arch);
         var rtm = req.body.rtm ? "True" : "False";
         var upgrade = req.body.upgrade ? "True" : "False";
         var sha1Sum = Buffer.from(req.body.sha1Sum, "hex");

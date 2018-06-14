@@ -108,5 +108,18 @@ module.exports = {
                 rv.push({ key: v, values: [x] });
             } return rv;
         }, []);
-    }
+    },
+
+    // Converts an array or string (as a web form's select can be either
+    // depending on item count) into a string representing a list in the way
+    // MySQL prefers it.
+    dbStringifySelect: function (toStringify) {
+        if (toStringify && typeof toStringify === "string") {
+            return toStringify;
+        } else if (toStringify && Array.isArray(toStringify)) {
+            return toStringify.join(",");
+        } else {
+            return "";
+        }
+    },
 };
