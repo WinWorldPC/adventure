@@ -167,7 +167,7 @@
             <td><%= i.Language %></td>
             <td><%= i.Arch %></td>
             <td><%= i.ImageType %></td>
-            <td><span title="<%= i.SHA1Sum.toString('hex') %>"><%= i.FileSize %></span></td>
+            <td><span title="<%= i.FileHash || i.SHA1Sum.toString('hex') %>"><%= i.FileSize %></span></td>
         </tr>
         <% }); %>
     </tbody>

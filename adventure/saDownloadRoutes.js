@@ -93,16 +93,15 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
 });
 
 server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlencodedParser, function (req, res) {
-    if (req.body && req.params.download && formatting.isHexString(req.params.download) && formatting.isHexString(req.body.releaseUUID) && /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)) {
+    if (req.body && req.params.download && formatting.isHexString(req.params.download) && formatting.isHexString(req.body.releaseUUID) /*&& /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)*/) {
         var uuid = req.params.download;
         var releaseUuidAsBuf = formatting.hexToBin(req.body.releaseUUID);
         // HACK: oh god mysql2 isn't putting arrays into updates for sets properly?
         var arch = formatting.dbStringifySelect(req.body.arch);
         var rtm = req.body.rtm ? "True" : "False";
         var upgrade = req.body.upgrade ? "True" : "False";
-        var sha1Sum = Buffer.from(req.body.sha1Sum, "hex");
-        var dbParams = [releaseUuidAsBuf, req.body.name, arch, req.body.version, rtm, upgrade, req.body.information, req.body.language, req.body.imageType, req.body.fileSize, sha1Sum, req.body.downloadPath, req.body.downloadPath, req.body.fileName, new Date(), formatting.hexToBin(uuid)];
-        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, ImageType = ?, FileSize = ?, SHA1Sum = ?, DownloadPath = ?, OriginalPath = ?, FileName = ?, LastUpdated = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
+        var dbParams = [releaseUuidAsBuf, req.body.name, arch, req.body.version, rtm, upgrade, req.body.information, req.body.language, req.body.imageType, req.body.fileSize, req.body.downloadPath, req.body.downloadPath, req.body.fileName, new Date(), req.body.fileHash, formatting.hexToBin(uuid)];
+        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, ImageType = ?, FileSize = ?, DownloadPath = ?, OriginalPath = ?, FileName = ?, LastUpdated = ?, FileHash = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
                     message: "The download could not be edited."
@@ -175,17 +174,17 @@ server.get("/sa/createDownload/:release", restrictedRoute("sa"), function (req, 
 });
 
 server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedParser, function (req, res) {
-    const getNewProductQuery = "SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? && `Name` = ? && `Version` = ? && `DownloadPath` = ? && `OriginalPath` = ? && `FileName` = ? && `SHA1Sum` = ?";
+    const getNewProductQuery = "SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? && `Name` = ? && `Version` = ? && `DownloadPath` = ? && `OriginalPath` = ? && `FileName` = ? && `FileHash` = ?";
     
-    if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.downloadPath && req.body.name && req.body.version && /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)) {
+    if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.downloadPath && req.body.name && req.body.version /*&& /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)*/) {
         // check for dupe
         var uuidAsBuf = formatting.hexToBin(req.params.release);
         var downloadPath = req.body.downloadPath;
         var fileName = path.basename(downloadPath);
         var name = req.body.name;
-        var version = req.body.version
-        var sha1Sum = Buffer.from(req.body.sha1Sum, "hex");
-        var dbParams = [uuidAsBuf, name, version, downloadPath, downloadPath, fileName, sha1Sum];
+        var version = req.body.version;
+        var fileHash = req.body.fileHash;
+        var dbParams = [uuidAsBuf, name, version, downloadPath, downloadPath, fileName, fileHash];
         
         database.execute(getNewProductQuery, dbParams, function (dbErr, dbRes, dbFields) {
             if (dbErr || dbRes == null) {
@@ -197,7 +196,7 @@ server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedPars
                     message: "There is already a download with these attributes."
                 });
             } else {
-                database.execute("INSERT INTO Downloads (ReleaseUUID, Name, Version, DownloadPath, OriginalPath, FileName, SHA1Sum) VALUES (?, ?, ?, ?, ?, ?, ?)", dbParams, function (inErr, inRes, inFields) {
+                database.execute("INSERT INTO Downloads (ReleaseUUID, Name, Version, DownloadPath, OriginalPath, FileName, FileHash) VALUES (?, ?, ?, ?, ?, ?, ?)", dbParams, function (inErr, inRes, inFields) {
                     if (inErr) {
                         return res.status(500).render("error", {
                             message: "There was an error creating the item."

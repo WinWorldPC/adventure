@@ -48,8 +48,8 @@
                 <dd><%= download.ImageType %></dd>
                 <dt>File size</dt>
                 <dd><%= download.FileSize %></dd>
-                <dt>SHA1 checksum</dt>
-                <dd><tt style="word-break:break-all"><%= download.SHA1Sum.toString("hex") %></tt></dd>
+                <dt>Checksum</dt>
+                <dd><tt style="word-break:break-all"><%= download.FileHash || download.SHA1Sum.toString('hex') %></tt></dd>
             </dl>
          </div>
      </div>
