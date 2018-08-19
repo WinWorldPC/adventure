@@ -177,7 +177,6 @@ server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedPars
     const getNewProductQuery = "SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? && `Name` = ? && `Version` = ? && `DownloadPath` = ? && `OriginalPath` = ? && `FileName` = ? && `FileHash` = ?";
     
     if (req.body && req.params.release && formatting.isHexString(req.params.release) && req.body.downloadPath && req.body.name && req.body.version /*&& /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)*/) {
-        // check for dupe
         var uuidAsBuf = formatting.hexToBin(req.params.release);
         var downloadPath = req.body.downloadPath;
         var fileName = path.basename(downloadPath);
@@ -186,31 +185,19 @@ server.post("/sa/createDownload/:release", restrictedRoute("sa"), urlencodedPars
         var fileHash = req.body.fileHash;
         var dbParams = [uuidAsBuf, name, version, downloadPath, downloadPath, fileName, fileHash];
         
-        database.execute(getNewProductQuery, dbParams, function (dbErr, dbRes, dbFields) {
-            if (dbErr || dbRes == null) {
+        database.execute("INSERT INTO Downloads (ReleaseUUID, Name, Version, DownloadPath, OriginalPath, FileName, FileHash) VALUES (?, ?, ?, ?, ?, ?, ?)", dbParams, function (inErr, inRes, inFields) {
+            if (inErr) {
                 return res.status(500).render("error", {
-                    message: "There was an error checking the database."
-                });
-            } else if (dbRes.length > 0) {
-                return res.status(409).render("error", {
-                    message: "There is already a download with these attributes."
+                    message: "There was an error creating the item."
                 });
             } else {
-                database.execute("INSERT INTO Downloads (ReleaseUUID, Name, Version, DownloadPath, OriginalPath, FileName, FileHash) VALUES (?, ?, ?, ?, ?, ?, ?)", dbParams, function (inErr, inRes, inFields) {
-                    if (inErr) {
+                database.execute(getNewProductQuery, dbParams, function (rlErr, rlRes, rlFields) {
+                    if (rlErr || rlRes == null || rlRes.length == 0) {
                         return res.status(500).render("error", {
-                            message: "There was an error creating the item."
+                            message: "There was an error validating the item."
                         });
                     } else {
-                        database.execute(getNewProductQuery, dbParams, function (rlErr, rlRes, rlFields) {
-                            if (rlErr || rlRes == null || rlRes.length == 0) {
-                                return res.status(500).render("error", {
-                                    message: "There was an error validating the item."
-                                });
-                            } else {
-                                return res.redirect("/download/" + formatting.binToHex(rlRes[0].DLUUID));
-                            }
-                        });
+                        return res.redirect("/download/" + formatting.binToHex(rlRes[0].DLUUID));
                     }
                 });
             }
