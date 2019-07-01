@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS `downloads` (
   `LastUpdated` timestamp NULL DEFAULT current_timestamp(),
   `NoShowOnHome` enum('True','False') COLLATE utf8_bin NOT NULL DEFAULT 'False',
   `FileHash` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `IPFSPath` TEXT NULL DEFAULT NULL COLLATE 'utf8_bin',
   PRIMARY KEY (`DLUUID`),
   KEY `ReleaseUUID` (`ReleaseUUID`),
   KEY `FileName` (`Name`),

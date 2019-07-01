@@ -93,6 +93,15 @@
             <input required type="text" class="form-control" id="fileName" name="fileName" placeholder="File name" value="<%= download.FileName %>">
         </div>
     </div>
+	<div class="row">
+		<div class="form-group col">
+			<label for="ipfsPath">IPFS Path</label>
+			<input type="text" class="form-control" id="ipfsPath" name="ipfsPath" placeholder="IPFS Path" value="<%=download.IPFSPath%>">
+			<small class="form-text text-muted">
+			Leave this field empty to disable IPFS for this download.
+			</small>
+		</div>
+	</div>
     <button type="submit" class="btn btn-primary">Submit</button>
     <a class="btn btn-outline-primary" href="/download/<%= download.DLUUID %>">Cancel</a>
 </form>
