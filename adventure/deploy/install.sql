@@ -234,9 +234,7 @@ CREATE TABLE IF NOT EXISTS `UserFlagHolders` (
 -- Dumping data for table winworld.UserFlagHolders: ~2 rows (approximately)
 /*!40000 ALTER TABLE `UserFlagHolders` DISABLE KEYS */;
 INSERT IGNORE INTO `UserFlagHolders` (`FlagUUID`, `UserUUID`, `Added`) VALUES
-	(_binary 0x557074696D6500006500630074006500, _binary 0x000000000000000000000000205CA002, '2017-08-02 04:26:41'),
-	(_binary 0x25C5A043C3867BC2B311C3A4C29D7100, _binary 0x7B05DE4D3F2111E88D2AFA163E9022F0, '2017-08-02 04:26:41'),
-	(_binary 0x11E99BFCD1E51F4C853FE86A64A6C64B, _binary 0x11E99C2A69150375A00AE86A64A6C64B, '2019-07-01 20:05:16');
+	(_binary 0x11E99BFCD1E51F4C853FE86A64A6C64B, _binary 0x11E99BFCD1E9E3F7853FE86A64A6C64B, NOW());
 /*!40000 ALTER TABLE `UserFlagHolders` ENABLE KEYS */;
 
 -- Dumping structure for table winworld.UserFlags
@@ -292,7 +290,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
 -- Dumping data for table winworld.Users: ~0 rows (approximately)
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
 INSERT IGNORE INTO `Users` (`UserID`, `Email`, `AccountEnabled`, `Password`, `Salt`, `ShortName`, `RegistrationTime`, `LastSeenTime`, `RegistrationIP`, `ThemeName`) VALUES
-	(_binary 0x11E99BFCD1E9E3F7853FE86A64A6C64B, 'root@localhost', 'True', '$2a$12$I7Z0lrQFyxgRFgWVB8FX1.FYpJDEN7Z5x4Mp4a7I8bT26G3OU8USa', '', 'admin', '2019-07-01 14:36:16', '2018-04-07 00:27:28', '', 'default');
+	(_binary 0x11E99BFCD1E9E3F7853FE86A64A6C64B, 'root@localhost', 'True', '$2a$12$I7Z0lrQFyxgRFgWVB8FX1.FYpJDEN7Z5x4Mp4a7I8bT26G3OU8USa', '', 'admin', NOW(), NOW(), '', 'default');
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 
 -- Dumping structure for function winworld.UUIDBIN
