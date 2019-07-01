@@ -95,7 +95,7 @@ module.exports = {
     },
     
     b64encode: function (str) {
-        return new Buffer(str, "utf8").toString("base64");
+        return Buffer.from(str, "utf8").toString("base64");
     },
 
     groupBy: function (xs, key) {
