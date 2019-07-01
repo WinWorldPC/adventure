@@ -13,6 +13,7 @@
         <p><%= download.Information %></p>
         <% } %>
         <a href="/release/<%= download.ReleaseUUID %>" class="btn btn-outline-primary">Back to release</a>
+		<% if (mirrors.length > 0) { %>
         <h2>Mirrors</h2>
         <p>
             You have used <%= usedDownloads %> of your current <%= downloadLimit %> downloads. This count will reset daily.
@@ -25,6 +26,7 @@
             <li><a href="/download/<%= download.DLUUID %>/from/<%= i.MirrorUUID %>"><%= i.MirrorName %></a> (<%= i.Location %>, <%= i.Country %>)</li>
             <% }); %>
         </ul>
+		<% } %>
 		<% if (download.IPFSPath) { %>
 		<h2>IPFS</h2>
 		<p>This file is also available over <a href="https://ipfs.io/">IPFS</a>. IPFS is a decentralised distributed file store, and thus downloads do not count towards your daily download limit.</p>
@@ -74,6 +76,9 @@
 			})()
 		</script>
 		<% }%>
+		<% if (mirrors.length > 0 != true && !download.IPFSPath) { %>
+		<p>The file doesn't have any mirrors or other methods to download associated with it.</p>
+		<% } %>
     </div>
     <div class="col-sm">
         <div id="fileInfoSheet" class="card">
