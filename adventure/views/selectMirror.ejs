@@ -28,8 +28,14 @@
 		<% if (download.IPFSPath) { %>
 		<h2>IPFS</h2>
 		<p>This file is also available over <a href="https://ipfs.io/">IPFS</a>. IPFS is a decentralised distributed file store, and thus downloads do not count towards your daily download limit.</p>
+
 		<p><i>Warning: IPFS support is currently experimental and your download might not work.</i></p>
-		<p id="localIPFSClientMessage">No local IPFS client has been detected. To use the IPFS client, visit <a href="https://ipfs.io">ipfs.io</a> to install the IPFS Companion browser extention and download and run a client.<br />Alternatively, you can also use the <a href="https://brave.com/but305">Brave browser</a>, which, in addition to built-in ad-blocking and strong privacy options, also offers a built-in IPFS client.</p>
+
+		<p id="localIPFSClientMessage">
+			No local IPFS client has been detected. To use the IPFS client, visit <a href="https://ipfs.io">ipfs.io</a> to install the IPFS Companion browser extention and download and run a client.<br />
+			
+		</p>
+
 		<p>Download through</p>
 		<ul>
 			<li><a href="https://cloudflare-ipfs.com<%=download.IPFSPath%>">Cloudflare IPFS Gateway</a></li>
