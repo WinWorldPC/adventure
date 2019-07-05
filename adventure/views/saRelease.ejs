@@ -125,20 +125,45 @@
     <a class="btn btn-outline-primary" href="/release/<%= release.ReleaseUUID %>">Cancel</a>
 </form>
 <h2>Downloads</h2>
-<ul>
-    <% downloads.forEach(function (i, n, a) { %>
-    <li>
-        <a href="/download/<%= i.DLUUID %>"><%= i.Name %></a> (<a href="/sa/download/<%= i.DLUUID %>">Edit</a>)
-    </li>
-    <% }) %>
-</ul>
+<% if ((downloads || []).length > 0) { %>
+<table id="downloadsManageTable" class="table table-striped table-sm table-responsive">
+	<thead>
+		<tr>
+			<th>Download</th>
+			<th>Manage</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% downloads.forEach(function (i, n, a) { %>
+		<tr>
+		    <td><a href="/download/<%= i.DLUUID %>"><%= i.Name %></a></td>
+			<td><a href="/sa/download/<%= i.DLUUID %>">Edit</a></td>
+		</tr>
+		<% }) %>
+	</tbody>
+</table>
+<% } %>
 <a class="btn btn-primary" role="button" href="/sa/createDownload/<%= release.ReleaseUUID %>">Create download</a>
 <h2>Manage serials</h2>
-<ul>
-    <% serials.forEach(function (i, n, a) { %>
-    <li><%= i.Serial %> (<a href="/sa/removeSerial/<%= release.ReleaseUUID %>/<%= encodeURIComponent(i.Serial) %>">Remove</a>)</li>
-    <% }); %>
-</ul>
+<% if ((serials || []).length > 0) { %>
+<table id="serialManageTable" class="table table-striped table-sm table-responsive">
+	<thead>
+		<tr>
+			<th>Serial</th>
+			<th>Manage</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% serials.forEach(function (i, n, a) { %>
+		<tr>
+			<td><%= i.Serial %></td>
+			<td><a href="/sa/removeSerial/<%= release.ReleaseUUID %>/<%= encodeURIComponent(i.Serial) %>">Remove</a></td>
+		</tr>
+		<% }); %>
+	</tbody>
+</table>
+<% } %>
+<!-- XXX: Consider moving these controls to inside the table -->
 <form method="post" action="/sa/addSerial/<%= release.ReleaseUUID %>" class="form-inline">
     <div class="form-group mb-2 mr-sm-2 mb-sm-0">
         <label class="sr-only" for="serial">Serial</label>
@@ -147,11 +172,24 @@
     <button type="submit" class="btn btn-primary">Add Serial</button>
 </form>
 <h2>Manage screenshots</h2>
-<ul>
-    <% screenshots.forEach(function (i, n, a) { %>
-    <li><a href="/screenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>"><%= i.ScreenshotTitle %></a> (<a href="/sa/deleteScreenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>">Remove</a>)</li>
-    <% }); %>
-</ul>
+<% if ((screenshots || []).length > 0) { %>
+<table id="screenshotManageTable" class="table table-striped table-sm table-responsive">
+	<thead>
+		<tr>
+			<th>Screenshot</th>
+			<th>Manage</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% screenshots.forEach(function (i, n, a) { %>
+		<tr>
+			<td><a href="/screenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>"><%= i.ScreenshotTitle %></a></td>
+			<td><a href="/sa/deleteScreenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>">Remove</a></td>
+		</tr>
+		<% }); %>
+	</tbody>
+</table>
+<% } %>
 <h3>Add a screenshot</h3>
 <form method="post" action="/sa/addScreenshot/<%= release.ReleaseUUID %>" enctype="multipart/form-data" class="form">
     <div class="row">
