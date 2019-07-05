@@ -6,8 +6,8 @@ function sluggify(str) {
     }
     /* we could check for the existence of a slug too */
     return str.toLowerCase() /* no uppercase in slug */
-        .replace(/[^a-z0-9-]/g, "-") /* get rid of non-alphanumerics/hyphen
-					.replace(/--+/g, "-") /* get rid of doubled up hyphens */
+        .replace(/[^a-z0-9-]/g, "-") /* get rid of non-alphanumerics/hyphen */
+		.replace(/--+/g, "-") /* get rid of doubled up hyphens */
         .replace(/-$/g, "") /* get rid of trailing hyphens */
         .replace(/^-/g, "") /* and leading ones too */;
 }
