@@ -106,23 +106,36 @@
     <a class="btn btn-outline-primary" href="/download/<%= download.DLUUID %>">Cancel</a>
 </form>
 <h2>Mirror presence</h2>
-Mirrors that are shown as striken out are not online. Toggling mirror presence will not change the presence of the files on the server.
-<ul>
-    <% mirrors.forEach(function (i, n, a) { %>
-    <% var online = mirrorContents.some(function (x) { return x.MirrorUUID == i.MirrorUUID }) %>
-    <li>
-        <% if (i.IsOnline == "False") { %>
-        <del>
-        <% } %>
-        <%= i.MirrorName %>
-        (<%= online ? "Available" : "Not available" %>,
-        <a href="/sa/downloadMirrorAvailability/<%= download.DLUUID %>/<%= i.MirrorUUID %>">Make <%= online ? "Unavailable" : "Available" %></a>)
-        <% if (i.IsOnline == "False") { %>
-        </del>
-        <% } %>
-    </li>
-    <% }); %>
-</ul>
+<p>Mirrors that are shown as striken out are not online. Toggling mirror presence will not change the presence of the files on the server.</p>
+<% if ((mirrors || []).length > 0) { %>
+<table id="serialManageTable" class="table table-striped table-sm table-responsive">
+	<thead>
+		<tr>
+			<th>Mirror</th>
+			<th>Download Availability</th>
+			<th>Manage</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% mirrors.forEach(function (i, n, a) { %>
+		<% var online = mirrorContents.some(function (x) { return x.MirrorUUID == i.MirrorUUID }) %>
+		<tr>
+			<td>
+				<% if (i.IsOnline == "False") { %>
+				<del>
+				<% } %>
+				<a href="/sa/mirror/<%= i.MirrorUUID %>"><%= i.MirrorName %></a>
+				<% if (i.IsOnline == "False") { %>
+				</del>
+				<% } %>
+			</td>
+		    <td><%= online ? "Available" : "Not available" %></td>
+		    <td><a href="/sa/downloadMirrorAvailability/<%= download.DLUUID %>/<%= i.MirrorUUID %>">Make <%= online ? "Unavailable" : "Available" %></a></td>
+		</tr>
+		<% }); %>
+	</tbody>
+</table>
+<% } %>
 <h2>Delete download</h2>
 This will delete the download and mirror presence information. It will not delete the files on mirrors. Are you sure you want to do this?
 <form method="get" action="/sa/deleteDownload/<%= download.DLUUID %>" class="form-inline">
