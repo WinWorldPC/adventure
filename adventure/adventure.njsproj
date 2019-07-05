@@ -42,6 +42,9 @@
     <Compile Include="pageRoutes.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="res\js\sluggifyUI.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="saContributionRoutes.js">
       <SubType>Code</SubType>
     </Compile>
