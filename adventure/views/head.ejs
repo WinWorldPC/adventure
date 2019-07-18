@@ -24,6 +24,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/library">Library</a>
                 </li>
+                <% if (config.useVanilla) { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forum">Forum</a>
+                </li>
+                <% } %>
                 <% Object.keys(sitePages).forEach(function (i, n, a) { %>
                 <% if (sitePages[i].show) { %>
                 <li class="nav-item">
