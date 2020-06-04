@@ -234,6 +234,16 @@ server.get("/search", function (req, res) {
 
     // We need to build the core part of the query so it'll be identical in both the count/pagination query, the content query, and the release aggregator query (in that order)
 
+    /* Roughly the search logic goes like this (remember to update this for future changes):
+     * - First a fulltext search against titles and (if the user enables it) descriptions. These results are ranked by relevance.
+     * - Next, because fulltext search doesn't do leading wildcards, we OR results with a plaintext LIKE against title, so that "CAD" matches "AutoCAD"
+     * - Now do a subquery against Releases, and only match products if the release has:
+     * -- A matching begin/end year if present
+     * -- A matching platform if present
+     * -- A matching vendor name if present
+     * - And finally if there are any applicable tags, check those
+     */
+
     // First, the "details" (this goes into the core query and the release query)
     var detailsQuery = "AND year(Releases.ReleaseDate) >= '" + startYear + "' \n\
             AND year(Releases.ReleaseDate) <= '" + endYear + "' \n\
@@ -241,7 +251,7 @@ server.get("/search", function (req, res) {
             AND Releases.VendorName LIKE ?\n";
 
     // Now the "core" which filters for which products match at all
-    var coreQuery = "(MATCH(" + matchFields +") AGAINST (? IN BOOLEAN MODE) "+ftsEnabled+") \n\
+    var coreQuery = "(MATCH(" + matchFields +") AGAINST (? IN NATURAL LANGUAGE MODE) "+ftsEnabled+" OR Products.Name LIKE ?) \n\
         AND Products.ProductUUID IN (\n\
             SELECT ProductUUID FROM Releases \n\
             WHERE \n\
@@ -256,7 +266,7 @@ server.get("/search", function (req, res) {
     // Now let's start querying
     // First get count of matching rows so we can paginate
     database.execute("SELECT COUNT(*) FROM `Products` WHERE " + coreQuery,
-        [search, vendor], function (cErr, cRes, cFields) {
+        [search, '%' + search + '%', vendor], function (cErr, cRes, cFields) {
             if (!cRes) {
                 return res.status(404).render("error", {
                     message: "Search engine error."
@@ -268,7 +278,7 @@ server.get("/search", function (req, res) {
         // Now do the actual content query, limiting to the extents of the currently selected page
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
             database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + " LIMIT ?,?",
-             [search, vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+             [search, '%' + search + '%', vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
 
                 // This is used by the Markdown renderer to turn links into bold text
                 var renderer = new marked.Renderer();

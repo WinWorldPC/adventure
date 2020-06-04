@@ -69,6 +69,7 @@
 <br>
 
 <% if (products.length >= 1) { %>
+<p>Search found <%= products.length %> results</p>
 <dl id="searchList">
     <% products.forEach(function(i, n, a) {%>
         <dt>
@@ -81,7 +82,7 @@
             <%# Keep items unique by using Set %>
             
             <% new Set(releasesCollection[i.PUID].map(function(x) { return x.Platform.split(","); }).flat()).forEach(function(p,n,a) { %>
-                <a class="badge badge-info" href="/search/<%= currentGET %>&platforms=<%= p %>"><%= p %></a>
+                <a class="badge badge-info" href="/search/?<%= currentGET %>&platforms=<%= p %>"><%= p %></a>
             <% }) %>
         </dt>
         <dd>
