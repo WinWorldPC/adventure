@@ -78,12 +78,11 @@
                     <a class="badge badge-secondary" href="/search/?<%= currentGET %>&tags=<%= j %>"><%= j %></a>
                 <% }) %>
             <% } %>
-            <% if (i.Platform) { %>
-                <%# Keep items unique by using Set %>
-                <% new Set(i.Platform.split(",")).forEach(function(j, n, a) { %>
-                    <a class="badge badge-info" href="/search/<%= currentGET %>&platforms=<%= j %>"><%= j %></a>
-                <% }) %>
-            <% } %>
+            <%# Keep items unique by using Set %>
+            
+            <% new Set(releasesCollection[i.PUID].map(function(x) { return x.Platform.split(","); }).flat()).forEach(function(p,n,a) { %>
+                <a class="badge badge-info" href="/search/<%= currentGET %>&platforms=<%= p %>"><%= p %></a>
+            <% }) %>
         </dt>
         <dd>
             <%- i.Notes %>

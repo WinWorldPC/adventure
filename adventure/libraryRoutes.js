@@ -250,14 +250,12 @@ server.get("/search", function (req, res) {
         ") \n\
         AND ("+ tagQuery +")";
 
-    var productPlatforms = "(SELECT GROUP_CONCAT(DISTINCT Platform) FROM Releases WHERE ProductUUID = Products.ProductUUID) as Platform";
-
     // HACK: I am EXTREMELY not proud of ANY of these queries
     // they need UDFs and building on demand BADLY
 
     // Now let's start querying
     // First get count of matching rows so we can paginate
-    database.execute("SELECT COUNT(*),"+productPlatforms+" FROM `Products` WHERE " + coreQuery,
+    database.execute("SELECT COUNT(*) FROM `Products` WHERE " + coreQuery,
         [search, vendor], function (cErr, cRes, cFields) {
             if (!cRes) {
                 return res.status(404).render("error", {
@@ -269,7 +267,7 @@ server.get("/search", function (req, res) {
 
         // Now do the actual content query, limiting to the extents of the currently selected page
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
-            database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID," + productPlatforms +" From `Products` HAVING " + coreQuery + " LIMIT ?,?",
+            database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + " LIMIT ?,?",
              [search, vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
 
                 // This is used by the Markdown renderer to turn links into bold text
