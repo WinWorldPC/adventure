@@ -10,13 +10,13 @@
             <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
             <% if (config.taggableCategories.some(function(x) { return x == i.Type}) && i.ApplicationTags) { %>
                 <% i.ApplicationTags.split(",").forEach(function(j, n, a) { %>
-                    <a class="badge badge-secondary" href="/library/applications/<%= tagMappingsInverted[j] %>"><%= j %></a>
+                    <a class="badge badge-secondary" href="/search?category=<%= category %>&tags=<%= j %>"><%= j %></a>
                 <% }) %>
             <% } %>
             <% if (i.Platform) { %>
                 <%# Keep items unique by using Set %>
                 <% new Set(i.Platform.split(",")).forEach(function(j, n, a) { %>
-                    <a class="badge badge-info" href="/library/<%= category %>/<%= platformMappingsInverted[j] %>"><%= j %></a>
+                    <a class="badge badge-info" href="/search?category=<%= category %>&platforms=<%= j %>"><%= j %></a>
                 <% }) %>
             <% } %>
         </dt>
