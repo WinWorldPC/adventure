@@ -12,23 +12,27 @@
         <% } %>
         <%- product.Notes %>
         <div id="releaseInformation">
-            <nav class="mb-2" id="releasesNav" aria-label="Releases navigation">
-                <ul id="releasesList" class="nav nav-pills">
-                    <% releases.forEach(function(i, n, a) {%>
-                    <% if (i.ReleaseUUID.toString("hex") == release.ReleaseUUID.toString("hex")) { %>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/product/<%= product.Slug %>/<%= i.Slug %>">
-                            <%= i.Name %> <span class="sr-only">(current)</span>
-                        </a>
-                    </li>
-                    <% } else { %>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
-                    </li>
-                    <% } %>
-                    <% }); %>
-                </ul>
-            </nav>
+            <div class="card">
+                <nav class="mb-2 card-body" id="releasesNav" aria-label="Releases navigation">
+                    <h6 class="card-subtitle mb-2 text-muted">Available Releases</h6>
+                    <ul id="releasesList" class="nav nav-pills">
+                        <% releases.forEach(function(i, n, a) {%>
+                        <% if (i.ReleaseUUID.toString("hex") == release.ReleaseUUID.toString("hex")) { %>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/product/<%= product.Slug %>/<%= i.Slug %>">
+                                <%= i.Name %> <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                        <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/<%= product.Slug %>/<%= i.Slug %>"><%= i.Name %></a>
+                        </li>
+                        <% } %>
+                        <% }); %>
+                    </ul>
+                </nav>
+            </div>
+            <br>
             <% if (screenshots && screenshots.length > 0) { %>
             <div id="screenshotPanel" class="carousel slide lazy mb-2 w-75 mx-auto" data-ride="carousel" data-interval="false">
                 <% if (screenshots.length > 1) { %>
@@ -62,6 +66,7 @@
                 <% } %>
             </div>
             <% } %>
+            <h3>Release notes</h3>
             <%- release.Notes %>
             <% if (release.InstallInstructions) { %>
             <h3>Installation instructions</h3>
@@ -79,7 +84,7 @@
             <dl id="infoSheetBody" class="card-body" role="tabpanel" aria-labelledby="infoSheetHeader">
                 <dt>Product type</dt>
                 <dd>
-                    <a href="/library/<%= categoryMappingsInverted[product.Type] %>"><%= product.Type %></a>
+                    <a class="badge badge-primary" href="/library/<%= categoryMappingsInverted[product.Type] %>"><%= product.Type %></a>
                     <% if (config.taggableCategories.some(function(x) { return x == product.Type}) && product.ApplicationTags) { %>
                         <% product.ApplicationTags.split(",").forEach(function(i, n, a) { %>
                         <a class="badge badge-secondary" href="/search/?tags=<%= i %>"><%= i %></a>
