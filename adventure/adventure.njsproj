@@ -118,7 +118,6 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="views\screenshot.ejs" />
-    <Content Include="views\searchCSE.ejs" />
     <Content Include="views\selectMirror.ejs" />
     <Content Include="views\release.ejs" />
     <Content Include="views\signup.ejs">
