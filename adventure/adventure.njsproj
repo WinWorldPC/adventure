@@ -67,6 +67,7 @@
     <Content Include="deploy\install.sql">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="res\css\bootstrap-multiselect.css" />
     <Content Include="res\footerFragment.html">
       <SubType>Code</SubType>
     </Content>
@@ -74,6 +75,7 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="res\img\favicon.ico" />
+    <Content Include="res\js\bootstrap-multiselect.js" />
     <Content Include="res\js\lazyCarousel.js" />
     <Content Include="config.example.json" />
     <Content Include="deploy\adventure.example.service" />
@@ -122,7 +124,7 @@
     <Content Include="views\signup.ejs">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="views\test.ejs" />
+    <Content Include="views\searchHelp.ejs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="deploy\" />

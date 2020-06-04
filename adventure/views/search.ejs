@@ -1,0 +1,149 @@
+﻿<%- include("head", {title: "search"}) %>
+<style>
+form.search {
+	border: 4px solid lightgrey;
+	padding: 10px;
+}
+form.search select {
+	width: 100% !important;
+}
+</style>
+<form class="search ">
+	<div class="row">
+		<div class="col-md-12">
+			<label>
+			<strong>Search Terms (<a href="/search-help" target="_blank">?</a>)</strong>
+			</label>
+		</div>
+	</div>
+	<div class="form-row">
+		<div class="col-md-2 form-inline">
+			<label>Title:</label> &nbsp;
+		</div>
+		<div class="col-md-3 form-inline">
+			<input type="text" class="form-control" name="q" placeholder="Search text" value="<%= search %>">
+		</div>
+		<div class="col-md-2 form-inline"> 
+			<label>Released year:</label> &nbsp;
+		</div>
+		<div class="col-md-3 form-inline">
+			<input type="text" class="form-control" name="startYear" size="4" value="<%= startYear %>" placeholder="From">&nbsp;-&nbsp;
+			<input type="text" class="form-control" name="endYear" size="4" value="<%= endYear %>" placeholder="To">
+		</div>
+	</div>
+	<div class="row" style="margin-top: 10px;">
+		<div class="col-md-2"><label for="descField">Search description: </label> </div>
+		<div class="col-md-3">
+			<input name="descField" type="checkbox" <% if (descField) { %> checked <% } %> >
+		</div>
+		<div class="col-md-2 form-inline">
+			<label>Vendor:</label> &nbsp;
+		</div>
+		<div class="col-md-3 form-inline">
+			<input type="text" class="form-control" name="vendor" placeholder="Vendor name" value="<%= vendor %>">
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2 form-inline">
+			<label>Platform:</label> &nbsp;
+		</div>
+		<div class="col-md-3">
+			<select multiple name="platforms" class="form-control multi-check">
+			    <% platforms.forEach(function(j, n, a) { %>
+					<option if <% if (platformSet.indexOf(j) > -1) { %> selected=true <% } %> ><%= j %></option>
+                <% }) %>
+			</select>
+		</div>
+		<div class="col-md-2 form-inline">
+			<label>Tags:</label> &nbsp;
+		</div>
+		<div class="col-md-3">
+			<select multiple name="tags" class="form-control multi-check">
+				<% tags.forEach(function(j, n, a) { %>
+					<option if <% if (tagSet.indexOf(j) > -1) { %> selected=true <% } %> ><%= j %></option>
+                <% }) %>
+			</select>
+		</div>
+		<div class="col-md-2 text-right">
+			<button type="submit" class="btn btn-primary">Search</button>
+		</div>
+	</div>
+</form>
+<br>
+
+<% if (products.length > 1) { %>
+<dl id="searchList">
+    <% products.forEach(function(i, n, a) {%>
+        <dt>
+            <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+            <% if (config.taggableCategories.some(function(x) { return x == i.Type}) && i.ApplicationTags) { %>
+                <% i.ApplicationTags.split(",").forEach(function(j, n, a) { %>
+                    <a class="badge badge-secondary" href="/search/?q=<%= search %>&tags=<%= tags %>|<%= tagMappingsInverted[j] %>"><%= j %></a>
+                <% }) %>
+            <% } %>
+            <% if (i.Platform) { %>
+                <%# Keep items unique by using Set %>
+                <% new Set(i.Platform.split(",")).forEach(function(j, n, a) { %>
+                    <a class="badge badge-info" href="/search/<%= category %>/<%= platformMappingsInverted[j] %>"><%= j %></a>
+                <% }) %>
+            <% } %>
+        </dt>
+        <dd>
+            <%- i.Notes %>
+        </dd>
+		<dd>
+			<ul class="nav justify-content-center">
+			<% releasesCollection[i.PUID].forEach(function(r,n,a) { %>
+				<li class="nav-link active"><a href="#"><%= r.Name %> </a> </li>
+			<% }) %>
+			</ul>
+			<hr>
+		</dd>
+    <% }); %>
+</dl>
+<nav aria-label="Page navigation" class="d-flex flex-wrap">
+    <% if (pages > 1) { %>
+    <ul id="searchPagination" class="pagination mr-auto">
+        <%# HACK: How the hell does EJS get a string when we passed a number? %>
+        <% page = Number(page); pageBounds = config.perPageBounds; %>
+        <%# Anyways, do bounds checking so we can make the pagination manageable. %>
+        <% if (page - pageBounds > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/search/<%= category %><%= tag ? '/' + tag : '' %>?q=<%= search %>&page=1">1</a>
+                </li>
+        <% } %>
+        <% if (page - pageBounds > 2) { %>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">...</a>
+                </li>
+        <% } %>
+        <% for (var i = page - pageBounds > 0 ? page - pageBounds : 1; i <= (page + pageBounds < pages ? page + pageBounds : pages); i++) { %>
+            <% if (i != page) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/search/?q=<%= search %>&page=<%= i %>"><%= i %></a>
+                </li>
+            <% } else { %>
+                <li class="page-item active">
+                    <a class="page-link" href="/search/?q=<%= search %>&page=<%= i %>">
+                        <%= i %><span class="sr-only">(current)</span>
+                    </a>
+                </li>
+            <% } %>
+        <% } %>
+        <% if (page + pageBounds < pages - 1) { %>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">...</a>
+                </li>
+        <% } %>
+        <% if (page + pageBounds < pages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/search/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= pages %>"><%= pages %></a>
+                </li>
+        <% } %>
+    </ul>
+    <% } %>
+</nav>
+<% } else { %>
+	<h2>There were no search results.</h2>
+<% } %>
+<%- include("foot") %>

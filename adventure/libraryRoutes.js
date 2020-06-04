@@ -124,13 +124,199 @@ server.get("/library", function (req, res) {
     return res.redirect("/library/" + config.defaultCategory);
 });
 
-// TODO: non-CSE search
-server.get("/search", function (req, res) {
-    return res.render("searchCSE", {
-        q: req.query.q,
-        cx: config.cseId
+server.get("/search-help", function (req, res) {
+    return res.render("searchHelp", {
     });
 });
+
+server.get("/search", function (req, res) {
+    // TODO: Fold all this back into the main library display route so users can trivially move from displaying a whole category or tag to a more specific search; most of it's equivalent functionality anyway, we just need a flag to hide the search details field in the template (and the release details if/when that's implemented) - however, if the user clicks a link like "Advanced Search", their current view will be transformed into a search query
+
+    var page = req.query.page || 1;
+
+    // Is there a search term?
+    if (req.query.q) {
+        var searchTerm = req.query.q; // This is the search as it will be displayed in the results
+        var search = '%' + searchTerm + '%'; // This is the actual query we'll put in the SQL
+    } else {
+        // Blank searches are allowed so user can e.g. find all items by year
+        // TODO: Throw an error if NO fields were populated
+        var searchTerm = "";
+        var search = "%";
+    }
+
+    var tagQuery = "";
+    var tagSet = [];
+    // Are there any tags?
+    if (req.query.tags) {
+        // Convert input query to array if needed
+        if (Array.isArray(req.query.tags)) {
+            var tags = req.query.tags; // User selected multiple items
+        } else {
+            var tags = [req.query.tags]; // User selected one item
+        }
+        var tagQueries = [];
+        tags.forEach(tag => {
+            // Make sure each platform is valid to prevent SQL injection
+            if (formatting.invertObject(config.constants.tagMappings).hasOwnProperty(tag)) {
+                tagQueries.push("find_in_set('" + tag + "', Products.ApplicationTags)");
+                tagSet.push(tag);
+            }
+        });
+        tagQuery = tagQueries.join(" OR ");
+    }
+    if (tagQuery == "") tagQuery = "TRUE";
+
+    var platformQuery = "";
+    var platformSet = [];
+    // Are there any platforms?
+    if (req.query.platforms) {
+        // Convert input query to array if needed
+        if (Array.isArray(req.query.platforms)) {
+            var platforms = req.query.platforms; // User selected multiple items
+        } else {
+            var platforms = [req.query.platforms]; // User selected one item
+        }
+        var platformQueries = [];
+        platforms.forEach(platform => {
+            // Make sure each platform is valid to prevent SQL injection
+            if (formatting.invertObject(config.constants.platformMappings).hasOwnProperty(platform)) {
+                platformQueries.push("find_in_set('" + platform + "', Releases.Platform)");
+                platformSet.push(platform);
+            }
+        });
+        platformQuery = platformQueries.join(" OR ");
+    }
+    if (platformQuery == "") platformQuery = "TRUE";
+
+    var startYear = "0000";
+    // Is there a valid start year?
+    if (req.query.startYear && !isNaN(Number(req.query.startYear))) {
+        startYear = Number(req.query.startYear);
+    }
+    var endYear = "9999";
+    // Is there a valid end year?
+    if (req.query.endYear && !isNaN(Number(req.query.endYear))) {
+        endYear = Number(req.query.endYear);
+    }
+
+    // Get "search description" checkbox
+    var descField = (req.query.descField) ? true : false;
+    // Get vendor field
+    var vendor = (req.query.vendor) ? req.query.vendor : "%";
+
+    // Assemble the list of fields to be matched with fulltext search
+    ftsMatchFields = ["Products.Name"];
+    if (descField) ftsMatchFields.push("Products.Notes");
+    matchFields = ftsMatchFields.join(", ");
+
+    // If user entered no fulltext search value, crowbar out the fulltext search
+    var ftsEnabled = "";
+    if (searchTerm == "") ftsEnabled = "OR TRUE";
+
+    // We need to build the core part of the query so it'll be identical in both the count/pagination query, the content query, and the release aggregator query (in that order)
+
+    // First, the "details" (this goes into the core query and the release query)
+    var detailsQuery = "AND year(Releases.ReleaseDate) >= '" + startYear + "' \n\
+            AND year(Releases.ReleaseDate) <= '" + endYear + "' \n\
+            AND ("+ platformQuery + ")\n\
+            AND Releases.VendorName LIKE ?\n";
+
+    // Now the "core" which filters for which products match at all
+    var coreQuery = "(MATCH(" + matchFields +") AGAINST (? IN BOOLEAN MODE) "+ftsEnabled+") \n\
+        AND Products.ProductUUID IN (\n\
+            SELECT ProductUUID FROM Releases \n\
+            WHERE \n\
+            Releases.ProductUUID = Products.ProductUUID \n"
+            + detailsQuery +
+        ") \n\
+        AND ("+ tagQuery +")";
+
+    // HACK: I am EXTREMELY not proud of ANY of these queries
+    // they need UDFs and building on demand BADLY
+
+    // Now let's start querying
+    // First get count of matching rows so we can paginate
+    database.execute("SELECT COUNT(*) FROM `Products` WHERE " + coreQuery,
+        [search, vendor], function (cErr, cRes, cFields) {
+            if (!cRes) {
+                return res.status(404).render("error", {
+                    message: "Search engine error."
+                });
+            }
+        var count = cRes[0]["COUNT(*)"];
+        var pages = Math.ceil(count / config.perPage);
+
+        // Now do the actual content query, limiting to the extents of the currently selected page
+        // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
+        database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + " LIMIT ?,?",
+             [search, vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+
+                // This is used by the Markdown renderer to turn links into bold text
+                var renderer = new marked.Renderer();
+                renderer.link = function (href, title, text) {
+                    return "<strong>" + text + "</strong>";
+                };
+                // Now truncate and render markdown for the description field
+                var productsFormatted = prRes.map(function (x) {
+                    x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes), { renderer: renderer });
+                    return x;
+                })
+
+                // Accumulate a list of all product UUIDs that matched
+                var prodUUIDs = prRes.map(function (x) {
+                    return "0x" + x.PUID;
+                });
+
+                // If there were no products returned, put in a bogus value, otherwise the next query will fail
+                prodUUIDString = (prodUUIDs.length > 0) ? prodUUIDs.join(',') : "''";
+
+                // Now do another query which will get all releases for each of the matching products
+                // TODO: This might be refactorable as a JOIN against the previous query. I felt that was "dirty" since I'd have to manipulate the data a ton in JS, but now I'm thinking this is maybe dirtier. It does work, but it's probably slower than it needs to be.
+                var releasesCollection = {};
+                database.execute("SELECT *, HEX(ProductUUID) as PUID From `Releases` WHERE Releases.ProductUUID IN ("+ prodUUIDString +") " + detailsQuery,
+                    [vendor], function (relErr, relRes, relFields) {
+                        // Build a dict of all the releases for each ProductUUID
+                        relRes.forEach(relRow => {
+                            PUID = relRow.PUID;
+                            if (!releasesCollection.hasOwnProperty(PUID)) releasesCollection[PUID] = [];
+                            releasesCollection[PUID].push(relRow);
+                            console.log(releasesCollection);
+                        });
+
+                        // Render the page
+                        // TODO: Special-case OS for rendering the old custom layout
+                        res.render("search", {
+                            search: searchTerm,
+                            products: productsFormatted,
+                            page: page,
+                            pages: pages,
+                            category: req.params.category,
+                            tag: req.params.tag,
+                            tags: tags,
+                            tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
+                            tags: Object.values(config.constants.tagMappings),
+                            platformMappings: config.constants.platformMappings,
+                            platformMappingsInverted: formatting.invertObject(config.constants.platformMappings),
+                            platforms: Object.values(config.constants.platformMappings),
+                            categoryMappings: config.constants.categoryMappings,
+                            categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings),
+                            startYear: startYear > 0000 ? startYear : "",
+                            endYear: endYear < 9999 ? endYear : "",
+                            tagSet: tagSet,
+                            platformSet, platformSet,
+                            vendor: (vendor == "%") ? "" : vendor,
+                            descField: descField,
+                            releasesCollection: releasesCollection
+                        });
+                    });
+        });
+    });
+
+
+    return;
+});
+
 
 // TODO: Experimental view; VIPs only for now now that auth works
 function filesRoute(req, res) {
