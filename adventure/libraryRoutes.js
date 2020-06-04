@@ -274,14 +274,13 @@ server.get("/search", function (req, res) {
                 // Now do another query which will get all releases for each of the matching products
                 // TODO: This might be refactorable as a JOIN against the previous query. I felt that was "dirty" since I'd have to manipulate the data a ton in JS, but now I'm thinking this is maybe dirtier. It does work, but it's probably slower than it needs to be.
                 var releasesCollection = {};
-                database.execute("SELECT *, HEX(ProductUUID) as PUID From `Releases` WHERE Releases.ProductUUID IN ("+ prodUUIDString +") " + detailsQuery,
+                database.execute("SELECT *, HEX(ProductUUID) as PUID From Releases WHERE Releases.ProductUUID IN ("+ prodUUIDString +") " + detailsQuery + " ORDER BY Releases.ReleaseDate, Releases.Name",
                     [vendor], function (relErr, relRes, relFields) {
                         // Build a dict of all the releases for each ProductUUID
                         relRes.forEach(relRow => {
                             PUID = relRow.PUID;
                             if (!releasesCollection.hasOwnProperty(PUID)) releasesCollection[PUID] = [];
                             releasesCollection[PUID].push(relRow);
-                            console.log(releasesCollection);
                         });
 
                         // Render the page
