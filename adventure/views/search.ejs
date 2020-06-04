@@ -1,21 +1,10 @@
-﻿<%- include("head", {title: "search"}) %>
-<style>
-form.search {
-	border: 4px solid lightgrey;
-	padding: 10px;
-}
-form.search select {
-	width: 100% !important;
-}
-</style>
-<form class="search ">
-	<div class="row">
-		<div class="col-md-12">
-			<label>
-			<strong>Search Terms (<a href="/search-help" target="_blank">?</a>)</strong>
-			</label>
-		</div>
+﻿<%- include("head", {title: "Search"}) %>
+<div class="card">
+	<div class="card-header">
+		Search Terms (<a href="/search-help" target="_blank">Help</a>)
 	</div>
+<div class="card-body">
+<form>
 	<div class="form-row">
 		<div class="col-md-2 form-inline">
 			<label>Title:</label> &nbsp;
@@ -26,12 +15,18 @@ form.search select {
 		<div class="col-md-2 form-inline"> 
 			<label>Released year:</label> &nbsp;
 		</div>
-		<div class="col-md-3 form-inline">
-			<input type="text" class="form-control" name="startYear" size="4" value="<%= startYear %>" placeholder="From">&nbsp;-&nbsp;
-			<input type="text" class="form-control" name="endYear" size="4" value="<%= endYear %>" placeholder="To">
+		<div class="col-md-3 form-inline input-group">
+			<div class="input-group-prepend">
+				<div class="input-group-text">From</div>
+			</div>
+			<input type="number" min="1977" max="9999" class="form-control" name="startYear" size="4" value="<%= startYear %>" placeholder="From">
+			<div class="input-group-prepend input-group-append">
+				<div class="input-group-text">to</div>
+			</div>
+			<input type="number" min="1977" max="9999" class="form-control" name="endYear" size="4" value="<%= endYear %>" placeholder="To">
 		</div>
 	</div>
-	<div class="row" style="margin-top: 10px;">
+	<div class="form-row" style="margin-top: 10px;">
 		<div class="col-md-2"><label for="descField">Search description: </label> </div>
 		<div class="col-md-3">
 			<input name="descField" type="checkbox" <% if (descField) { %> checked <% } %> >
@@ -43,15 +38,15 @@ form.search select {
 			<input type="text" class="form-control" name="vendor" placeholder="Vendor name" value="<%= vendor %>">
 		</div>
 	</div>
-	<div class="row">
+	<div class="form-row" style="margin-top: 10px;">
 		<div class="col-md-2 form-inline">
 			<label>Platform:</label> &nbsp;
 		</div>
 		<div class="col-md-3">
 			<select multiple name="platforms" class="form-control multi-check">
-			    <% platforms.forEach(function(j, n, a) { %>
+				<% platforms.forEach(function(j, n, a) { %>
 					<option if <% if (platformSet.indexOf(j) > -1) { %> selected=true <% } %> ><%= j %></option>
-                <% }) %>
+				<% }) %>
 			</select>
 		</div>
 		<div class="col-md-2 form-inline">
@@ -61,7 +56,7 @@ form.search select {
 			<select multiple name="tags" class="form-control multi-check">
 				<% tags.forEach(function(j, n, a) { %>
 					<option if <% if (tagSet.indexOf(j) > -1) { %> selected=true <% } %> ><%= j %></option>
-                <% }) %>
+				<% }) %>
 			</select>
 		</div>
 		<div class="col-md-2 text-right">
@@ -69,6 +64,8 @@ form.search select {
 		</div>
 	</div>
 </form>
+</div>
+</div>
 <br>
 
 <% if (products.length >= 1) { %>
