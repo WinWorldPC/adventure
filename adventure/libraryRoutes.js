@@ -283,7 +283,7 @@ server.get("/search", function (req, res) {
                 // This is used by the Markdown renderer to turn links into bold text
                 var renderer = new marked.Renderer();
                 renderer.link = function (href, title, text) {
-                    return "<strong>" + text + "</strong>";
+                    return "<em>" + text + "</em>";
                 };
                 // Now truncate and render markdown for the description field
                 var productsFormatted = prRes.map(function (x) {
