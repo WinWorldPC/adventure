@@ -91,7 +91,7 @@
 		<dd>
 			<ul class="nav justify-content-center">
 			<% releasesCollection[i.PUID].forEach(function(r,n,a) { %>
-				<li class="nav-link active"><a href="#"><%= r.Name %> </a> </li>
+				<li class="nav-link active"><a href="/product/<%= i.Slug %>/<%= r.Slug %>"><%= r.Name %> </a> </li>
 			<% }) %>
 			</ul>
 			<hr>

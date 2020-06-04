@@ -192,12 +192,12 @@ server.get("/search", function (req, res) {
     var startYear = "0000";
     // Is there a valid start year?
     if (req.query.startYear && !isNaN(Number(req.query.startYear))) {
-        startYear = Number(req.query.startYear);
+        startYear = Math.floor(Number(req.query.startYear));
     }
     var endYear = "9999";
     // Is there a valid end year?
     if (req.query.endYear && !isNaN(Number(req.query.endYear))) {
-        endYear = Number(req.query.endYear);
+        endYear = Math.floor(Number(req.query.endYear));
     }
 
     // Get "search description" checkbox
