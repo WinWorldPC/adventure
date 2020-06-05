@@ -134,6 +134,9 @@ server.get("/search", function (req, res) {
 
     var page = req.query.page || 1;
 
+    /* ============================================================= */
+    // Assemble and sanitize search input 
+
     // Is there a search term?
     if (req.query.q) {
         var searchTerm = req.query.q; // This is the search as it will be displayed in the results
@@ -205,6 +208,21 @@ server.get("/search", function (req, res) {
     // Get vendor field
     var vendor = (req.query.vendor) ? req.query.vendor : "%";
 
+    //http://localhost:3000/search/?q=LAN&startYear=1977&endYear=1980&descField=on&vendor=asd&platforms=DOS&platforms=CPM&tags=Word+Processor&tags=Utility
+
+    // Assemble the current set of GET parameters (after stripping invalid options) for linkbuilding (link and build bro link and build)
+    currentGET = "";
+    if (searchTerm != "") currentGET += "q=" + searchTerm;
+    if (vendor != "%") currentGET += "vendor=" + vendor;
+    if (endYear != 0000) currentGET += "&endYear=" + startYear;
+    if (endYear != 0000) currentGET += "&endYear=" + endYear;
+    if (descField) currentGET += "&descField=on";
+    if (platformSet.length > 0) currentGET += "&platforms=" + platformSet.join("&platforms=");
+    if (tagSet.length > 0) currentGET += "&tags=" + tagSet.join("&tags=");
+
+    /* ============================================================= */
+    // Begin the search 
+
     // Assemble the list of fields to be matched with fulltext search
     ftsMatchFields = ["Products.Name"];
     if (descField) ftsMatchFields.push("Products.Notes");
@@ -216,6 +234,16 @@ server.get("/search", function (req, res) {
 
     // We need to build the core part of the query so it'll be identical in both the count/pagination query, the content query, and the release aggregator query (in that order)
 
+    /* Roughly the search logic goes like this (remember to update this for future changes):
+     * - First a fulltext search against titles and (if the user enables it) descriptions. These results are ranked by relevance.
+     * - Next, because fulltext search doesn't do leading wildcards, we OR results with a plaintext LIKE against title, so that "CAD" matches "AutoCAD"
+     * - Now do a subquery against Releases, and only match products if the release has:
+     * -- A matching begin/end year if present
+     * -- A matching platform if present
+     * -- A matching vendor name if present
+     * - And finally if there are any applicable tags, check those
+     */
+
     // First, the "details" (this goes into the core query and the release query)
     var detailsQuery = "AND year(Releases.ReleaseDate) >= '" + startYear + "' \n\
             AND year(Releases.ReleaseDate) <= '" + endYear + "' \n\
@@ -223,7 +251,7 @@ server.get("/search", function (req, res) {
             AND Releases.VendorName LIKE ?\n";
 
     // Now the "core" which filters for which products match at all
-    var coreQuery = "(MATCH(" + matchFields +") AGAINST (? IN BOOLEAN MODE) "+ftsEnabled+") \n\
+    var coreQuery = "(MATCH(" + matchFields +") AGAINST (? IN NATURAL LANGUAGE MODE) "+ftsEnabled+" OR Products.Name LIKE ?) \n\
         AND Products.ProductUUID IN (\n\
             SELECT ProductUUID FROM Releases \n\
             WHERE \n\
@@ -238,7 +266,7 @@ server.get("/search", function (req, res) {
     // Now let's start querying
     // First get count of matching rows so we can paginate
     database.execute("SELECT COUNT(*) FROM `Products` WHERE " + coreQuery,
-        [search, vendor], function (cErr, cRes, cFields) {
+        [search, '%' + search + '%', vendor], function (cErr, cRes, cFields) {
             if (!cRes) {
                 return res.status(404).render("error", {
                     message: "Search engine error."
@@ -249,19 +277,20 @@ server.get("/search", function (req, res) {
 
         // Now do the actual content query, limiting to the extents of the currently selected page
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
-        database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + " LIMIT ?,?",
-             [search, vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+            database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + " LIMIT ?,?",
+             [search, '%' + search + '%', vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
 
                 // This is used by the Markdown renderer to turn links into bold text
                 var renderer = new marked.Renderer();
                 renderer.link = function (href, title, text) {
-                    return "<strong>" + text + "</strong>";
+                    return "<em>" + text + "</em>";
                 };
                 // Now truncate and render markdown for the description field
                 var productsFormatted = prRes.map(function (x) {
                     x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes), { renderer: renderer });
                     return x;
                 })
+
 
                 // Accumulate a list of all product UUIDs that matched
                 var prodUUIDs = prRes.map(function (x) {
@@ -306,7 +335,8 @@ server.get("/search", function (req, res) {
                             platformSet, platformSet,
                             vendor: (vendor == "%") ? "" : vendor,
                             descField: descField,
-                            releasesCollection: releasesCollection
+                            releasesCollection: releasesCollection,
+                            currentGET: currentGET
                         });
                     });
         });

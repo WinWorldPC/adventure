@@ -5,15 +5,10 @@
 </p>
 <p>You can assemble a search like <em>"apps made by Microsoft between 1993 and 1997 with Paint in the name"</em>, or <em>"everything Adobe made in 1994"</em> and the engine will produce those exact results.</p>
 <p>All fields are optional as long as at least one is filled in.</p>
+<p>Notice that each version is listed under every product in the results? Those are actually just the ones that match your search parameters - if you search for "<em>Windows</em>" and specify a starting date of "<em>1992</em>", you'll see Windows 3 releases starting with 3.1, but if you change it to 1993, they'll start at 3.11.</p>
 <h2>Title & Description</h2>
 <p>Anything you enter in "<strong>Title</strong>" will search the <strong>Product Title</strong> field, and if you check the "<strong>Search description</strong>" box it'll search that too.</p>
 <p>This is fulltext search, meaning it works sort of like Google - just type in what you want to find and if the engine finds any part of it in either field, it'll rank that result appropriately. So, search for <em>"Paint"</em>, and an app called <em>"Microsoft Paint"</em> will rank higher than <em>"Visionsoft Ink and Paint,"</em> but both will come up.</p>
-<p>You can also put some symbols around words (plus anything you find <a href="https://dev.mysql.com/doc/refman/8.0/en/fulltext-boolean.html" target="_blank">here</a>):</p>
-<ul>
-<li><strong>-</strong> before a word to ensure it <em>doesn't</em> match, e.g. <strong>-Microsoft</strong></li>
-<li><strong>+</strong> before a word to ensure it <em>does</em> match, e.g. <strong>+SGI</strong></li>
-<li><strong>*</strong> after a word for a partial-word search, e.g. <strong>Micro*</strong></li>
-</ul>
 </p>
 <h2>Vendor</h2>
 <p>Enter a vendor name here (e.g. "<em>Microsoft</em>") to limit to products from that vendor. This is an exact-text match. Some programs might not have a vendor value.</p>
@@ -23,4 +18,5 @@
 <p>Remember that each program can have multiple releases, so if you search for 1997-1997, an app that had a release in 1993, 1994, <em>and</em> 1997 will come up.</p>
 <h2>Platform / Tags</h2>
 <p>Both these fields are "OR"ed, meaning if you select any number of tags, items will be returned if they match <em>any</em> of the tags you selected.</p>
+<p>If you click the tags or platforms listed after product titles in the results, those will be added to your search to filter it further.</p>
 <%- include("foot") %>
