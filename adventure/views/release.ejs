@@ -66,8 +66,10 @@
                 <% } %>
             </div>
             <% } %>
+            <% if (release.Notes) { %>
             <h3>Release notes</h3>
             <%- release.Notes %>
+            <% } %>
             <% if (release.InstallInstructions) { %>
             <h3>Installation instructions</h3>
             <%- release.InstallInstructions %>
