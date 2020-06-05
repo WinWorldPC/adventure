@@ -509,6 +509,23 @@ server.get("/product/:product/:release", function (req, res) {
                             ssoString = b64Object + " " + sign + " " + ts + " hmacsha1";
                         }
 
+                        // for OpenGraph
+                        var opengraph = {
+                            "og:title": product.Name + " " + release.Name,
+                            "og:site_name": config.name,
+                            // XXX: Product, article, or something else?
+                            "og:type": "product",
+                            // XXX: Slugs or ReleaseUUID?
+                            "og:url": config.publicBaseUrl + "product/" + product.Slug + "/" + release.Slug
+                        };
+
+                        // if we have a screenshot, use it, else resort to favicon
+                        if (screenshots.length > 0) {
+                            opengraph["og:image"] = config.publicBaseUrl + screenshots[0].ScreenshotFile;
+                        } else {
+                            opengraph["og:image"] = config.publicBaseUrl + "res/img/favicon.ico";
+                        }
+
                         res.render("release", {
                             product: product,
                             releases: rlRes,
@@ -522,7 +539,8 @@ server.get("/product/:product/:release", function (req, res) {
                             categoryMappings: config.constants.categoryMappings,
                             categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings),
 
-                            ssoString: ssoString
+                            ssoString: ssoString,
+                            opengraph: opengraph
                         });
                     });
                 });

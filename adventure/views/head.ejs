@@ -11,6 +11,12 @@
     <%- headerFragment %>
     <!-- RSS feeds -->
     <link rel="alternate" type="application/rss+xml" title="Latest downloads" href="/downloads/latest.rss" />
+    <!-- OpenGraph metadata -->
+    <% if (typeof opengraph != "undefined") { %>
+        <% Object.keys(opengraph).forEach(function (i, n, a) { %>
+        <meta property="<%= i %>" content="<%= opengraph[i].replace(/"/g, "&#34;"); %>" />
+        <% }); %>
+    <% } %>
     <title><%= config.name %>: <%= title %></title>
 </head>
 <body>
