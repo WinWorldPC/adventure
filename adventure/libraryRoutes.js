@@ -14,7 +14,7 @@ var server = express.Router();
 
 // Library routes
 function libraryRoute(req, res) {
-    var page = req.query.page || 1;
+    var page = Number(req.query.page) || 1;
     var category = "%"; // % for everything
     switch (req.params.category) {
         case "operating-systems":
@@ -97,6 +97,11 @@ function libraryRoute(req, res) {
             var pages = Math.ceil(count / config.perPage);
             // TODO: Break up these queries, BADLY
             database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type`," + productPlatforms + " AS Platform FROM `Products` HAVING `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', Platform LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, platform, platform, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+                if (!prRes) {
+                    return res.status(404).render("error", {
+                        message: "Couldn't get the list of products."
+                    });
+                }
                 // truncate and markdown
                 var productsFormatted = prRes.map(function (x) {
                     x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
