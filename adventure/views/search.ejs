@@ -43,7 +43,7 @@
 			<label>Platform:</label> &nbsp;
 		</div>
 		<div class="col-md-3">
-			<select multiple name="platforms" class="form-control multi-check">
+			<select multiple name="platforms" class="form-control multi-check btn-secondary">
 				<% platforms.forEach(function(j, n, a) { %>
 					<option if <% if (platformSet.indexOf(j) > -1) { %> selected=true <% } %> ><%= j %></option>
 				<% }) %>
@@ -53,7 +53,7 @@
 			<label>Tags:</label> &nbsp;
 		</div>
 		<div class="col-md-3">
-			<select multiple name="tags" class="form-control multi-check">
+			<select multiple name="tags" class="form-control multi-check btn-info">
 				<% tags.forEach(function(j, n, a) { %>
 					<option if <% if (tagSet.indexOf(j) > -1) { %> selected=true <% } %> ><%= j %></option>
 				<% }) %>
