@@ -96,7 +96,7 @@
 
                 <% if (release.VendorName) { %>
                 <dt>Vendor</dt>
-                <dd><%= release.VendorName %></dd>
+                <dd><a href="/search?vendor=<%= encodeURIComponent(release.VendorName) %>"><%= release.VendorName %></a></dd>
                 <% } %>
                 <!-- TODO: Should fuzzy date-->
                 <% if (release.ReleaseDate && release.ReleaseDate.getTime()) { %>
