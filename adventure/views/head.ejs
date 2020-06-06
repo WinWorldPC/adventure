@@ -14,7 +14,7 @@
     <!-- OpenGraph metadata -->
     <% if (typeof opengraph != "undefined") { %>
         <% Object.keys(opengraph).forEach(function (i, n, a) { %>
-        <meta property="<%= i %>" content="<%= opengraph[i].replace(/"/g, "&#34;"); %>" />
+        <meta property="<%= i %>" content="<%- opengraph[i] %>" />
         <% }); %>
     <% } %>
     <title><%= config.name %>: <%= title %></title>

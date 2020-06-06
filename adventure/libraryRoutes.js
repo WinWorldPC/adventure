@@ -516,7 +516,9 @@ server.get("/product/:product/:release", function (req, res) {
                             // XXX: Product, article, or something else?
                             "og:type": "product",
                             // XXX: Slugs or ReleaseUUID?
-                            "og:url": config.publicBaseUrl + "product/" + product.Slug + "/" + release.Slug
+                            "og:url": config.publicBaseUrl + "product/" + product.Slug + "/" + release.Slug,
+                            // this gets escaped for us
+                            "og:description": formatting.stripTags(marked(formatting.truncateToFirstParagraph(product.Notes).replace(/\r?\n.*/g, "")))
                         };
 
                         // if we have a screenshot, use it, else resort to favicon
