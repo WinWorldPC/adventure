@@ -13,4 +13,21 @@
     </div>
     <% }); %>
 </div>
+<% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+<!-- copy and paste from saRelease put here for convenience -->
+<h3>Add a screenshot</h3>
+<form method="post" action="/sa/addScreenshot/<%= release.ReleaseUUID %>" enctype="multipart/form-data" class="form">
+    <div class="row">
+        <div class="form-group col">
+            <label for="screenshotFile">File</label>
+            <input required type="file" class="form-control-file" id="screenshotFile" name="screenshotFile">
+        </div>
+        <div class="form-group col">
+            <label for="screenshotTitle">Caption</label>
+            <input required type="text" class="form-control" id="screenshotTitle" name="screenshotTitle" placeholder="Caption">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Screenshot</button>
+</form>
+<% } %>
 <%- include("foot") %>

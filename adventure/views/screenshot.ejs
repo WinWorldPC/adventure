@@ -5,6 +5,13 @@
     <figcaption class="figure-caption"><%= title %> </figcaption>
 </figure>
 <div>
+    <div class="btn-group mb-2" role="group">
+        <a href="/screenshot/<%= release %>" class="btn btn-outline-primary">More screenshots</a>
+        <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
+    <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+        <a href="/sa/release/<%= release %>" class="btn btn-outline-primary">Back to release editor</a>
+    <% } %>
+    </div>
     <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
     <h2>Edit title</h2>
     <form method="post" action="/sa/editScreenshotTitle/<%= release %>/<%= uuid %>" class="form-inline">
@@ -13,13 +20,11 @@
             <input required type="text" class="form-control" id="title" name="title" placeholder="Title" value="<%= title %>">
         </div>
         <button type="submit" class="btn btn-warning mr-sm-2">Edit title</button>
-        <a href="/sa/release/<%= release %>" class="btn btn-outline-primary mr-sm-2">Back to editing</a>
-        <a href="/screenshot/<%= release %>" class="btn btn-outline-primary">More screenshots</a>
-        <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
     </form>
-    <% } else { %>
-        <a href="/screenshot/<%= release %>" class="btn btn-outline-primary">More screenshots</a>
-        <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
+    <h2>Delete screenshot</h2>
+    <form method="get" action="/sa/delete/<%= release.ReleaseUUID %>" class="form-inline">
+        <a class="btn btn-danger" href="/sa/deleteScreenshot/<%= release %>/<%= uuid %>">Remove</a>
+    </form>
     <% } %>
 </div>
 <%- include("foot") %>
