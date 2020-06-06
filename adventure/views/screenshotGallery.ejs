@@ -6,7 +6,7 @@
         <% columns.forEach(function(image) { %>
         <div class="col-sm">
             <a href="/screenshot/<%= release %>/<%= image.ScreenshotUUID %>">
-                <img src="<%= image.ScreenshotFile %>" class="img-fluid img-thumbnail mx-auto d-block" alt="<%= image.ScreenshotTitle %>" title="<%= image.ScreenshotTitle %>" />
+                <img loading="lazy" src="<%= image.ScreenshotFile %>" class="img-fluid img-thumbnail mx-auto d-block" alt="<%= image.ScreenshotTitle %>" title="<%= image.ScreenshotTitle %>" />
             </a>
         </div>
         <% }); %>
