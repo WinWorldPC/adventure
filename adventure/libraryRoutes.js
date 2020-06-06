@@ -521,7 +521,9 @@ server.get("/product/:product/:release", function (req, res) {
 
                         // if we have a screenshot, use it, else resort to favicon
                         if (screenshots.length > 0) {
-                            opengraph["og:image"] = config.publicBaseUrl + screenshots[0].ScreenshotFile;
+                            // there might be a leading slash that we shouldn't have
+                            var screenshotFile = screenshots[0].ScreenshotFile.replace(/^\//, "");
+                            opengraph["og:image"] = config.publicBaseUrl + screenshotFile;
                         } else {
                             opengraph["og:image"] = config.publicBaseUrl + "res/img/favicon.ico";
                         }
@@ -546,6 +548,44 @@ server.get("/product/:product/:release", function (req, res) {
                 });
             });
         });
+    });
+});
+
+server.get("/screenshot/:release", function (req, res) {
+    var uuid = req.params.release;
+    var uuidAsBuf = formatting.hexToBin(uuid);
+    database.execute("SELECT p.Name as `ProductName`, r.Name as `ReleaseName` FROM Releases r INNER JOIN Products p on p.ProductUUID = r.ProductUUID WHERE r.ReleaseUUID = ?", [uuidAsBuf], function (relErr, relRes, relFields) {
+        if (relErr || relRes == null) {
+            return res.status(404).render("error", {
+                message: "There was no release."
+            });
+        } else {
+            database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [uuidAsBuf], function (scErr, scRes, scFields) {
+                if (scErr || scRes == null || scRes.length == 0) {
+                    return res.status(404).render("error", {
+                        message: "There was are no screenshots."
+                    });
+                } else {
+                    var screenshots = scRes.map(screenshot => {
+                        screenshot.ScreenshotFile = config.screenshotBaseUrl + screenshot.ScreenshotFile;
+                        screenshot.ScreenshotUUID = formatting.binToHex(screenshot.ScreenshotUUID);
+                        return screenshot;
+                    });
+                    // chunk the array (mutates, but we don't care)
+                    var chunked = [];
+                    while (screenshots.length) {
+                            chunked.push(screenshots.splice(0, 4));
+                    }
+                    res.render("screenshotGallery", {
+                        rows: chunked,
+                        release: req.params.release,
+        
+                        releaseName: relRes[0].ReleaseName,
+                        productName: relRes[0].ProductName
+                    });
+                }
+            });
+        }
     });
 });
 

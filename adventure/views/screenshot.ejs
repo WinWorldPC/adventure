@@ -13,10 +13,12 @@
             <input required type="text" class="form-control" id="title" name="title" placeholder="Title" value="<%= title %>">
         </div>
         <button type="submit" class="btn btn-warning mr-sm-2">Edit title</button>
-        <a href="/sa/release/<%= release %>" class="btn btn-outline-primary mr-sm-2">Cancel</a>
+        <a href="/sa/release/<%= release %>" class="btn btn-outline-primary mr-sm-2">Back to editing</a>
+        <a href="/screenshot/<%= release %>" class="btn btn-outline-primary">More screenshots</a>
         <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
     </form>
     <% } else { %>
+        <a href="/screenshot/<%= release %>" class="btn btn-outline-primary">More screenshots</a>
         <a href="/release/<%= release %>" class="btn btn-outline-primary">Back to release</a>
     <% } %>
 </div>
