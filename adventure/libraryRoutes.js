@@ -43,7 +43,7 @@ function libraryRoute(req, res) {
     if (category == "OS" && config.specialCaseLibraryOS) {
         database.execute("SELECT `Name`,`Slug`," + productPlatforms + " AS Platform FROM `Products` WHERE `Type` LIKE 'OS' ORDER BY `Name`", [], function (prErr, prRes, prFields) {
             var products = prRes.map(function (x) {
-                x.Platform = x.Platform.split(",");
+                x.Platform = x.Platform ? x.Platform.split(",") : "";
                 return x;
             });
             
