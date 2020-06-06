@@ -81,7 +81,7 @@
             <% } %>
             <%# Keep items unique by using Set %>
             
-            <% new Set(releasesCollection[i.PUID].map(function(x) { return x.Platform.split(","); }).flat()).forEach(function(p,n,a) { %>
+            <% new Set(releasesCollection[i.PUID].map(function(x) { return x.Platform.split(","); }).reduce((acc, val) => acc.concat(val), [])).forEach(function(p,n,a) { %>
                 <a class="badge badge-info" href="/search/?<%= currentGET %>&platforms=<%= p %>"><%= p %></a>
             <% }) %>
         </dt>
