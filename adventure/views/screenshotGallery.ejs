@@ -1,12 +1,12 @@
 ﻿<%- include("head", {title: "Screenshots for " + productName + " " + releaseName}) %>
 <h1>Screenshots for <a href="/release/<%= release %>"><%= productName %> <%= releaseName %></a></h1>
-<div class="container mb-3" id="screenshotGallery">
+<div class="container" id="screenshotGallery">
     <% rows.forEach(function(columns) { %>
-    <div class="row">
+    <div class="row mb-4">
         <% columns.forEach(function(image) { %>
         <div class="col-sm">
             <a href="/screenshot/<%= release %>/<%= image.ScreenshotUUID %>">
-                <img src="<%= image.ScreenshotFile %>" class="img-fluid img-thumbnail mx-auto d-block" alt="<%= image.ScreenshotTitle %>" />
+                <img src="<%= image.ScreenshotFile %>" class="img-fluid img-thumbnail mx-auto d-block" alt="<%= image.ScreenshotTitle %>" title="<%= image.ScreenshotTitle %>" />
             </a>
         </div>
         <% }); %>
