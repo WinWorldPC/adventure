@@ -14,7 +14,7 @@ var server = express.Router();
 
 // Library routes
 function libraryRoute(req, res) {
-    var page = req.query.page || 1;
+    var page = Number(req.query.page) || 1;
     var category = "%"; // % for everything
     switch (req.params.category) {
         case "operating-systems":
@@ -43,7 +43,7 @@ function libraryRoute(req, res) {
     if (category == "OS" && config.specialCaseLibraryOS) {
         database.execute("SELECT `Name`,`Slug`," + productPlatforms + " AS Platform FROM `Products` WHERE `Type` LIKE 'OS' ORDER BY `Name`", [], function (prErr, prRes, prFields) {
             var products = prRes.map(function (x) {
-                x.Platform = x.Platform.split(",");
+                x.Platform = x.Platform ? x.Platform.split(",") : "";
                 return x;
             });
             
@@ -97,6 +97,11 @@ function libraryRoute(req, res) {
             var pages = Math.ceil(count / config.perPage);
             // TODO: Break up these queries, BADLY
             database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type`," + productPlatforms + " AS Platform FROM `Products` HAVING `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', Platform LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, platform, platform, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+                if (!prRes) {
+                    return res.status(404).render("error", {
+                        message: "Couldn't get the list of products."
+                    });
+                }
                 // truncate and markdown
                 var productsFormatted = prRes.map(function (x) {
                     x.Notes = marked(formatting.truncateToFirstParagraph(x.Notes));
@@ -148,6 +153,10 @@ server.get("/search", function (req, res) {
         var search = "%";
     }
 
+    // If the user didn't enter any fulltext search then revert to sort by name
+    var sortQuery = "";
+    if (searchTerm == "") sortQuery = " ORDER BY Products.Name ";
+
     var tagQuery = "";
     var tagSet = [];
     // Are there any tags?
@@ -192,6 +201,28 @@ server.get("/search", function (req, res) {
     }
     if (platformQuery == "") platformQuery = "TRUE";
 
+    var categoryQuery = "";
+    var categorySet = [];
+    // Are there any categories?
+    if (req.query.category) {
+        // Convert input query to array if needed
+        if (Array.isArray(req.query.categorys)) {
+            var categorys = req.query.category; // User selected multiple items
+        } else {
+            var categorys = [req.query.category]; // User selected one item
+        }
+        var categoryQueries = [];
+        categorys.forEach(category => {
+            // Make sure each category is valid to prevent SQL injection
+            if (formatting.invertObject(config.constants.categoryMappings).hasOwnProperty(category)) {
+                categoryQueries.push("find_in_set('" + category + "', Products.Type)");
+                categorySet.push(category);
+            }
+        });
+        categoryQuery = categoryQueries.join(" OR ");
+    }
+    if (categoryQuery == "") categoryQuery = "TRUE";
+
     var startYear = "0000";
     // Is there a valid start year?
     if (req.query.startYear && !isNaN(Number(req.query.startYear))) {
@@ -214,11 +245,12 @@ server.get("/search", function (req, res) {
     currentGET = "";
     if (searchTerm != "") currentGET += "q=" + searchTerm;
     if (vendor != "%") currentGET += "vendor=" + vendor;
-    if (endYear != 0000) currentGET += "&endYear=" + startYear;
-    if (endYear != 0000) currentGET += "&endYear=" + endYear;
+    if (startYear != "0000") currentGET += "&startYear=" + startYear;
+    if (endYear != "9999") currentGET += "&endYear=" + endYear;
     if (descField) currentGET += "&descField=on";
     if (platformSet.length > 0) currentGET += "&platforms=" + platformSet.join("&platforms=");
     if (tagSet.length > 0) currentGET += "&tags=" + tagSet.join("&tags=");
+    if (categorySet.length > 0) currentGET += "&category=" + tagSet.join("&category=");
 
     /* ============================================================= */
     // Begin the search 
@@ -251,14 +283,15 @@ server.get("/search", function (req, res) {
             AND Releases.VendorName LIKE ?\n";
 
     // Now the "core" which filters for which products match at all
-    var coreQuery = "(MATCH(" + matchFields +") AGAINST (? IN NATURAL LANGUAGE MODE) "+ftsEnabled+" OR Products.Name LIKE ?) \n\
+    var coreQuery = "(Products.Name LIKE ? OR MATCH(" + matchFields +") AGAINST (? IN BOOLEAN MODE) "+ftsEnabled+") \n\
         AND Products.ProductUUID IN (\n\
             SELECT ProductUUID FROM Releases \n\
             WHERE \n\
             Releases.ProductUUID = Products.ProductUUID \n"
             + detailsQuery +
         ") \n\
-        AND ("+ tagQuery +")";
+        AND ("+ tagQuery + ")\n\
+        AND ("+ categoryQuery +")";
 
     // HACK: I am EXTREMELY not proud of ANY of these queries
     // they need UDFs and building on demand BADLY
@@ -277,7 +310,7 @@ server.get("/search", function (req, res) {
 
         // Now do the actual content query, limiting to the extents of the currently selected page
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
-            database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + " LIMIT ?,?",
+            database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + sortQuery + " LIMIT ?,?",
              [search, '%' + search + '%', vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
 
                 // This is used by the Markdown renderer to turn links into bold text
@@ -336,7 +369,8 @@ server.get("/search", function (req, res) {
                             vendor: (vendor == "%") ? "" : vendor,
                             descField: descField,
                             releasesCollection: releasesCollection,
-                            currentGET: currentGET
+                            currentGET: currentGET,
+                            resultCount: count
                         });
                     });
         });
@@ -504,6 +538,27 @@ server.get("/product/:product/:release", function (req, res) {
                             ssoString = b64Object + " " + sign + " " + ts + " hmacsha1";
                         }
 
+                        // for OpenGraph
+                        var opengraph = {
+                            "og:title": product.Name + " " + release.Name,
+                            "og:site_name": config.name,
+                            // XXX: Product, article, or something else?
+                            "og:type": "product",
+                            // XXX: Slugs or ReleaseUUID?
+                            "og:url": config.publicBaseUrl + "product/" + product.Slug + "/" + release.Slug,
+                            // this gets escaped for us
+                            "og:description": formatting.stripTags(marked(formatting.truncateToFirstParagraph(product.Notes).replace(/\r?\n.*/g, "")))
+                        };
+
+                        // if we have a screenshot, use it, else resort to favicon
+                        if (screenshots.length > 0) {
+                            // there might be a leading slash that we shouldn't have
+                            var screenshotFile = screenshots[0].ScreenshotFile.replace(/^\//, "");
+                            opengraph["og:image"] = config.publicBaseUrl + screenshotFile;
+                        } else {
+                            opengraph["og:image"] = config.publicBaseUrl + "res/img/favicon.ico";
+                        }
+
                         res.render("release", {
                             product: product,
                             releases: rlRes,
@@ -517,12 +572,51 @@ server.get("/product/:product/:release", function (req, res) {
                             categoryMappings: config.constants.categoryMappings,
                             categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings),
 
-                            ssoString: ssoString
+                            ssoString: ssoString,
+                            opengraph: opengraph
                         });
                     });
                 });
             });
         });
+    });
+});
+
+server.get("/screenshot/:release", function (req, res) {
+    var uuid = req.params.release;
+    var uuidAsBuf = formatting.hexToBin(uuid);
+    database.execute("SELECT p.Name as `ProductName`, r.Name as `ReleaseName` FROM Releases r INNER JOIN Products p on p.ProductUUID = r.ProductUUID WHERE r.ReleaseUUID = ?", [uuidAsBuf], function (relErr, relRes, relFields) {
+        if (relErr || relRes == null) {
+            return res.status(404).render("error", {
+                message: "There was no release."
+            });
+        } else {
+            database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [uuidAsBuf], function (scErr, scRes, scFields) {
+                if (scErr || scRes == null || scRes.length == 0) {
+                    return res.status(404).render("error", {
+                        message: "There was are no screenshots."
+                    });
+                } else {
+                    var screenshots = scRes.map(screenshot => {
+                        screenshot.ScreenshotFile = config.screenshotBaseUrl + screenshot.ScreenshotFile;
+                        screenshot.ScreenshotUUID = formatting.binToHex(screenshot.ScreenshotUUID);
+                        return screenshot;
+                    });
+                    // chunk the array (mutates, but we don't care)
+                    var chunked = [];
+                    while (screenshots.length) {
+                            chunked.push(screenshots.splice(0, 4));
+                    }
+                    res.render("screenshotGallery", {
+                        rows: chunked,
+                        release: req.params.release,
+        
+                        releaseName: relRes[0].ReleaseName,
+                        productName: relRes[0].ProductName
+                    });
+                }
+            });
+        }
     });
 });
 

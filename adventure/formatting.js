@@ -1,5 +1,6 @@
 ﻿var bcrypt = require('bcryptjs');
 var crypto = require("crypto");
+var striptags = require('striptags');
 
 module.exports = {
     roundToPrecision: function(number, precision) {
@@ -21,6 +22,10 @@ module.exports = {
     truncateToFirstParagraph: function (string) {
         // Handle Unix and Windows newlines
         return string.replace(/(.*)\r?\n\r?\n.*/g, "$1");
+    },
+
+    stripTags: function(html) {
+        return striptags(html);
     },
 
     isHexString: function (s) {

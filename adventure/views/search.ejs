@@ -43,7 +43,7 @@
 			<label>Platform:</label> &nbsp;
 		</div>
 		<div class="col-md-3">
-			<select multiple name="platforms" class="form-control multi-check">
+			<select multiple name="platforms" class="form-control multi-check btn-secondary">
 				<% platforms.forEach(function(j, n, a) { %>
 					<option if <% if (platformSet.indexOf(j) > -1) { %> selected=true <% } %> ><%= j %></option>
 				<% }) %>
@@ -53,7 +53,7 @@
 			<label>Tags:</label> &nbsp;
 		</div>
 		<div class="col-md-3">
-			<select multiple name="tags" class="form-control multi-check">
+			<select multiple name="tags" class="form-control multi-check btn-info">
 				<% tags.forEach(function(j, n, a) { %>
 					<option if <% if (tagSet.indexOf(j) > -1) { %> selected=true <% } %> ><%= j %></option>
 				<% }) %>
@@ -69,7 +69,7 @@
 <br>
 
 <% if (products.length >= 1) { %>
-<p>Search found <%= products.length %> results</p>
+<p>Search found <%= resultCount %> results</p>
 <dl id="searchList">
     <% products.forEach(function(i, n, a) {%>
         <dt>
@@ -81,7 +81,7 @@
             <% } %>
             <%# Keep items unique by using Set %>
             
-            <% new Set(releasesCollection[i.PUID].map(function(x) { return x.Platform.split(","); }).flat()).forEach(function(p,n,a) { %>
+            <% new Set(releasesCollection[i.PUID].map(function(x) { return x.Platform.split(","); }).reduce((acc, val) => acc.concat(val), [])).forEach(function(p,n,a) { %>
                 <a class="badge badge-info" href="/search/?<%= currentGET %>&platforms=<%= p %>"><%= p %></a>
             <% }) %>
         </dt>

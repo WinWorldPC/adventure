@@ -4,13 +4,19 @@
     <meta charset="utf-8" />
     <meta name="generator" content="Adventure" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<script src="https://unpkg.com/ipfs-http-client@32.0.1/dist/index.min.js" integrity="sha384-DHwXHSTSL/db8jvqXZXPTbr/QXZsSYe2tSi5avrkdKXTfAK1CctqVCv5YOl4A8uc" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://unpkg.com/ipfs-http-client@44.2.0/dist/index.min.js" integrity="sha384-3sSgHRREOld0O9S98mtIiJPvjhwVGtvmzRz4UjPcvACW4EnZasEpDONBWcsRF4y2" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/res/css/stickyFooter.css" />
-	<link rel="stylesheet" href="/res/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="/res/css/bootstrap-multiselect.css" />
     <%- headerFragment %>
     <!-- RSS feeds -->
     <link rel="alternate" type="application/rss+xml" title="Latest downloads" href="/downloads/latest.rss" />
+    <!-- OpenGraph metadata -->
+    <% if (typeof opengraph != "undefined") { %>
+        <% Object.keys(opengraph).forEach(function (i, n, a) { %>
+        <meta property="<%= i %>" content="<%- opengraph[i] %>" />
+        <% }); %>
+    <% } %>
     <title><%= config.name %>: <%= title %></title>
 </head>
 <body>
@@ -25,6 +31,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/library">Library</a>
                 </li>
+                <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "vip" || x.FlagName == "sa"; })) { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/files">Files</a>
+                </li>
+                <% } %>
                 <% Object.keys(sitePages).forEach(function (i, n, a) { %>
                 <% if (sitePages[i].show) { %>
                 <li class="nav-item">
@@ -34,7 +45,7 @@
                 <% }); %>
             </ul>
             <form class="form-inline my-2 my-lg-0 mr-2" action="/search">
-                <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search" aria-label="Search" required value="<%= typeof q == 'undefined' ? '' : q %>">
+                <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search" aria-label="Search" value="<%= typeof q == 'undefined' ? '' : q %>">
                 <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
             </form>
             <ul class="nav navbar-nav">
