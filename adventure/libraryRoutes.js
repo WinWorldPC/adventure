@@ -201,6 +201,29 @@ server.get("/search", function (req, res) {
     }
     if (platformQuery == "") platformQuery = "TRUE";
 
+    var categoryQuery = "";
+    var categorySet = [];
+    // Are there any categories?
+    if (req.query.category) {
+        // Convert input query to array if needed
+        if (Array.isArray(req.query.categorys)) {
+            var categorys = req.query.category; // User selected multiple items
+        } else {
+            var categorys = [req.query.category]; // User selected one item
+        }
+        var categoryQueries = [];
+        categorys.forEach(category => {
+            console.log(category);
+            // Make sure each category is valid to prevent SQL injection
+            if (formatting.invertObject(config.constants.categoryMappings).hasOwnProperty(category)) {
+                categoryQueries.push("find_in_set('" + category + "', Products.Type)");
+                categorySet.push(category);
+            }
+        });
+        categoryQuery = categoryQueries.join(" OR ");
+    }
+    if (categoryQuery == "") categoryQuery = "TRUE";
+
     var startYear = "0000";
     // Is there a valid start year?
     if (req.query.startYear && !isNaN(Number(req.query.startYear))) {
@@ -228,6 +251,7 @@ server.get("/search", function (req, res) {
     if (descField) currentGET += "&descField=on";
     if (platformSet.length > 0) currentGET += "&platforms=" + platformSet.join("&platforms=");
     if (tagSet.length > 0) currentGET += "&tags=" + tagSet.join("&tags=");
+    if (categorySet.length > 0) currentGET += "&category=" + tagSet.join("&category=");
 
     /* ============================================================= */
     // Begin the search 
@@ -267,7 +291,8 @@ server.get("/search", function (req, res) {
             Releases.ProductUUID = Products.ProductUUID \n"
             + detailsQuery +
         ") \n\
-        AND ("+ tagQuery +")";
+        AND ("+ tagQuery + ")\n\
+        AND ("+ categoryQuery +")";
 
     // HACK: I am EXTREMELY not proud of ANY of these queries
     // they need UDFs and building on demand BADLY
