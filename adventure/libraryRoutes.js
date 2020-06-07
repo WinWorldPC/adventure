@@ -213,7 +213,6 @@ server.get("/search", function (req, res) {
         }
         var categoryQueries = [];
         categorys.forEach(category => {
-            console.log(category);
             // Make sure each category is valid to prevent SQL injection
             if (formatting.invertObject(config.constants.categoryMappings).hasOwnProperty(category)) {
                 categoryQueries.push("find_in_set('" + category + "', Products.Type)");
@@ -246,8 +245,8 @@ server.get("/search", function (req, res) {
     currentGET = "";
     if (searchTerm != "") currentGET += "q=" + searchTerm;
     if (vendor != "%") currentGET += "vendor=" + vendor;
-    if (endYear != 0000) currentGET += "&endYear=" + startYear;
-    if (endYear != 0000) currentGET += "&endYear=" + endYear;
+    if (startYear != "0000") currentGET += "&startYear=" + startYear;
+    if (endYear != "9999") currentGET += "&endYear=" + endYear;
     if (descField) currentGET += "&descField=on";
     if (platformSet.length > 0) currentGET += "&platforms=" + platformSet.join("&platforms=");
     if (tagSet.length > 0) currentGET += "&tags=" + tagSet.join("&tags=");
