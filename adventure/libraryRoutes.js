@@ -154,8 +154,7 @@ server.get("/search", function (req, res) {
     }
 
     // If the user didn't enter any fulltext search then revert to sort by name
-    var sortQuery = "";
-    if (searchTerm == "") sortQuery = " ORDER BY Products.Name ";
+    var sortQuery = " ORDER BY Products.Name ";
 
     var tagQuery = "";
     var tagSet = [];
@@ -283,7 +282,7 @@ server.get("/search", function (req, res) {
             AND Releases.VendorName LIKE ?\n";
 
     // Now the "core" which filters for which products match at all
-    var coreQuery = "(Products.Name LIKE ? OR MATCH(" + matchFields +") AGAINST (? IN BOOLEAN MODE) "+ftsEnabled+") \n\
+    var coreQuery = "Products.Name LIKE ? \n\
         AND Products.ProductUUID IN (\n\
             SELECT ProductUUID FROM Releases \n\
             WHERE \n\
@@ -299,7 +298,7 @@ server.get("/search", function (req, res) {
     // Now let's start querying
     // First get count of matching rows so we can paginate
     database.execute("SELECT COUNT(*) FROM `Products` WHERE " + coreQuery,
-        [search, '%' + search + '%', vendor], function (cErr, cRes, cFields) {
+        ['%' + search + '%', vendor], function (cErr, cRes, cFields) {
             if (!cRes) {
                 return res.status(404).render("error", {
                     message: "Search engine error."
@@ -311,7 +310,7 @@ server.get("/search", function (req, res) {
         // Now do the actual content query, limiting to the extents of the currently selected page
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
             database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + sortQuery + " LIMIT ?,?",
-             [search, '%' + search + '%', vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+             ['%' + search + '%', vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
 
                 // This is used by the Markdown renderer to turn links into bold text
                 var renderer = new marked.Renderer();
