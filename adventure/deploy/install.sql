@@ -410,3 +410,49 @@ begin
             and Platform <> "";
     return prodPlat;
 end;
+
+create or replace function ProductDownloadCount
+(productID binary(16))
+returns int
+begin
+    declare hits int;
+    set hits = 0;
+    select count(*) as "Count"
+        into hits
+        from DownloadHits h
+        inner join Downloads d on h.DownloadUUID = d.DLUUID
+        inner join Releases r on d.ReleaseUUID = r.ReleaseUUID
+        inner join Products p on r.ProductUUID = p.ProductUUID
+        where productID = p.ProductUUID;
+    return hits;
+end;
+
+create or replace function ReleaseDownloadCount
+(releaseID binary(16))
+returns int
+begin
+    declare hits int;
+    set hits = 0;
+    select count(*) as "Count"
+        into hits
+        from DownloadHits h
+        inner join Downloads d on h.DownloadUUID = d.DLUUID
+        inner join Releases r on d.ReleaseUUID = r.ReleaseUUID
+        where releaseID = r.ReleaseUUID;
+    return hits;
+end;
+
+create or replace function DownloadDownloadCount
+(downloadID binary(16))
+returns int
+begin
+    declare hits int;
+    set hits = 0;
+    select count(*) as "Count"
+        into hits
+        from DownloadHits h
+        inner join Downloads d on h.DownloadUUID = d.DLUUID
+        where downloadID = d.DLUUID;
+    return hits;
+end;
+
