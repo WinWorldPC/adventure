@@ -38,10 +38,8 @@ function libraryRoute(req, res) {
             });
     }
     
-    const productPlatforms = "(SELECT GROUP_CONCAT(DISTINCT Platform) FROM Releases WHERE ProductUUID = Products.ProductUUID)";
-    
     if (category == "OS" && config.specialCaseLibraryOS) {
-        database.execute("SELECT `Name`,`Slug`," + productPlatforms + " AS Platform FROM `Products` WHERE `Type` LIKE 'OS' ORDER BY `Name`", [], function (prErr, prRes, prFields) {
+        database.execute("SELECT `Name`,`Slug`, ProductPlatforms(`ProductUUID`) AS Platform FROM `Products` WHERE `Type` LIKE 'OS' ORDER BY `Name`", [], function (prErr, prRes, prFields) {
             var products = prRes.map(function (x) {
                 x.Platform = x.Platform ? x.Platform.split(",") : "";
                 return x;
@@ -92,11 +90,11 @@ function libraryRoute(req, res) {
         }
         // HACK: I am EXTREMELY not proud of ANY of these queries
         // they need UDFs and building on demand BADLY
-        database.execute("SELECT COUNT(*)," + productPlatforms + " AS Platform FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', " + productPlatforms + " LIKE CONCAT(\"%\", ?, \"%\"), TRUE)", [category, tag, tag, platform, platform], function (cErr, cRes, cFields) {
+        database.execute("SELECT COUNT(*), ProductPlatforms(`ProductUUID`) AS Platform FROM `Products` WHERE `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', ProductPlatforms(`ProductUUID`) LIKE CONCAT(\"%\", ?, \"%\"), TRUE)", [category, tag, tag, platform, platform], function (cErr, cRes, cFields) {
             var count = cRes[0]["COUNT(*)"];
             var pages = Math.ceil(count / config.perPage);
             // TODO: Break up these queries, BADLY
-            database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type`," + productPlatforms + " AS Platform FROM `Products` HAVING `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', Platform LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, platform, platform, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+            database.execute("SELECT `Name`,`Slug`,`ApplicationTags`,`Notes`,`Type`, ProductPlatforms(`ProductUUID`) AS Platform FROM `Products` HAVING `Type` LIKE ? && IF(? LIKE '%', ApplicationTags LIKE CONCAT(\"%\", ?, \"%\"), TRUE) && IF(? LIKE '%', Platform LIKE CONCAT(\"%\", ?, \"%\"), TRUE) ORDER BY `Name` LIMIT ?,?", [category, tag, tag, platform, platform, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
                 if (!prRes) {
                     return res.status(404).render("error", {
                         message: "Couldn't get the list of products."

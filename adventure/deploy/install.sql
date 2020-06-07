@@ -393,3 +393,20 @@ SET SQL_MODE=@OLDTMP_SQL_MODE;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+/* Begin non-dumped functions */
+create or replace function ProductPlatforms
+(productID binary(16))
+returns set('DOS', 'CPM', 'Windows', 'OS2', 'Unix', 'Linux', 'MacOS', 'Mac OS X', 'DOSShell', 'Other') deterministic
+begin
+    declare prodPlat set('DOS', 'CPM', 'Windows', 'OS2', 'Unix', 'Linux', 'MacOS', 'Mac OS X', 'DOSShell', 'Other');
+    set prodPlat = "";
+    -- null/empty messes it up so just default
+    select group_concat(distinct Platform)
+        into prodPlat
+        from Releases
+        where productID = Releases.ProductUUID
+            and Platform is not null
+            and Platform <> "";
+    return prodPlat;
+end;
