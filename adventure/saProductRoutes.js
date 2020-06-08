@@ -6,6 +6,7 @@
 
 var config, database, sitePages;
 
+var uploadParser = middleware.uploadParser;
 var restrictedRoute = middleware.restrictedRoute;
 var urlencodedParser = middleware.bodyParser;
 var server = express.Router();
@@ -29,7 +30,7 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
             }
 
             var presetIcons = [];
-            var iconPath = path.join(config.resDirectory, "img", "preset");
+            var iconPath = path.join(config.resDirectory, "img", "preset-icons");
             var iconFiles = fs.readdirSync(iconPath);
             iconFiles.forEach(function (element, index, array) {
                 presetIcons.push([
@@ -51,44 +52,59 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
 });
 
 server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("iconFile"), function (req, res) {
-    if (req.file && req.body) {
-        var uuid = req.params.release;
-        var uuidAsBuf = formatting.hexToBin(uuid);
+    var uuid = req.params.product;
+    var uuidAsBuf = formatting.hexToBin(uuid);
 
+    if (req.file && req.body) {
+        // User is uploading a file
         if (!req.file.mimetype.startsWith("image/")) {
             return res.status(400).render("error", {
                 message: "The file wasn't an image."
             });
         }
-        var ext = path.extname(req.file.originalname);
 
         // generate a filename by making a random filename and appending ext
-        var fileName = formatting.createSalt() + ext;
+        var fileName = uuid.replace(/-/g, "").toUpperCase() + ".png";
+
         // TODO: Make this configuratable
-        var fullPath = path.join(config.resDirectory, "img", "custom-icon", fileName);
-        var dbParams = [uuidAsBuf, fileName, req.body.screenshotTitle];
-        database.execute("INSERT INTO `Screenshots` (ReleaseUUID, ScreenshotFile, ScreenshotTitle) VALUES (?, ?, ?)", dbParams, function (seErr, seRes, seFields) {
-            if (seErr) {
-                return res.status(500).render("error", {
-                    message: "The screenshot could not be added to the database."
-                });
-            } else {
-                fs.writeFile(fullPath, req.file.buffer, function (err) {
-                    if (err) {
-                        return res.status(500).render("error", {
-                            message: "The screenshot could not be written to disk."
-                        });
-                    } else {
-                        return res.redirect("/sa/release/" + uuid);
-                    }
-                });
-            }
-        });
+        var iconType = "custom";
+        var fullPath = path.join(config.resDirectory, "img", "custom-icons", fileName);
+    } else if (req.body.presetName) {
+        // User is picking a preset
+
+        // TODO: This is a security hole, though low-pri because it's an SA route
+        // someone could probably inject ../s and escape the upload folder here. We could check for fs.fileExists
+        // but that doesn't really help much I think.
+        var fileName = req.body.presetName;
+        var iconType = "preset";
     } else {
         return res.status(400).render("error", {
-            message: "The request was malformed."
+            message: "You need to either upload a file or pick a preset."
         });
     }
+
+    var dbParams = [fileName, "0x" + uuid.replace(/-/g, "").toUpperCase()]
+
+    console.log("UPDATE `Products` SET `LogoImage` = '" + dbParams[0] + "' WHERE ProductUUID = " + dbParams[1]);
+
+    database.execute("UPDATE `Products` SET Products.`LogoImage` = ? WHERE Products.`ProductUUID` = ?;", dbParams, function (seErr, seRes, seFields) {
+            if (seErr) {
+                return res.status(500).render("error", {
+                    message: "The icon could not be added to the database."
+                });
+            } else {
+                if (iconType == "custom") {
+                    fs.writeFile(fullPath, req.file.buffer, function (err) {
+                        if (err) {
+                            return res.status(500).render("error", {
+                                message: "The icon could not be written to disk."
+                            });
+                        }
+                    });
+                }
+                return res.redirect("/sa/product/" + uuid);
+            }
+    });
 });
 
 server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencodedParser, function (req, res) {

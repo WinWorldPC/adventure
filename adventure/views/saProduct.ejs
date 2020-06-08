@@ -1,7 +1,6 @@
 ﻿<%- include("head", {title: "Editing " + product.Name}) %>
 <style>
     #preseticons {
-        width: 50%;
     overflow-x: scroll;
     white-space: nowrap;
     border: 1px solid lightgray;
@@ -33,6 +32,10 @@
 }
     .icon-wrapper small {
         display: block;
+}
+    #new-icon {
+        min-width: 46px;
+        min-height: 46px;
 }
     </style>
 <h1>Editing <%= product.Name %></h1>
@@ -94,20 +97,35 @@
 </form >
     <br>
     <h3>Add an icon</h3>
-<form method="post" action="/sa/addScreenshot/<%= product.ProductUUID %>" enctype="multipart/form-data" class="form">
-    <div class="row">
+<form method="post" action="/sa/addIcon/<%= product.ProductUUID %>" enctype="multipart/form-data" class="form">
+        <div class="row">
         <div class="form-group col">
-            <label for="screenshotFile">File</label>
-            <input required type="file" class="form-control-file" id="screenshotFile" name="screenshotFile">
+            <label for="iconFile">File</label>
+            <input type="file" class="form-control-file" id="iconFile" name="iconFile" onchange="readURL(this)">
         </div>
+                <div class="col-2">
+                    <div id="preseticons" class="iconbox">
+                            <div class="icon-wrapper">
+                                <small>Current</small>
+                                <img class="preset-icon" src="/res/img/<%= product.LogoImage %>">
+                            </div>
+                            <div class="icon-wrapper">
+                                <small>New</small>
+                                <img id="new-icon" class="preset-icon">
+                            </div>
+                    </div>
+                </div>
+        <div class="form-group col-6">
                 <div id="preseticons" class="iconbox">
                     <% presetIcons.forEach(function(e,i,a) { %>
                         <div class="icon-wrapper">
                             <small><%= e[0] %></small>
-                            <img class="preset-icon" src="<%= e[1] %>">
+                            <img class="preset-icon" data-preset-name="<%= e[0] %>" src="<%= e[1] %>">
                         </div>
-                    <% }) %>
+                        <% }) %>
+                        <input type="hidden" id="presetName" name="presetName">    
                     </div>
+                </div>
         </div>
             <button type="submit" class="btn btn-primary">Add Icon</button>
 </form>
@@ -121,9 +139,25 @@ This will delete the product. It will not delete releases associated to it. Are 
     <button type="submit" id="saProductDeleteSubmit" class="btn btn-danger">Delete Product</button>
 </form>
 <%- include("foot") %>
-                <script>
-                    $('.preset-icon').click(function(event) {
-                        $('.preset-icon').removeClass("selected");
-                    $(this).addClass("selected");
-                });
+<script>
+$('.preset-icon').click(function(event) {
+    $('.preset-icon').removeClass("selected");
+    $(this).addClass("selected");
+    $('#presetName').val($(this).data("preset-name"));
+    $('#new-icon').attr('src', $(this).attr("src"));
+});
+function readURL(input) {
+    if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    console.log("readin");
+    reader.onload = function (e) {
+    $('#new-icon')
+    .attr('src', e.target.result);
+    };
+                
+    reader.readAsDataURL(input.files[0]);
+    }
+    $('.preset-icon').removeClass("selected");
+    $('#presetName').val('');
+}
 </script>
