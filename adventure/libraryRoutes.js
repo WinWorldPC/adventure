@@ -153,8 +153,47 @@ server.get("/search", function (req, res) {
         var search = "%";
     }
 
-    // If the user didn't enter any fulltext search then revert to sort by name
-    var sortQuery = " ORDER BY Products.Name ";
+    var sortOrder = (req.query.sort) ? req.query.sort : "alpha-az";
+    /*<option value="alpha-az">Alphabetical A-z</option>
+        <option value="alpha-za">Alphabetical Z-a</option>
+        <option value="most-dled">Most downloaded</option>
+        <option value="least-dled">Least downloaded</option>
+        <option value="earliest-initial">Earliest initial release</option>
+        <option value="latest-initial">Latest initial release</option>
+        <option value="most-recent">Most recently updated</option>
+        <option value="least-recent">Least recently updated</option>*/
+    var firstLetter = searchTerm.toLowerCase().charAt(0);
+    switch (sortOrder) {
+        case "relevance":
+            sortQuery = " ORDER BY case when lower(left(Products.Name, 1)) = '" + firstLetter + "' then 1 else 2 end,Products.Name ";
+            break;
+        case "alpha-az":
+            sortQuery = " ORDER BY Products.Name ASC ";
+            break;
+        case "alpha-za":
+            sortQuery = " ORDER BY Products.Name DESC ";
+            break;
+        case "most-dled":
+            sortQuery = " ORDER BY ProductDownloadCount(Products.ProductUUID) DESC ";
+            break;
+        case "least-dled":
+            sortQuery = " ORDER BY ProductDownloadCount(Products.ProductUUID) ASC ";
+            break;
+        case "earliest-initial":
+            sortQuery = " ORDER BY CASE WHEN StartYear <> -9000 THEN 1 ELSE 2 END, StartYear ASC ";
+            break;
+        case "latest-initial":
+            sortQuery = " ORDER BY CASE WHEN StartYear <> -9000 THEN 1 ELSE 2 END, StartYear DESC ";
+            break;
+        case "most-recent":
+            sortQuery = " ORDER BY CASE WHEN EndYear <> -9000 THEN 1 ELSE 2 END, EndYear ASC ";
+            break;
+        case "least-recent":
+            sortQuery = " ORDER BY CASE WHEN EndYear <> -9000 THEN 1 ELSE 2 END, EndYear DESC ";
+            break;
+        default:
+            sortQuery = " ORDER BY case when lower(left(Products.Name, 1)) = '" + firstLetter + "' then 1 else 2 end,Products.Name";
+    }
 
     var tagQuery = "";
     var tagSet = [];
@@ -266,13 +305,13 @@ server.get("/search", function (req, res) {
     // We need to build the core part of the query so it'll be identical in both the count/pagination query, the content query, and the release aggregator query (in that order)
 
     /* Roughly the search logic goes like this (remember to update this for future changes):
-     * - First a fulltext search against titles and (if the user enables it) descriptions. These results are ranked by relevance.
-     * - Next, because fulltext search doesn't do leading wildcards, we OR results with a plaintext LIKE against title, so that "CAD" matches "AutoCAD"
+     * - First a plain LIKE search against titles and (if the user enables it) descriptions.
      * - Now do a subquery against Releases, and only match products if the release has:
      * -- A matching begin/end year if present
      * -- A matching platform if present
      * -- A matching vendor name if present
      * - And finally if there are any applicable tags, check those
+     * - Sort by whatever the user selected
      */
 
     // First, the "details" (this goes into the core query and the release query)
@@ -309,7 +348,16 @@ server.get("/search", function (req, res) {
 
         // Now do the actual content query, limiting to the extents of the currently selected page
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
-            database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + sortQuery + " LIMIT ?,?",
+            database.execute("SELECT \
+Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,\
+Products.`Type`,Products.`ProductUUID`,\
+HEX(Products.`ProductUUID`) AS PUID, \
+ProductDownloadCount(Products.ProductUUID) as \"Hits\", \
+COALESCE((SELECT MIN(YEAR(ReleaseDate)) FROM `Releases` WHERE Releases.ProductUUID = Products.ProductUUID AND YEAR(Releases.ReleaseDate) > 0), -9000) AS StartYear, \
+COALESCE((SELECT MAX(YEAR(ReleaseDate)) FROM `Releases` WHERE Releases.ProductUUID = Products.ProductUUID AND YEAR(Releases.ReleaseDate) > 0), -9000) AS EndYear \
+From `Products` \
+HAVING " + coreQuery + sortQuery + " \
+LIMIT ?,?",
              ['%' + search + '%', vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
 
                 // This is used by the Markdown renderer to turn links into bold text

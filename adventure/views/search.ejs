@@ -10,7 +10,7 @@
 			<label>Title:</label> &nbsp;
 		</div>
 		<div class="col-md-3 form-inline">
-			<input type="text" class="form-control" name="q" placeholder="Search text" value="<%= search %>">
+			<input type="text" class="form-control" name="q" placeholder="Search text" value="<%= search %>" />
 		</div>
 		<div class="col-md-2 form-inline"> 
 			<label>Released year:</label> &nbsp;
@@ -19,23 +19,23 @@
 			<div class="input-group-prepend">
 				<div class="input-group-text">From</div>
 			</div>
-			<input type="number" min="1977" max="9999" class="form-control" name="startYear" size="4" value="<%= startYear %>" placeholder="From">
+			<input type="number" min="1977" max="9999" class="form-control" name="startYear" size="4" value="<%= startYear %>" placeholder="From" />
 			<div class="input-group-prepend input-group-append">
 				<div class="input-group-text">to</div>
 			</div>
-			<input type="number" min="1977" max="9999" class="form-control" name="endYear" size="4" value="<%= endYear %>" placeholder="To">
+			<input type="number" min="1977" max="9999" class="form-control" name="endYear" size="4" value="<%= endYear %>" placeholder="To" />
 		</div>
 	</div>
 	<div class="form-row" style="margin-top: 10px;">
 		<div class="col-md-2"><label for="descField">Search description: </label> </div>
 		<div class="col-md-3">
-			<input name="descField" type="checkbox" <% if (descField) { %> checked <% } %> >
+			<input name="descField" type="checkbox" <% if (descField) { %> checked <% } %> />
 		</div>
 		<div class="col-md-2 form-inline">
 			<label>Vendor:</label> &nbsp;
 		</div>
 		<div class="col-md-3 form-inline">
-			<input type="text" class="form-control" name="vendor" placeholder="Vendor name" value="<%= vendor %>">
+			<input type="text" class="form-control" name="vendor" placeholder="Vendor name" value="<%= vendor %>" />
 		</div>
 	</div>
 	<div class="form-row" style="margin-top: 10px;">
@@ -62,18 +62,35 @@
 		<div class="col-md-2 text-right">
 			<button type="submit" class="btn btn-primary">Search</button>
 		</div>
-	</div>
+    </div>
+    <p class="float-right">
+        <strong>Sort:</strong>
+
+        <select id="sortSelector" name="sort" class="form-control">
+            <option value="relevance">Relevance</option>
+            <option value="alpha-az">Alphabetical A-z</option>
+            <option value="alpha-za">Alphabetical Z-a</option>
+            <option value="most-dled">Most downloaded</option>
+            <option value="least-dled">Least downloaded</option>
+            <option value="earliest-initial">Earliest initial release</option>
+            <option value="latest-initial">Latest initial release</option>
+            <option value="most-recent">Most recently updated</option>
+            <option value="least-recent">Least recently updated</option>
+        </select>
+    </p>
+
 </form>
 </div>
 </div>
 <br>
 
 <% if (products.length >= 1) { %>
-<p>Search found <%= resultCount %> results</p>
+<p>Search found <%= resultCount %> results.</p>
 <dl id="searchList">
     <% products.forEach(function(i, n, a) {%>
-        <dt>
-            <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+         <dt>
+            <a href="/product/<%= i.Slug %>"><%= i.Name %></a> <% if (i.StartYear != -9000) { %> (<%= i.StartYear %>) <% } %> <span class="badge badge-success"><img src="/res/img/downloadcount_white.png" title="Download count"> <%= i.Hits %> </span>
+            
             <% if (config.taggableCategories.some(function(x) { return x == i.Type}) && i.ApplicationTags) { %>
                 <% i.ApplicationTags.split(",").forEach(function(j, n, a) { %>
                     <a class="badge badge-secondary" href="/search/?<%= currentGET %>&tags=<%= j %>"><%= j %></a>
@@ -144,3 +161,6 @@
 	<h2>There were no search results.</h2>
 <% } %>
 <%- include("foot") %>
+                <script>
+                    $('#sortSelector').change(function(event) {$(this).closest("form").submit();});
+</script>
