@@ -1,16 +1,26 @@
 ﻿<%- include("head", {title: "Search"}) %>
-<div class="card">
-	<div class="card-header">
-		Search Terms (<a href="/search-help" target="_blank">Help</a>)
+<style>.hidden {display: none; }</style>
+    <form>
+    <div class="muteform1 <% if (showForm) { %> card <% } %>">
+        <div class="muteform2 <% if (showForm) { %> card-header <% } %>">
+            <div class="row">
+                <div class="col hideform <% if (!showForm) { %> hidden <% } %>"><a href="/search-help" target="_blank">Help</a></div>
+            <div class="col text-right">
+            <div class="btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-secondary active">
+                            <input type="checkbox" <% if (showForm) { %> checked <% } %> name="showForm" id="showForm" autocomplete="off"> Advanced Search
+              </label>
+            </div>
+            </div>
+            </div>
 	</div>
-<div class="card-body">
-<form>
+        <div class="card-body hideform <% if (!showForm) { %> hidden <% } %>">
 	<div class="form-row">
 		<div class="col-md-2 form-inline">
 			<label>Title:</label> &nbsp;
 		</div>
 		<div class="col-md-3 form-inline">
-			<input type="text" class="form-control" name="q" placeholder="Search text" value="<%= search %>">
+			<input type="text" class="form-control" name="q" placeholder="Search text" value="<%= search %>" />
 		</div>
 		<div class="col-md-2 form-inline"> 
 			<label>Released year:</label> &nbsp;
@@ -19,23 +29,23 @@
 			<div class="input-group-prepend">
 				<div class="input-group-text">From</div>
 			</div>
-			<input type="number" min="1977" max="9999" class="form-control" name="startYear" size="4" value="<%= startYear %>" placeholder="From">
+			<input type="number" min="1977" max="9999" class="form-control" name="startYear" size="4" value="<%= startYear %>" />
 			<div class="input-group-prepend input-group-append">
 				<div class="input-group-text">to</div>
 			</div>
-			<input type="number" min="1977" max="9999" class="form-control" name="endYear" size="4" value="<%= endYear %>" placeholder="To">
+			<input type="number" min="1977" max="9999" class="form-control" name="endYear" size="4" value="<%= endYear %>"  />
 		</div>
 	</div>
 	<div class="form-row" style="margin-top: 10px;">
 		<div class="col-md-2"><label for="descField">Search description: </label> </div>
 		<div class="col-md-3">
-			<input name="descField" type="checkbox" <% if (descField) { %> checked <% } %> >
+			<input name="descField" type="checkbox" <% if (descField) { %> checked <% } %> />
 		</div>
 		<div class="col-md-2 form-inline">
 			<label>Vendor:</label> &nbsp;
 		</div>
 		<div class="col-md-3 form-inline">
-			<input type="text" class="form-control" name="vendor" placeholder="Vendor name" value="<%= vendor %>">
+			<input type="text" class="form-control" name="vendor" placeholder="Vendor name" value="<%= vendor %>" />
 		</div>
 	</div>
 	<div class="form-row" style="margin-top: 10px;">
@@ -62,18 +72,32 @@
 		<div class="col-md-2 text-right">
 			<button type="submit" class="btn btn-primary">Search</button>
 		</div>
-	</div>
+    </div>
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-md-2 form-inline">
+            <label>Sort:</label>
+		</div>
+        <div class="col-md-3">
+            <select id="sortSelector" name="sort" class="form-control">
+                <% sortOptions.forEach(function(i,n,a) {%>
+                    <option <% if (i[0] == sort) { %> selected <% } %> value="<%= i[0] %>"><%= i[1] %></option>
+            <% }) %>
+        </select>
+            </div>
+        </div>
+
 </form>
 </div>
 </div>
 <br>
 
 <% if (products.length >= 1) { %>
-<p>Search found <%= resultCount %> results</p>
+<p>Search found <%= resultCount %> results.</p>
 <dl id="searchList">
     <% products.forEach(function(i, n, a) {%>
-        <dt>
-            <a href="/product/<%= i.Slug %>"><%= i.Name %></a>
+         <dt>
+            <a href="/product/<%= i.Slug %>"><%= i.Name %> <% if (i.StartYear != -9000) { %> (<%= i.StartYear %>) <% } %> </a> <span class="badge badge-dark"><img src="/res/img/downloadcount_white.png" title="Download count"> <%= i.Hits %> </span>
+            
             <% if (config.taggableCategories.some(function(x) { return x == i.Type}) && i.ApplicationTags) { %>
                 <% i.ApplicationTags.split(",").forEach(function(j, n, a) { %>
                     <a class="badge badge-secondary" href="/search/?<%= currentGET %>&tags=<%= j %>"><%= j %></a>
@@ -106,7 +130,7 @@
         <%# Anyways, do bounds checking so we can make the pagination manageable. %>
         <% if (page - pageBounds > 1) { %>
                 <li class="page-item">
-                    <a class="page-link" href="/search/<%= category %><%= tag ? '/' + tag : '' %>?q=<%= search %>&page=1">1</a>
+                        <a class="page-link" href="/search/?<%= currentGET %>&page=1">1</a>
                 </li>
         <% } %>
         <% if (page - pageBounds > 2) { %>
@@ -117,11 +141,11 @@
         <% for (var i = page - pageBounds > 0 ? page - pageBounds : 1; i <= (page + pageBounds < pages ? page + pageBounds : pages); i++) { %>
             <% if (i != page) { %>
                 <li class="page-item">
-                    <a class="page-link" href="/search/?q=<%= search %>&page=<%= i %>"><%= i %></a>
+                        <a class="page-link" href="/search/?<%= currentGET %>&page=<%= i %>"><%= i %></a>
                 </li>
             <% } else { %>
                 <li class="page-item active">
-                    <a class="page-link" href="/search/?q=<%= search %>&page=<%= i %>">
+                        <a class="page-link" href="/search/?<%= currentGET %>&page=<%= i %>">
                         <%= i %><span class="sr-only">(current)</span>
                     </a>
                 </li>
@@ -134,7 +158,7 @@
         <% } %>
         <% if (page + pageBounds < pages) { %>
                 <li class="page-item">
-                    <a class="page-link" href="/search/<%= category %><%= tag ? '/' + tag : '' %>?page=<%= pages %>"><%= pages %></a>
+                        <a class="page-link" href="/search/?<%= currentGET %>page=<%= pages %>"><%= pages %></a>
                 </li>
         <% } %>
     </ul>
@@ -144,3 +168,17 @@
 	<h2>There were no search results.</h2>
 <% } %>
 <%- include("foot") %>
+<script>
+                $('#sortSelector, #showForm').change(function(event) {$(this).closest("form").submit();});
+                $('#showForm').change(function(event) {
+                    if($(this).prop("checked")) {
+                    $('.hideform').removeClass("hidden");
+                    $('.muteform1').addClass("card");
+                    $('.muteform2').addClass("card-header");
+                    } else {
+                    $('.hideform').addClass("hidden");
+                    $('.muteform1').removeClass("card");
+                    $('.muteform2').removeClass("card-header");
+                }
+            });
+</script>

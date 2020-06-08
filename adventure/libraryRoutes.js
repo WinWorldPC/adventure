@@ -153,8 +153,53 @@ server.get("/search", function (req, res) {
         var search = "%";
     }
 
-    // If the user didn't enter any fulltext search then revert to sort by name
-    var sortQuery = " ORDER BY Products.Name ";
+    // build! that! sort! query!
+    var sortOrder = (req.query.sort) ? req.query.sort : "alpha-az";
+    var firstLetter = searchTerm.toLowerCase().charAt(0);
+    switch (sortOrder) {
+        case "relevance":
+            sortQuery = " ORDER BY case when lower(left(Products.Name, 1)) = '" + firstLetter + "' then 1 else 2 end,Products.Name ";
+            break;
+        case "alpha-az":
+            sortQuery = " ORDER BY Products.Name ASC ";
+            break;
+        case "alpha-za":
+            sortQuery = " ORDER BY Products.Name DESC ";
+            break;
+        case "most-dled":
+            sortQuery = " ORDER BY ProductDownloadCount(Products.ProductUUID) DESC ";
+            break;
+        case "least-dled":
+            sortQuery = " ORDER BY ProductDownloadCount(Products.ProductUUID) ASC ";
+            break;
+        case "earliest-initial":
+            sortQuery = " ORDER BY CASE WHEN StartYear <> -9000 THEN 1 ELSE 2 END, StartYear ASC ";
+            break;
+        case "latest-initial":
+            sortQuery = " ORDER BY CASE WHEN StartYear <> -9000 THEN 1 ELSE 2 END, StartYear DESC ";
+            break;
+        case "most-recent":
+            sortQuery = " ORDER BY CASE WHEN EndYear <> -9000 THEN 1 ELSE 2 END, EndYear ASC ";
+            break;
+        case "least-recent":
+            sortQuery = " ORDER BY CASE WHEN EndYear <> -9000 THEN 1 ELSE 2 END, EndYear DESC ";
+            break;
+        default:
+            sortQuery = " ORDER BY case when lower(left(Products.Name, 1)) = '" + firstLetter + "' then 1 else 2 end,Products.Name";
+    }
+
+    // Array of all possible sort methods (a secret tool we'll need later)
+    sortOptions = [
+        ["relevance", "Relevance"],
+        ["alpha-az", "Alphabetical A-z"],
+        ["alpha-za", "Alphabetical Z-a"],
+        ["most-dled", "Most downloaded"],
+        ["least-dled", "Least downloaded"],
+        ["earliest-initial", "Earliest initial release"],
+        ["latest-initial", "Latest initial release"],
+        ["most-recent", "Most recently updated"],
+        ["least-recent", "Least recently updated"]
+    ];
 
     var tagQuery = "";
     var tagSet = [];
@@ -238,7 +283,7 @@ server.get("/search", function (req, res) {
     // Get vendor field
     var vendor = (req.query.vendor) ? req.query.vendor : "%";
 
-    //http://localhost:3000/search/?q=LAN&startYear=1977&endYear=1980&descField=on&vendor=asd&platforms=DOS&platforms=CPM&tags=Word+Processor&tags=Utility
+    var showForm = req.query.showForm ? true : false;
 
     // Assemble the current set of GET parameters (after stripping invalid options) for linkbuilding (link and build bro link and build)
     currentGET = "";
@@ -250,29 +295,22 @@ server.get("/search", function (req, res) {
     if (platformSet.length > 0) currentGET += "&platforms=" + platformSet.join("&platforms=");
     if (tagSet.length > 0) currentGET += "&tags=" + tagSet.join("&tags=");
     if (categorySet.length > 0) currentGET += "&category=" + tagSet.join("&category=");
+    if (sortOrder != "alpha-az") currentGET += "&sort=" + sortOrder;
+    if (showForm) currentGET += "&showForm=true";
 
     /* ============================================================= */
     // Begin the search 
 
-    // Assemble the list of fields to be matched with fulltext search
-    ftsMatchFields = ["Products.Name"];
-    if (descField) ftsMatchFields.push("Products.Notes");
-    matchFields = ftsMatchFields.join(", ");
-
-    // If user entered no fulltext search value, crowbar out the fulltext search
-    var ftsEnabled = "";
-    if (searchTerm == "") ftsEnabled = "OR TRUE";
-
     // We need to build the core part of the query so it'll be identical in both the count/pagination query, the content query, and the release aggregator query (in that order)
 
     /* Roughly the search logic goes like this (remember to update this for future changes):
-     * - First a fulltext search against titles and (if the user enables it) descriptions. These results are ranked by relevance.
-     * - Next, because fulltext search doesn't do leading wildcards, we OR results with a plaintext LIKE against title, so that "CAD" matches "AutoCAD"
+     * - First a plain LIKE search against titles and (if the user enables it) descriptions.
      * - Now do a subquery against Releases, and only match products if the release has:
      * -- A matching begin/end year if present
      * -- A matching platform if present
      * -- A matching vendor name if present
      * - And finally if there are any applicable tags, check those
+     * - Sort by whatever the user selected
      */
 
     // First, the "details" (this goes into the core query and the release query)
@@ -309,7 +347,16 @@ server.get("/search", function (req, res) {
 
         // Now do the actual content query, limiting to the extents of the currently selected page
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
-            database.execute("SELECT Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,Products.`Type`,Products.`ProductUUID`,HEX(Products.`ProductUUID`) AS PUID From `Products` HAVING " + coreQuery + sortQuery + " LIMIT ?,?",
+            database.execute("SELECT \
+Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,\
+Products.`Type`,Products.`ProductUUID`,\
+HEX(Products.`ProductUUID`) AS PUID, \
+ProductDownloadCount(Products.ProductUUID) as \"Hits\", \
+COALESCE((SELECT MIN(YEAR(ReleaseDate)) FROM `Releases` WHERE Releases.ProductUUID = Products.ProductUUID AND YEAR(Releases.ReleaseDate) > 0), -9000) AS StartYear, \
+COALESCE((SELECT MAX(YEAR(ReleaseDate)) FROM `Releases` WHERE Releases.ProductUUID = Products.ProductUUID AND YEAR(Releases.ReleaseDate) > 0), -9000) AS EndYear \
+From `Products` \
+HAVING " + coreQuery + sortQuery + " \
+LIMIT ?,?",
              ['%' + search + '%', vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
 
                 // This is used by the Markdown renderer to turn links into bold text
@@ -369,7 +416,10 @@ server.get("/search", function (req, res) {
                             descField: descField,
                             releasesCollection: releasesCollection,
                             currentGET: currentGET,
-                            resultCount: count
+                            resultCount: count,
+                            sort: sortOrder,
+                            sortOptions: sortOptions,
+                            showForm: showForm
                         });
                     });
         });
