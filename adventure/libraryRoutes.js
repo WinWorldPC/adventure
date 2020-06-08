@@ -153,15 +153,8 @@ server.get("/search", function (req, res) {
         var search = "%";
     }
 
+    // build! that! sort! query!
     var sortOrder = (req.query.sort) ? req.query.sort : "alpha-az";
-    /*<option value="alpha-az">Alphabetical A-z</option>
-        <option value="alpha-za">Alphabetical Z-a</option>
-        <option value="most-dled">Most downloaded</option>
-        <option value="least-dled">Least downloaded</option>
-        <option value="earliest-initial">Earliest initial release</option>
-        <option value="latest-initial">Latest initial release</option>
-        <option value="most-recent">Most recently updated</option>
-        <option value="least-recent">Least recently updated</option>*/
     var firstLetter = searchTerm.toLowerCase().charAt(0);
     switch (sortOrder) {
         case "relevance":
@@ -194,6 +187,19 @@ server.get("/search", function (req, res) {
         default:
             sortQuery = " ORDER BY case when lower(left(Products.Name, 1)) = '" + firstLetter + "' then 1 else 2 end,Products.Name";
     }
+
+    // Array of all possible sort methods (a secret tool we'll need later)
+    sortOptions = [
+        ["relevance", "Relevance"],
+        ["alpha-az", "Alphabetical A-z"],
+        ["alpha-za", "Alphabetical Z-a"],
+        ["most-dled", "Most downloaded"],
+        ["least-dled", "Least downloaded"],
+        ["earliest-initial", "Earliest initial release"],
+        ["latest-initial", "Latest initial release"],
+        ["most-recent", "Most recently updated"],
+        ["least-recent", "Least recently updated"]
+    ];
 
     var tagQuery = "";
     var tagSet = [];
@@ -289,6 +295,7 @@ server.get("/search", function (req, res) {
     if (platformSet.length > 0) currentGET += "&platforms=" + platformSet.join("&platforms=");
     if (tagSet.length > 0) currentGET += "&tags=" + tagSet.join("&tags=");
     if (categorySet.length > 0) currentGET += "&category=" + tagSet.join("&category=");
+    if (sortOrder != "alpha-az") currentGET += "&sort=" + sortOrder;
 
     /* ============================================================= */
     // Begin the search 
@@ -417,7 +424,9 @@ LIMIT ?,?",
                             descField: descField,
                             releasesCollection: releasesCollection,
                             currentGET: currentGET,
-                            resultCount: count
+                            resultCount: count,
+                            sort: sortOrder,
+                            sortOptions : sortOptions
                         });
                     });
         });
