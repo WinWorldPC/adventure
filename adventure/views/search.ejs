@@ -1,10 +1,20 @@
 ﻿<%- include("head", {title: "Search"}) %>
-<div class="card">
-	<div class="card-header">
-		Search Terms (<a href="/search-help" target="_blank">Help</a>)
+<style>.hidden {display: none; }</style>
+    <form>
+    <div class="muteform1 <% if (showForm) { %> card <% } %>">
+        <div class="muteform2 <% if (showForm) { %> card-header <% } %>">
+            <div class="row">
+                <div class="col hideform <% if (!showForm) { %> hidden <% } %>"><a href="/search-help" target="_blank">Help</a></div>
+            <div class="col text-right">
+            <div class="btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-secondary active">
+                            <input type="checkbox" <% if (showForm) { %> checked <% } %> name="showForm" id="showForm" autocomplete="off"> Advanced Search
+              </label>
+            </div>
+            </div>
+            </div>
 	</div>
-<div class="card-body">
-<form>
+        <div class="card-body hideform <% if (!showForm) { %> hidden <% } %>">
 	<div class="form-row">
 		<div class="col-md-2 form-inline">
 			<label>Title:</label> &nbsp;
@@ -19,11 +29,11 @@
 			<div class="input-group-prepend">
 				<div class="input-group-text">From</div>
 			</div>
-			<input type="number" min="1977" max="9999" class="form-control" name="startYear" size="4" value="<%= startYear %>" placeholder="From" />
+			<input type="number" min="1977" max="9999" class="form-control" name="startYear" size="4" value="<%= startYear %>" />
 			<div class="input-group-prepend input-group-append">
 				<div class="input-group-text">to</div>
 			</div>
-			<input type="number" min="1977" max="9999" class="form-control" name="endYear" size="4" value="<%= endYear %>" placeholder="To" />
+			<input type="number" min="1977" max="9999" class="form-control" name="endYear" size="4" value="<%= endYear %>"  />
 		</div>
 	</div>
 	<div class="form-row" style="margin-top: 10px;">
@@ -67,7 +77,7 @@
         <div class="col-md-2 form-inline">
             <label>Sort:</label>
 		</div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <select id="sortSelector" name="sort" class="form-control">
                 <% sortOptions.forEach(function(i,n,a) {%>
                     <option <% if (i[0] == sort) { %> selected <% } %> value="<%= i[0] %>"><%= i[1] %></option>
@@ -159,5 +169,16 @@
 <% } %>
 <%- include("foot") %>
 <script>
-    $('#sortSelector').change(function(event) { $(this).closest("form").submit();});
+                $('#sortSelector, #showForm').change(function(event) {$(this).closest("form").submit();});
+                $('#showForm').change(function(event) {
+                    if($(this).prop("checked")) {
+                    $('.hideform').removeClass("hidden");
+                    $('.muteform1').addClass("card");
+                    $('.muteform2').addClass("card-header");
+                    } else {
+                    $('.hideform').addClass("hidden");
+                    $('.muteform1').removeClass("card");
+                    $('.muteform2').removeClass("card-header");
+                }
+            });
 </script>

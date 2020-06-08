@@ -283,6 +283,7 @@ server.get("/search", function (req, res) {
     // Get vendor field
     var vendor = (req.query.vendor) ? req.query.vendor : "%";
 
+    var showForm = req.query.showForm ? true : false;
 
     // Assemble the current set of GET parameters (after stripping invalid options) for linkbuilding (link and build bro link and build)
     currentGET = "";
@@ -295,6 +296,7 @@ server.get("/search", function (req, res) {
     if (tagSet.length > 0) currentGET += "&tags=" + tagSet.join("&tags=");
     if (categorySet.length > 0) currentGET += "&category=" + tagSet.join("&category=");
     if (sortOrder != "alpha-az") currentGET += "&sort=" + sortOrder;
+    if (showForm) currentGET += "&showForm=true";
 
     /* ============================================================= */
     // Begin the search 
@@ -416,7 +418,8 @@ LIMIT ?,?",
                             currentGET: currentGET,
                             resultCount: count,
                             sort: sortOrder,
-                            sortOptions : sortOptions
+                            sortOptions: sortOptions,
+                            showForm: showForm
                         });
                     });
         });
