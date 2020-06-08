@@ -104,6 +104,8 @@
                 <dd><%= download.FileSize %></dd>
                 <dt>Checksum</dt>
                 <dd><tt style="display:block;word-break:break-all"><%= download.FileHash || download.SHA1Sum.toString('hex') %></tt></dd>
+                <dt>Download count</dt>
+                <dd><%= download.DownloadCount %>
             </dl>
          </div>
      </div>

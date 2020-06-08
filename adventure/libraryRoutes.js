@@ -501,7 +501,7 @@ server.get("/product/:product", function (req, res) {
 });
 
 server.get("/product/:product/:release", function (req, res) {
-    database.execute("SELECT * FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
+    database.execute("SELECT *, ProductDownloadCount(ProductUUID) as `DownloadCount` FROM `Products` WHERE `Slug` = ?", [req.params.product], function (prErr, prRes, prFields) {
         var product = prRes[0] || null;
         if (product == null) {
             if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
@@ -514,7 +514,7 @@ server.get("/product/:product/:release", function (req, res) {
             }
         }
         
-        database.execute("SELECT * FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseDate`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
+        database.execute("SELECT *, ReleaseDownloadCount(ReleaseUUID) as `DownloadCount` FROM `Releases` WHERE `ProductUUID` = ? ORDER BY `ReleaseDate`", [product.ProductUUID], function (rlErr, rlRes, rlFields) {
             if (rlRes == null || rlRes.length == 0) {
                 if (req.user && req.user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) {
                     req.flash("warning", "The product has no releases. You can create one now.");
@@ -541,7 +541,7 @@ server.get("/product/:product/:release", function (req, res) {
             }
             database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
                 database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
-                    database.execute("SELECT * FROM `Downloads` WHERE `ReleaseUUID` = ? ORDER BY `Name`", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
+                    database.execute("SELECT *, DownloadDownloadCount(DLUUID) as `DownloadCount` FROM `Downloads` WHERE `ReleaseUUID` = ? ORDER BY `Name`", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
                         release.InstallInstructions = marked(release.InstallInstructions || "");
                         release.Notes = marked(release.Notes || "");
                         product.Notes = marked(product.Notes || "");
@@ -779,7 +779,7 @@ server.get("/download/:download", function (req, res) {
         });
     }
     var uuidAsBuf = formatting.hexToBin(req.params.download);
-    database.execute("SELECT * FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
+    database.execute("SELECT *, DownloadDownloadCount(DLUUID) as `DownloadCount` FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
         var download = dlRes[0] || null;
         if (dlErr || download == null) {
             console.log(dlErr || "[ERR] download was null! /download/" + req.params.download + " refererr: " + req.get("Referrer"));
