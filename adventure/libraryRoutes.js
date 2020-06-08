@@ -334,7 +334,7 @@ server.get("/search", function (req, res) {
     // Now let's start querying
     // First get count of matching rows so we can paginate
     database.execute("SELECT COUNT(*) FROM `Products` WHERE " + coreQuery,
-        ['%' + search + '%', vendor], function (cErr, cRes, cFields) {
+        [search, vendor], function (cErr, cRes, cFields) {
             if (!cRes) {
                 return res.status(404).render("error", {
                     message: "Search engine error."
@@ -355,7 +355,7 @@ COALESCE((SELECT MAX(YEAR(ReleaseDate)) FROM `Releases` WHERE Releases.ProductUU
 From `Products` \
 HAVING " + coreQuery + sortQuery + " \
 LIMIT ?,?",
-             ['%' + search + '%', vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
+             [search, vendor, (page - 1) * config.perPage, config.perPage], function (prErr, prRes, prFields) {
 
                 // This is used by the Markdown renderer to turn links into bold text
                 var renderer = new marked.Renderer();
