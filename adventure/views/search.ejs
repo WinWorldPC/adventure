@@ -100,7 +100,7 @@
         <p>Search found <%= resultCount %> results.</p>
     <% products.forEach(function (i, n, a) {%>
     <div class="media">
-        <img class="mr-3" src="<%= i.Icon %>" alt="Icon" width="48">
+        <img class="mr-3" src="/<%= i.Icon %>" alt="Icon" width="48">
             <div class="media-body">
                 <div class="mt-0">
                     <a href="/product/<%= i.Slug %>"><%= i.Name %> <% if (i.StartYear != -9000) { %> (<%= i.StartYear %>) <% } %> </a> <span class="badge badge-dark"><img src="/res/img/downloadcount_white.png" title="Download count"> <%= i.Hits %> </span>

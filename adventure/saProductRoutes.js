@@ -27,15 +27,68 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
             if (product.DefaultRelease) {
                 product.DefaultRelease = formatting.binToHex(product.DefaultRelease);
             }
+
+            var presetIcons = [];
+            var iconPath = path.join(config.resDirectory, "img", "preset");
+            var iconFiles = fs.readdirSync(iconPath);
+            iconFiles.forEach(function (element, index, array) {
+                presetIcons.push([
+                    element,
+                    path.join("/" + iconPath, element)
+                    ]);
+            });
+
             return res.render("saProduct", {
                 product: product,
                 releases: releases,
                 tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
                 categoryMappings: config.constants.categoryMappings,
-                categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
+                categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings),
+                presetIcons : presetIcons
             });
         });
     });
+});
+
+server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("iconFile"), function (req, res) {
+    if (req.file && req.body) {
+        var uuid = req.params.release;
+        var uuidAsBuf = formatting.hexToBin(uuid);
+
+        if (!req.file.mimetype.startsWith("image/")) {
+            return res.status(400).render("error", {
+                message: "The file wasn't an image."
+            });
+        }
+        var ext = path.extname(req.file.originalname);
+
+        // generate a filename by making a random filename and appending ext
+        var fileName = formatting.createSalt() + ext;
+        // TODO: Make this configuratable
+        var fullPath = path.join(config.resDirectory, "img", "custom-icon", fileName);
+        var dbParams = [uuidAsBuf, fileName, req.body.screenshotTitle];
+        database.execute("INSERT INTO `Screenshots` (ReleaseUUID, ScreenshotFile, ScreenshotTitle) VALUES (?, ?, ?)", dbParams, function (seErr, seRes, seFields) {
+            if (seErr) {
+                return res.status(500).render("error", {
+                    message: "The screenshot could not be added to the database."
+                });
+            } else {
+                fs.writeFile(fullPath, req.file.buffer, function (err) {
+                    if (err) {
+                        return res.status(500).render("error", {
+                            message: "The screenshot could not be written to disk."
+                        });
+                    } else {
+                        return res.redirect("/sa/release/" + uuid);
+                    }
+                });
+            }
+        });
+    } else {
+        return res.status(400).render("error", {
+            message: "The request was malformed."
+        });
+    }
 });
 
 server.post("/sa/editProductMetadata/:product", restrictedRoute("sa"), urlencodedParser, function (req, res) {
