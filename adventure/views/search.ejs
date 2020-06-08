@@ -63,15 +63,18 @@
 			<button type="submit" class="btn btn-primary">Search</button>
 		</div>
     </div>
-    <p class="float-right">
-        <strong>Sort:</strong>
-
-        <select id="sortSelector" name="sort" class="form-control">
-            <% sortOptions.forEach(function(i,n,a) {%>
-                <option <% if (i[0] == sort) { %> selected <% } %> value="<%= i[0] %>"><%= i[1] %></option>
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-md-2 form-inline">
+            <label>Sort:</label>
+		</div>
+        <div class="col-md-4">
+            <select id="sortSelector" name="sort" class="form-control">
+                <% sortOptions.forEach(function(i,n,a) {%>
+                    <option <% if (i[0] == sort) { %> selected <% } %> value="<%= i[0] %>"><%= i[1] %></option>
             <% }) %>
         </select>
-    </p>
+            </div>
+        </div>
 
 </form>
 </div>
@@ -83,7 +86,7 @@
 <dl id="searchList">
     <% products.forEach(function(i, n, a) {%>
          <dt>
-            <a href="/product/<%= i.Slug %>"><%= i.Name %></a> <% if (i.StartYear != -9000) { %> (<%= i.StartYear %>) <% } %> <span class="badge badge-success"><img src="/res/img/downloadcount_white.png" title="Download count"> <%= i.Hits %> </span>
+            <a href="/product/<%= i.Slug %>"><%= i.Name %> <% if (i.StartYear != -9000) { %> (<%= i.StartYear %>) <% } %> </a> <span class="badge badge-dark"><img src="/res/img/downloadcount_white.png" title="Download count"> <%= i.Hits %> </span>
             
             <% if (config.taggableCategories.some(function(x) { return x == i.Type}) && i.ApplicationTags) { %>
                 <% i.ApplicationTags.split(",").forEach(function(j, n, a) { %>

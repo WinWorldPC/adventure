@@ -283,7 +283,6 @@ server.get("/search", function (req, res) {
     // Get vendor field
     var vendor = (req.query.vendor) ? req.query.vendor : "%";
 
-    //http://localhost:3000/search/?q=LAN&startYear=1977&endYear=1980&descField=on&vendor=asd&platforms=DOS&platforms=CPM&tags=Word+Processor&tags=Utility
 
     // Assemble the current set of GET parameters (after stripping invalid options) for linkbuilding (link and build bro link and build)
     currentGET = "";
@@ -299,15 +298,6 @@ server.get("/search", function (req, res) {
 
     /* ============================================================= */
     // Begin the search 
-
-    // Assemble the list of fields to be matched with fulltext search
-    ftsMatchFields = ["Products.Name"];
-    if (descField) ftsMatchFields.push("Products.Notes");
-    matchFields = ftsMatchFields.join(", ");
-
-    // If user entered no fulltext search value, crowbar out the fulltext search
-    var ftsEnabled = "";
-    if (searchTerm == "") ftsEnabled = "OR TRUE";
 
     // We need to build the core part of the query so it'll be identical in both the count/pagination query, the content query, and the release aggregator query (in that order)
 
