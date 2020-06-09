@@ -245,3 +245,9 @@ ModelManifest.xml
 typings/
 /adventure/config.json
 config.json
+/adventure/res/img/upload
+/adventure/res/img/preset
+/adventure/res/img/custom-icons
+/adventure/res/img/preset-icons
+/adventure/res/img/site-icons
+/adventure/res/img

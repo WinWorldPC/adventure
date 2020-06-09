@@ -159,23 +159,26 @@
             <th>Download Name</th>
             <th>Version</th>
             <th>Language</th>
-            <th><abbr title="Processor architecture">CPU</abbr></th>
-            <th>File type</th>
+            <th>Architecture</th>
             <th>File size</th>
         </tr>
     </thead>
     <tbody>
         <% (downloads || []).forEach(function(i, n, a) {%>
         <tr>
-            <td><a href="/download/<%= i.DLUUID %>" title="<%= i.FileName %>"><%= i.Name %></a></td>
+                <td><a href="/download/<%= i.DLUUID %>" title="<%= i.FileName %>">
+                    <img src="/res/img/site-icons/media-<%= i.ImageTypeName %>.png" title="<%= i.ImageType %>"> <%= i.Name %></a></td>
             <td>
                 <%= i.Version %>
                 <span class="downloadTagPrerelease badge badge-warning"><%= i.RTM == "True" ? "" : "Prerelease" %></span>
                 <span class="downloadTagUpgrade badge badge-secondary"><%= i.Upgrade == "True" ? "Upgrade" : "" %></span>
             </td>
             <td><%= i.Language %></td>
-            <td><%= i.Arch %></td>
-            <td><%= i.ImageType %></td>
+                    <td align="right">
+                        <% i.Arch.split(',').sort(function(a,b){if(a=="x86"){return 1}else{return -1}}).forEach(function(ee,ii,aa) { %>
+                            <img src="/res/img/site-icons/arch-<%= ee %>.png" title="<%= ee %>">
+                        <% }) %>
+                    </td>
             <td><span title="<%= i.FileHash || i.SHA1Sum.toString('hex') %>"><%= i.FileSize %></span></td>
         </tr>
         <% }); %>

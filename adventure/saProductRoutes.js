@@ -6,6 +6,7 @@
 
 var config, database, sitePages;
 
+var uploadParser = middleware.uploadParser;
 var restrictedRoute = middleware.restrictedRoute;
 var urlencodedParser = middleware.bodyParser;
 var server = express.Router();
@@ -27,14 +28,81 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
             if (product.DefaultRelease) {
                 product.DefaultRelease = formatting.binToHex(product.DefaultRelease);
             }
+
+            var presetIcons = [];
+            var iconPath = path.join(config.resDirectory, "img", "preset-icons");
+            var iconFiles = fs.readdirSync(iconPath);
+            iconFiles.forEach(function (element, index, array) {
+                presetIcons.push([
+                    element,
+                    path.join("/" + iconPath, element)
+                    ]);
+            });
+
             return res.render("saProduct", {
                 product: product,
                 releases: releases,
                 tagMappingsInverted: formatting.invertObject(config.constants.tagMappings),
                 categoryMappings: config.constants.categoryMappings,
-                categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings)
+                categoryMappingsInverted: formatting.invertObject(config.constants.categoryMappings),
+                presetIcons : presetIcons
             });
         });
+    });
+});
+
+server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("iconFile"), function (req, res) {
+    var uuid = req.params.product;
+    var uuidAsBuf = formatting.hexToBin(uuid);
+
+    if (req.file && req.body) {
+        // User is uploading a file
+        if (!req.file.mimetype.startsWith("image/")) {
+            return res.status(400).render("error", {
+                message: "The file wasn't an image."
+            });
+        }
+
+        // generate a filename by making a random filename and appending ext
+        var fileName = path.join("custom-icons", uuid.replace(/-/g, "").toUpperCase() + ".png");
+
+        // TODO: Make this configuratable
+        var iconType = "custom";
+        var fullPath = path.join(config.resDirectory, "img", "custom-icons", fileName);
+    } else if (req.body.presetName) {
+        // User is picking a preset
+
+        // TODO: This is a security hole, though low-pri because it's an SA route
+        // someone could probably inject ../s and escape the upload folder here. We could check for fs.fileExists
+        // but that doesn't really help much I think.
+        var fileName = path.join("preset-icons", req.body.presetName);
+        var iconType = "preset";
+    } else {
+        return res.status(400).render("error", {
+            message: "You need to either upload a file or pick a preset."
+        });
+    }
+
+    var dbParams = [fileName, uuidAsBuf]
+
+    database.execute("UPDATE `Products` SET Products.`LogoImage` = ? WHERE Products.`ProductUUID` = ?", dbParams, function (seErr, seRes, seFields) {
+        console.log(seRes.sql);
+            if (seErr) {
+                return res.status(500).render("error", {
+                    message: "The icon could not be added to the database."
+                });
+            } else {
+                if (iconType == "custom") {
+                    fs.writeFile(fullPath, req.file.buffer, function (err) {
+                        if (err) {
+                            return res.status(500).render("error", {
+                                message: "The icon could not be written to disk."
+                            });
+                        }
+                    });
+                }
+                return res.redirect("/sa/product/" + uuid);
+            }
     });
 });
 
