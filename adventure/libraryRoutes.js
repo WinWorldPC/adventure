@@ -4,7 +4,8 @@
     marked = require("marked"),
     rss = require("rss"),
     middleware = require("./middleware.js"),
-    formatting = require("./formatting.js");
+    formatting = require("./formatting.js"),
+    fs = require("fs");
 
 var config, database, sitePages;
 
@@ -211,7 +212,7 @@ server.get("/search", function (req, res) {
         }
         var tagQueries = [];
         tags.forEach(tag => {
-            // Make sure each platform is valid to prevent SQL injection
+            // Make sure each tag is valid to prevent SQL injection
             if (formatting.invertObject(config.constants.tagMappings).hasOwnProperty(tag)) {
                 tagQueries.push("find_in_set('" + tag + "', Products.ApplicationTags)");
                 tagSet.push(tag);
@@ -347,11 +348,12 @@ server.get("/search", function (req, res) {
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
             database.execute("SELECT \
 Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,\
-Products.`Type`,Products.`ProductUUID`,\
+Products.`Type`,Products.`ProductUUID`,Products.`LogoImage`, \
 HEX(Products.`ProductUUID`) AS PUID, \
 ProductDownloadCount(Products.ProductUUID) as \"Hits\", \
 COALESCE((SELECT MIN(YEAR(ReleaseDate)) FROM `Releases` WHERE Releases.ProductUUID = Products.ProductUUID AND YEAR(Releases.ReleaseDate) > 0), -9000) AS StartYear, \
-COALESCE((SELECT MAX(YEAR(ReleaseDate)) FROM `Releases` WHERE Releases.ProductUUID = Products.ProductUUID AND YEAR(Releases.ReleaseDate) > 0), -9000) AS EndYear \
+COALESCE((SELECT MAX(YEAR(ReleaseDate)) FROM `Releases` WHERE Releases.ProductUUID = Products.ProductUUID AND YEAR(Releases.ReleaseDate) > 0), -9000) AS EndYear, \
+ProductPlatforms(Products.ProductUUID) AS Platform \
 From `Products` \
 HAVING " + coreQuery + sortQuery + " \
 LIMIT ?,?",
@@ -377,6 +379,8 @@ LIMIT ?,?",
                 // If there were no products returned, put in a bogus value, otherwise the next query will fail
                 prodUUIDString = (prodUUIDs.length > 0) ? prodUUIDs.join(',') : "''";
 
+                
+
                 // Now do another query which will get all releases for each of the matching products
                 // TODO: This might be refactorable as a JOIN against the previous query. I felt that was "dirty" since I'd have to manipulate the data a ton in JS, but now I'm thinking this is maybe dirtier. It does work, but it's probably slower than it needs to be.
                 var releasesCollection = {};
@@ -387,6 +391,58 @@ LIMIT ?,?",
                             PUID = relRow.PUID;
                             if (!releasesCollection.hasOwnProperty(PUID)) releasesCollection[PUID] = [];
                             releasesCollection[PUID].push(relRow);
+                        });
+
+                        // Decide on an icon for each row
+                        var knownIcons = {}; // Cache icon lookups so we don't hit the FS unnecessarily
+                        prRes.forEach(resRow => {
+                            /*once again because i don't think they heard it all the way out in bushnell:
+                             * Icons are derived as follows:
+                             * - if there is an icon in /res/img/appicons/<release id in hex>.png use it
+                             * - if there are any tags, use the first one at /res/img/icons/tag-whatever.png
+                             * - if all else fails, pick one based on category, which is guaranteed
+                             */
+                            // Check for extant product file
+                            if (resRow.LogoImage) {
+                                console.log(resRow.LogoImage);
+                                var iconPath = path.join(config.resDirectory, "img", resRow.LogoImage);
+                                console.log(iconPath);
+                            }
+                            if (fs.existsSync(iconPath)) {
+                                resRow.Icon = iconPath;
+                            } else if (resRow.ApplicationTags) {
+                                // Check for a tag we can use
+                                var firstTag = formatting.invertObject(config.constants.tagMappings)[resRow.ApplicationTags.split(',')[0]];
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", firstTag + ".png");
+                            /*} else if (resRow.Platform.split(',').length == 1) {
+                                // If there's only a single platform we can pick a platform icon
+                                var platformName = resRow.Platform.split(',')[0]
+                                platformIcons = {
+                                    "Windows": "platform-windows.png",
+                                    "DOS": "platform-dos.png"
+                                };
+                                var platformIcon = platformIcons.hasOwnProperty(platformName) ? platformIcons[platformName] : "EXPLORER_108.gif";
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", platformIcon);*/
+                            } else {
+                                // Nothing succeeded so fall back to a category
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "cat-" + formatting.invertObject(config.constants.categoryMappings)[resRow.Type] + ".png");
+                                /* Nothing succeeded so fall back to a plain icon based on age
+                                if (resRow.startYear > 1995) {
+                                    resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "gui.png");
+                                } else {
+                                    resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "cli.png");
+                                }*/
+                            }
+
+                            if (!knownIcons.hasOwnProperty(resRow.Icon)) {
+                                knownIcons[resRow.Icon] = fs.existsSync(resRow.Icon);
+                                console.log(resRow.Icon);
+                                console.log(knownIcons[resRow.Icon])
+                            }
+
+                            if (knownIcons[resRow.Icon] != true) {
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "gui.png");
+                            }
                         });
 
                         // Render the page
@@ -552,6 +608,7 @@ server.get("/product/:product/:release", function (req, res) {
                         release.DiskSpaceRequired = formatting.formatBytes(release.DiskSpaceRequired);
                         var downloads = dlRes.map(function (x) {
                             x.FileSize = formatting.formatBytes(x.FileSize);
+                            x.ImageTypeName = x.ImageType;
                             x.ImageType = config.constants.fileTypeMappings[x.ImageType];
                             x.DLUUID = formatting.binToHex(x.DLUUID);
                             return x;
