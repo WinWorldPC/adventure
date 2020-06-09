@@ -83,7 +83,10 @@
       "DVDISO": "DVD",
       "VPC": "Virtual PC",
       "VMWARE": "VMware",
-      "VBOX": "VirtualBox"
+      "VBOX": "VirtualBox",
+      "Tape": "Tape",
+      "Document": "Document",
+      "Artwork": "Artwork"
     },
 
     "categoryMappings": {
