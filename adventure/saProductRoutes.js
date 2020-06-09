@@ -35,7 +35,7 @@ server.get("/sa/product/:product", restrictedRoute("sa"), function (req, res) {
             iconFiles.forEach(function (element, index, array) {
                 presetIcons.push([
                     element,
-                    path.join("/" + iconPath, element)
+                    path.join(config.iconBaseUrl + "preset-icons/" + element)
                     ]);
             });
 
