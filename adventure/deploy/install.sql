@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `Downloads` (
   `RTM` enum('True','False') COLLATE utf8_bin NOT NULL DEFAULT 'True',
   `OriginalPath` text COLLATE utf8_bin NOT NULL,
   `DownloadPath` text COLLATE utf8_bin NOT NULL,
-  `ImageType` enum('Archive','35Floppy','525Floppy','CDISO','DVDISO','VPC','VMWARE','VBOX','Tape','Document','Artwork') COLLATE utf8_bin NOT NULL DEFAULT 'Archive',
+  `ImageType` enum('Archive','35Floppy','525Floppy','CDISO','DVDISO','VPC','VMWARE','VBOX','Tape','Document','Artwork', '8Floppy', 'Executable', 'SelfExtracting', 'Firmware') COLLATE utf8_bin NOT NULL DEFAULT 'Archive',
   `Arch` set('x86','x86-32','m68k','ppc','amd64','mos6502','ppc64','SPARC','SPARC64','MIPS','MIPS64','Alpha','Other') COLLATE utf8_bin NOT NULL DEFAULT 'x86',
   `Information` text COLLATE utf8_bin,
   `ReleaseUUID` binary(16) DEFAULT NULL,

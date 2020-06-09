@@ -86,7 +86,11 @@
       "VBOX": "VirtualBox",
       "Tape": "Tape",
       "Document": "Document",
-      "Artwork": "Artwork"
+      "Artwork": "Artwork",
+      "8Floppy": "8 Floppy",
+      "Executable": "Executable",
+      "SelfExtracting": "Self-Extracting",
+      "Firmware": "ROM/Firmware"
     },
 
     "categoryMappings": {
