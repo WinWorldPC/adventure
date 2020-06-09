@@ -83,6 +83,7 @@
     <Content Include="res\img\preset-icons\cat-sys.png" />
     <Content Include="res\img\preset-icons\cli.png" />
     <Content Include="res\img\preset-icons\gui.png" />
+    <Content Include="res\img\site-icons\arch-mos6502.png" />
     <Content Include="res\img\site-icons\arch-alpha.png" />
     <Content Include="res\img\site-icons\arch-amd64.png" />
     <Content Include="res\img\site-icons\arch-m68k.png" />

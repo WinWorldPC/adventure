@@ -402,8 +402,7 @@ LIMIT ?,?",
                              * Icons are derived as follows:
                              * - if there is an icon in /res/img/appicons/<release id in hex>.png use it
                              * - if there are any tags, use the first one at /res/img/icons/tag-whatever.png
-                             * - if there is a single platform defined, use /res/img/icons/tag-platform.png
-                             * - if there are multiple platforms, pick either cli.png or gui.png based on age
+                             * - if all else fails, pick one based on category, which is guaranteed
                              */
                             // Check for extant product file
                             if (resRow.LogoImage) {
@@ -417,7 +416,7 @@ LIMIT ?,?",
                                 // Check for a tag we can use
                                 var firstTag = formatting.invertObject(config.constants.tagMappings)[resRow.ApplicationTags.split(',')[0]];
                                 resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", firstTag + ".png");
-                            } else if (resRow.Platform.split(',').length == 1) {
+                            /*} else if (resRow.Platform.split(',').length == 1) {
                                 // If there's only a single platform we can pick a platform icon
                                 var platformName = resRow.Platform.split(',')[0]
                                 platformIcons = {
@@ -425,7 +424,7 @@ LIMIT ?,?",
                                     "DOS": "platform-dos.png"
                                 };
                                 var platformIcon = platformIcons.hasOwnProperty(platformName) ? platformIcons[platformName] : "EXPLORER_108.gif";
-                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", platformIcon);
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", platformIcon);*/
                             } else {
                                 // Nothing succeeded so fall back to a category
                                 resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "cat-" + formatting.invertObject(config.constants.categoryMappings)[resRow.Type] + ".png");
