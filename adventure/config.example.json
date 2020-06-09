@@ -27,6 +27,7 @@
   "vanillaClientId": "1",
   "publicBaseUrl": "http://localhost:3000/",
   "screenshotBaseUrl": "/res/img/screenshots/",
+  "iconBaseUrl": "/res/img/",
   "pageDirectory": "pages",
   "viewDirectory": "views",
   "resDirectory": "res",

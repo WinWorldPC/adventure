@@ -407,11 +407,12 @@ LIMIT ?,?",
                                 var iconPath = path.join(config.resDirectory, "img", resRow.LogoImage);
                             }
                             if (fs.existsSync(iconPath)) {
-                                resRow.Icon = iconPath;
+                                resRow.Icon = config.iconBaseUrl + "/" + resRow.LogoImage;
                             } else if (resRow.ApplicationTags) {
                                 // Check for a tag we can use
                                 var firstTag = formatting.invertObject(config.constants.tagMappings)[resRow.ApplicationTags.split(',')[0]];
-                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", firstTag + ".png");
+                                iconPath = resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", firstTag + ".png");
+                                resRow.Icon = config.iconBaseUrl + "preset-icons/" + firstTag + ".png";
                             /*} else if (resRow.Platform.split(',').length == 1) {
                                 // If there's only a single platform we can pick a platform icon
                                 var platformName = resRow.Platform.split(',')[0]
@@ -423,7 +424,8 @@ LIMIT ?,?",
                                 resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", platformIcon);*/
                             } else {
                                 // Nothing succeeded so fall back to a category
-                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "cat-" + formatting.invertObject(config.constants.categoryMappings)[resRow.Type] + ".png");
+                                resRow.Icon = config.iconBaseUrl + "/preset-icons/cat-" + formatting.invertObject(config.constants.categoryMappings)[resRow.Type] + ".png";
+                                iconPath = path.join(config.resDirectory, "img", "preset-icons", "cat-" + formatting.invertObject(config.constants.categoryMappings)[resRow.Type] + ".png")
                                 /* Nothing succeeded so fall back to a plain icon based on age
                                 if (resRow.startYear > 1995) {
                                     resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "gui.png");
@@ -433,7 +435,7 @@ LIMIT ?,?",
                             }
 
                             if (!knownIcons.hasOwnProperty(resRow.Icon)) {
-                                knownIcons[resRow.Icon] = fs.existsSync(resRow.Icon);
+                                knownIcons[resRow.Icon] = fs.existsSync(iconPath);
                             }
 
                             if (knownIcons[resRow.Icon] != true) {
