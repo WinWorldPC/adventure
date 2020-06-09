@@ -396,6 +396,7 @@ LIMIT ?,?",
                         });
 
                         // Decide on an icon for each row
+                        var knownIcons = {}; // Cache icon lookups so we don't hit the FS unnecessarily
                         prRes.forEach(resRow => {
                             /*once again because i don't think they heard it all the way out in bushnell:
                              * Icons are derived as follows:
@@ -415,7 +416,7 @@ LIMIT ?,?",
                             } else if (resRow.ApplicationTags) {
                                 // Check for a tag we can use
                                 var firstTag = formatting.invertObject(config.constants.tagMappings)[resRow.ApplicationTags.split(',')[0]];
-                                resRow.Icon = path.join(config.resDirectory, "img","preset", firstTag + ".png");
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", firstTag + ".png");
                             } else if (resRow.Platform.split(',').length == 1) {
                                 // If there's only a single platform we can pick a platform icon
                                 var platformName = resRow.Platform.split(',')[0]
@@ -424,14 +425,26 @@ LIMIT ?,?",
                                     "DOS": "platform-dos.png"
                                 };
                                 var platformIcon = platformIcons.hasOwnProperty(platformName) ? platformIcons[platformName] : "EXPLORER_108.gif";
-                                resRow.Icon = path.join(config.resDirectory, "img", "preset", platformIcon);
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", platformIcon);
                             } else {
-                                // Nothing succeeded so fall back to a plain icon based on age
+                                // Nothing succeeded so fall back to a category
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "cat-" + formatting.invertObject(config.constants.categoryMappings)[resRow.Type] + ".png");
+                                /* Nothing succeeded so fall back to a plain icon based on age
                                 if (resRow.startYear > 1995) {
-                                    resRow.Icon = path.join(config.resDirectory, "img", "preset", "gui.png");
+                                    resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "gui.png");
                                 } else {
-                                    resRow.Icon = path.join(config.resDirectory, "img", "preset", "cli.png");
-                                }
+                                    resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "cli.png");
+                                }*/
+                            }
+
+                            if (!knownIcons.hasOwnProperty(resRow.Icon)) {
+                                knownIcons[resRow.Icon] = fs.existsSync(resRow.Icon);
+                                console.log(resRow.Icon);
+                                console.log(knownIcons[resRow.Icon])
+                            }
+
+                            if (knownIcons[resRow.Icon] != true) {
+                                resRow.Icon = path.join(config.resDirectory, "img", "preset-icons", "gui.png");
                             }
                         });
 

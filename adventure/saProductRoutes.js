@@ -64,7 +64,7 @@ server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("
         }
 
         // generate a filename by making a random filename and appending ext
-        var fileName = uuid.replace(/-/g, "").toUpperCase() + ".png";
+        var fileName = path.join("custom-icons", uuid.replace(/-/g, "").toUpperCase() + ".png");
 
         // TODO: Make this configuratable
         var iconType = "custom";
@@ -75,7 +75,7 @@ server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("
         // TODO: This is a security hole, though low-pri because it's an SA route
         // someone could probably inject ../s and escape the upload folder here. We could check for fs.fileExists
         // but that doesn't really help much I think.
-        var fileName = req.body.presetName;
+        var fileName = path.join("preset-icons", req.body.presetName);
         var iconType = "preset";
     } else {
         return res.status(400).render("error", {
@@ -83,11 +83,10 @@ server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("
         });
     }
 
-    var dbParams = [fileName, "0x" + uuid.replace(/-/g, "").toUpperCase()]
+    var dbParams = [fileName, uuidAsBuf]
 
-    console.log("UPDATE `Products` SET `LogoImage` = '" + dbParams[0] + "' WHERE ProductUUID = " + dbParams[1]);
-
-    database.execute("UPDATE `Products` SET Products.`LogoImage` = ? WHERE Products.`ProductUUID` = ?;", dbParams, function (seErr, seRes, seFields) {
+    database.execute("UPDATE `Products` SET Products.`LogoImage` = ? WHERE Products.`ProductUUID` = ?", dbParams, function (seErr, seRes, seFields) {
+        console.log(seRes.sql);
             if (seErr) {
                 return res.status(500).render("error", {
                     message: "The icon could not be added to the database."

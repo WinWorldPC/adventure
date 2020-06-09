@@ -77,6 +77,14 @@
     <Content Include="res\img\downloadcount.png" />
     <Content Include="res\img\downloadcount_white.png" />
     <Content Include="res\img\favicon.ico" />
+    <Content Include="res\img\preset-icons\cat-dev.png" />
+    <Content Include="res\img\preset-icons\cat-game.png" />
+    <Content Include="res\img\preset-icons\cat-operating-sytems.png" />
+    <Content Include="res\img\preset-icons\cat-sys.png" />
+    <Content Include="res\img\preset-icons\cli.png" />
+    <Content Include="res\img\preset-icons\gui.png" />
+    <Content Include="res\img\preset-icons\platform-dos.png" />
+    <Content Include="res\img\preset-icons\platform-windows.png" />
     <Content Include="res\img\preset-icons\tag-archive.png" />
     <Content Include="res\img\preset-icons\tag-audio.png" />
     <Content Include="res\img\preset-icons\tag-chat.png" />
@@ -94,6 +102,7 @@
     <Content Include="res\img\preset-icons\tag-pim.png" />
     <Content Include="res\img\preset-icons\tag-planning.png" />
     <Content Include="res\img\preset-icons\tag-presentation.png" />
+    <Content Include="res\img\preset-icons\tag-presentations.png" />
     <Content Include="res\img\preset-icons\tag-publishing.png" />
     <Content Include="res\img\preset-icons\tag-reference.png" />
     <Content Include="res\img\preset-icons\tag-server.png" />
@@ -101,7 +110,7 @@
     <Content Include="res\img\preset-icons\tag-utility.png" />
     <Content Include="res\img\preset-icons\tag-video.png" />
     <Content Include="res\img\preset-icons\tag-virtualization.png" />
-    <Content Include="res\img\preset-icons\tag-web-browser.png" />
+    <Content Include="res\img\preset-icons\tag-browser.png" />
     <Content Include="res\img\preset-icons\tag-word-processor.png" />
     <Content Include="res\img\custom-icons\C2B80B09C397294611C3A4E284A2C3A5.png" />
     <Content Include="res\js\bootstrap-multiselect.js" />
