@@ -55,6 +55,7 @@ server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("
     var uuid = req.params.product;
     var uuidAsBuf = formatting.hexToBin(uuid);
 
+    var partial
     if (req.file && req.body) {
         // User is uploading a file
         if (!req.file.mimetype.startsWith("image/")) {
@@ -64,20 +65,24 @@ server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("
         }
 
         // generate a filename by making a random filename and appending ext
-        var fileName = path.join("custom-icons", uuid.replace(/-/g, "").toUpperCase() + ".png");
+        var baseFileName = uuid.replace(/-/g, "").toUpperCase() + ".png";
+        // this must be reassembled manually in case of win32 paths
+        var fileName = "custom-icons/" + baseFileName;
 
         // TODO: Make this configuratable
         var iconType = "custom";
-        var fullPath = path.join(config.resDirectory, "img", "custom-icons", fileName);
+        var fullPath = path.join(config.resDirectory, "img", "custom-icons", baseFileName);
     } else if (req.body.presetName) {
         // User is picking a preset
-        var fileName = path.join("preset-icons", req.body.presetName);
+        var physicalFileName = path.join(config.resDirectory, "img", "preset-icons", req.body.presetName);
+        var fileName = "preset-icons/" + req.body.presetName;
+console.log(fileName);
         // If there's a / or .., prevent any directory traversal
         if (req.body.presetName.match(/(?:\.\.|\/)/g)) {
             return res.status(400).render("error", {
                 message: "The file name is invalid."
             });
-        } else if (!fs.existsSync(fileName)) {
+        } else if (!fs.existsSync(physicalFileName)) {
             return res.status(400).render("error", {
                 message: "The file doesn't exist."
             });
@@ -98,15 +103,19 @@ server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("
                 });
             } else {
                 if (iconType == "custom") {
+console.log(fullPath);
                     fs.writeFile(fullPath, req.file.buffer, function (err) {
+console.log(err);
                         if (err) {
                             return res.status(500).render("error", {
                                 message: "The icon could not be written to disk."
                             });
                         }
+                        return res.redirect("/sa/product/" + uuid);
                     });
+                } else {
+                    return res.redirect("/sa/product/" + uuid);
                 }
-                return res.redirect("/sa/product/" + uuid);
             }
     });
 });
