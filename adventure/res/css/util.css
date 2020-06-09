@@ -1,0 +1,7 @@
+.hidden {
+    display: none;
+}
+
+img.adventure-icon {
+    image-rendering: crisp-edges;
+}

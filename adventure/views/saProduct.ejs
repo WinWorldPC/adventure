@@ -1,43 +1,4 @@
 ﻿<%- include("head", {title: "Editing " + product.Name}) %>
-<style>
-    #preseticons {
-    overflow-x: scroll;
-    white-space: nowrap;
-    border: 1px solid lightgray;
-    border-radius: 6px;
-}
-    .preset-icon:hover:active {
-        background-color: #8fabc4;
-}
-    .preset-icon:hover {
-        background-color: #e0f0ff;
-}
-    .preset-icon {
-        cursor: pointer;
-    padding: 5px;
-    border: 2px solid rgba(0,0,0,0);
-}
-    .preset-icon.selected {
-        background-color: #b9deff;
-    border: 2px solid #aaa;
-}
-    .icon-wrapper {
-        display: inline-block;
-    vertical-align: top;
-    border-right: 1px solid lightgrey;
-    text-align: center;
-    padding-right: 5px;
-    padding-left: 5px;
-    height: 100%;
-}
-    .icon-wrapper small {
-        display: block;
-}
-    #new-icon {
-        min-width: 46px;
-        min-height: 46px;
-}
-    </style>
 <h1>Editing <%= product.Name %></h1>
 <h2>Basic metadata</h2>
 <form method="post" action="/sa/editProductMetadata/<%= product.ProductUUID %>">
@@ -101,7 +62,7 @@
         <div class="row">
         <div class="form-group col">
             <label for="iconFile">File</label>
-            <input type="file" class="form-control-file" id="iconFile" name="iconFile" onchange="readURL(this)">
+            <input type="file" class="form-control-file" id="iconFile" name="iconFile" onchange="iconReadURL(this)">
         </div>
                 <div class="col-2">
                     <div id="preseticons" class="iconbox">
@@ -139,25 +100,3 @@ This will delete the product. It will not delete releases associated to it. Are 
     <button type="submit" id="saProductDeleteSubmit" class="btn btn-danger">Delete Product</button>
 </form>
 <%- include("foot") %>
-<script>
-$('.preset-icon').click(function(event) {
-    $('.preset-icon').removeClass("selected");
-    $(this).addClass("selected");
-    $('#presetName').val($(this).data("preset-name"));
-    $('#new-icon').attr('src', $(this).attr("src"));
-});
-function readURL(input) {
-    if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    console.log("readin");
-    reader.onload = function (e) {
-    $('#new-icon')
-    .attr('src', e.target.result);
-    };
-                
-    reader.readAsDataURL(input.files[0]);
-    }
-    $('.preset-icon').removeClass("selected");
-    $('#presetName').val('');
-}
-</script>
