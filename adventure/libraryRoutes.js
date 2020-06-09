@@ -404,9 +404,7 @@ LIMIT ?,?",
                              */
                             // Check for extant product file
                             if (resRow.LogoImage) {
-                                console.log(resRow.LogoImage);
                                 var iconPath = path.join(config.resDirectory, "img", resRow.LogoImage);
-                                console.log(iconPath);
                             }
                             if (fs.existsSync(iconPath)) {
                                 resRow.Icon = iconPath;
@@ -436,8 +434,6 @@ LIMIT ?,?",
 
                             if (!knownIcons.hasOwnProperty(resRow.Icon)) {
                                 knownIcons[resRow.Icon] = fs.existsSync(resRow.Icon);
-                                console.log(resRow.Icon);
-                                console.log(knownIcons[resRow.Icon])
                             }
 
                             if (knownIcons[resRow.Icon] != true) {

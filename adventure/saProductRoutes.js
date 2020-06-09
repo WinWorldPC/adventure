@@ -92,7 +92,6 @@ server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("
     var dbParams = [fileName, uuidAsBuf]
 
     database.execute("UPDATE `Products` SET Products.`LogoImage` = ? WHERE Products.`ProductUUID` = ?", dbParams, function (seErr, seRes, seFields) {
-        console.log(seRes.sql);
             if (seErr) {
                 return res.status(500).render("error", {
                     message: "The icon could not be added to the database."
