@@ -71,11 +71,17 @@ server.post("/sa/addIcon/:product", restrictedRoute("sa"), uploadParser.single("
         var fullPath = path.join(config.resDirectory, "img", "custom-icons", fileName);
     } else if (req.body.presetName) {
         // User is picking a preset
-
-        // TODO: This is a security hole, though low-pri because it's an SA route
-        // someone could probably inject ../s and escape the upload folder here. We could check for fs.fileExists
-        // but that doesn't really help much I think.
         var fileName = path.join("preset-icons", req.body.presetName);
+        // If there's a / or .., prevent any directory traversal
+        if (req.body.presetName.match(/(?:\.\.|\/)/g)) {
+            return res.status(400).render("error", {
+                message: "The file name is invalid."
+            });
+        } else if (!fs.existsSync(fileName)) {
+            return res.status(400).render("error", {
+                message: "The file doesn't exist."
+            });
+        }
         var iconType = "preset";
     } else {
         return res.status(400).render("error", {
