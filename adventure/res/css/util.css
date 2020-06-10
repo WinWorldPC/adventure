@@ -5,3 +5,21 @@
 img.adventure-icon {
     image-rendering: crisp-edges;
 }
+
+/* make sure carousels can be 640px when appropriate to avoid scaling */
+@media (min-width: 992px) {
+    #screenshotPanel {
+        min-width: 650px;
+    }
+}
+
+/* give carousel icons more contrast */
+.carousel-icon-wrapper {
+    background-color: #404040;
+    text-align: center;
+    padding: 0.5em;
+    /* the icons are 20px, but a 40px box doesn't look quite right */
+    height: 37px;
+    width: 37px;
+    border-radius: 50%;
+}
