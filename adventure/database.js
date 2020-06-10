@@ -43,6 +43,37 @@ module.exports = {
         });
     },
 
+    // like execute, but doesn't prepare a statement
+    // (impacts dynamically generated queries)
+    query: function () {
+        var sql_args = [];
+        var args = [];
+        for (var i = 0; i < arguments.length; i++) {
+            args.push(arguments[i]);
+        }
+        var callback = args[args.length - 1]; //last arg is callback
+        pool.getConnection(function (err, connection) {
+            if (err) {
+                console.log(err);
+                return callback(err);
+            }
+            if (args.length > 2) {
+                sql_args = args[1];
+            }
+            if (this.logQueries) {
+                console.log(connection.format(args[0], sql_args));
+            }
+            connection.query(args[0], sql_args, function (err, results, fields) {
+                connection.release(); // always put connection back in pool after last query
+                if (err) {
+                    console.log(err);
+                    return callback(err);
+                }
+                callback(null, results, fields);
+            });
+        });
+    },
+
     // TODO: Turn raw queries from routes into more usable functions (abstract away SQL)
     
     userFlags: [],

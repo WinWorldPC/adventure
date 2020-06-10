@@ -334,7 +334,7 @@ server.get("/search", function (req, res) {
 
     // Now let's start querying
     // First get count of matching rows so we can paginate
-    database.execute("SELECT COUNT(*) FROM `Products` WHERE " + coreQuery,
+    database.query("SELECT COUNT(*) FROM `Products` WHERE " + coreQuery,
         [search, vendor], function (cErr, cRes, cFields) {
             if (!cRes) {
                 return res.status(404).render("error", {
@@ -346,7 +346,7 @@ server.get("/search", function (req, res) {
 
         // Now do the actual content query, limiting to the extents of the currently selected page
         // TODO: Once column sorting is implemented, will need to add ORDER BY clause here
-            database.execute("SELECT \
+            database.query("SELECT \
 Products.`Name`,Products.`Slug`,Products.`ApplicationTags`,Products.`Notes`,\
 Products.`Type`,Products.`ProductUUID`,Products.`LogoImage`, \
 HEX(Products.`ProductUUID`) AS PUID, \
@@ -384,7 +384,7 @@ LIMIT ?,?",
                 // Now do another query which will get all releases for each of the matching products
                 // TODO: This might be refactorable as a JOIN against the previous query. I felt that was "dirty" since I'd have to manipulate the data a ton in JS, but now I'm thinking this is maybe dirtier. It does work, but it's probably slower than it needs to be.
                 var releasesCollection = {};
-                database.execute("SELECT *, HEX(ProductUUID) as PUID From Releases WHERE Releases.ProductUUID IN ("+ prodUUIDString +") " + detailsQuery + " ORDER BY Releases.ReleaseDate, Releases.Name",
+                database.query("SELECT *, HEX(ProductUUID) as PUID From Releases WHERE Releases.ProductUUID IN ("+ prodUUIDString +") " + detailsQuery + " ORDER BY Releases.ReleaseDate, Releases.Name",
                     [vendor], function (relErr, relRes, relFields) {
                         // Build a dict of all the releases for each ProductUUID
                         relRes.forEach(relRow => {
