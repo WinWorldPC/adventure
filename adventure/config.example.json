@@ -114,6 +114,12 @@
       "MIPS",
       "MIPS64",
       "Alpha",
+      "PARISC",
+      "Z80",
+      "Intel8080",
+      "VAX",
+      "IBM3x0",
+      "SuperH",
       "Other"
     ]
   }
