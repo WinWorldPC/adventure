@@ -99,7 +99,7 @@
                 <dt>Processor architecture</dt>
                 <dd><%= download.Arch %></dd>
                 <dt>File type</dt>
-                <dd><%= download.ImageType %></dd>
+                <dd><%= download.MediaTypeFriendlyNames.length > 0 ? download.MediaTypeFriendlyNames.join(", ") : "None" %></dd>
                 <dt>File size</dt>
                 <dd><%= download.FileSize %></dd>
                 <dt>Checksum</dt>

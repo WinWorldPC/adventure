@@ -169,8 +169,14 @@
     <tbody>
         <% (downloads || []).forEach(function(i, n, a) {%>
         <tr>
-                <td><a href="/download/<%= i.DLUUID %>" title="<%= i.FileName %>">
-                    <img src="/res/img/site-icons/media-<%= i.ImageTypeName %>.png" title="<%= i.ImageType %>"> <%= i.Name %></a></td>
+            <td>
+                <a href="/download/<%= i.DLUUID %>" title="<%= i.FileName %>">
+                    <% i.MediaTypeFriendlyNames.forEach((mt, idx) => { %>
+                    <img src="/res/img/site-icons/media-<%= i.MediaTypeShortNames[idx] %>.png" title="<%= mt %>" alt="<%= mt %>">
+                    <% }); %>
+                    <%= i.Name %>
+                </a>
+            </td>
             <td>
                 <%= i.Version %>
                 <span class="downloadTagPrerelease badge badge-warning"><%= i.RTM == "True" ? "" : "Prerelease" %></span>

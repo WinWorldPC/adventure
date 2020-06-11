@@ -10,6 +10,53 @@ var restrictedRoute = middleware.restrictedRoute;
 var urlencodedParser = middleware.bodyParser;
 var server = express.Router();
 
+server.get("/sa/mediaTypes", function (req, res) {
+    database.execute("SELECT * From MediaType", [], function (mtErr, mtRes) {
+        var mediaTypes = mtRes.map(function (x) {
+            x.MediaTypeUUID = formatting.binToHex(x.MediaTypeUUID);
+            return x;
+        });
+        return res.render("saMediaTypes", {
+            mediaTypes: mediaTypes
+        });
+    });
+});
+
+server.get("/sa/deleteMediaType/:mediaType", restrictedRoute("sa"), function (req, res) {
+    // reset all the consumed media types to NULL (displayed as none)
+    // then we can delete it (referential integrity, duh)
+    var mediaType = formatting.hexToBin(req.params.mediaType);
+    // XXX: Wrap in transaction?
+    database.execute("DELETE FROM DownloadMediaType WHERE MediaTypeUUID = ?", [mediaType], function (updateError) {
+        if (updateError) {
+            return res.status(500).render("error", {
+                message: "There was an error disassociating the downloads from the media type."
+            });
+        }
+        database.execute("DELETE FROM MediaType WHERE MediaTypeUUID = ?", [mediaType], function (deleteError) {
+            if (updateError) {
+                return res.status(500).render("error", {
+                    message: "There was an error disassociating the downloads from the media type."
+                });
+            }
+            res.redirect("/sa/mediaTypes");
+        });
+    });
+});
+
+server.post("/sa/createMediaType", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    var friendlyName = req.body.friendly;
+    var shortName = req.body.shortName;
+    database.execute("INSERT INTO MediaType (FriendlyName, ShortName) VALUES (?, ?)", [friendlyName, shortName], function (insertError) {
+        if (insertError) {
+            return res.status(500).render("error", {
+                message: "There was an error creating the media type."
+            });
+        }
+        res.redirect("/sa/mediaTypes");
+    });
+});
+
 server.get("/sa/orphanedDownloads/", function (req, res) {
     database.execute("SELECT * FROM Downloads WHERE NOT EXISTS (SELECT 1 FROM Releases WHERE Downloads.ReleaseUUID = Releases.ReleaseUUID)", [], function (dlErr, dlRes, dlFields) {
         return res.render("saOrphanedDownloads", {
@@ -62,8 +109,11 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
             //  WHERE `IsOnline` = True
             database.execute("SELECT * FROM `DownloadMirrors`", null, function (miErr, miRes, miFields) {
                 // for attachment dropdown; should also order releases when grouped too
+                // the subquery in mediatype is for returning all mediatypes, but if the releaseuuid exists in DMT
+                database.execute("select mt.*, dmt.DLUUID is not null as `Has` from MediaType mt left join (select DLUUID, MediaTypeUUID from DownloadMediaType where DLUUID = ?) dmt on dmt.MediaTypeUUID = mt.MediaTypeUUID", [download.DLUUID], function (mtErr, mtRes, mtFields) {
                 database.execute("SELECT Releases.Name AS ReleaseName,Releases.ReleaseUUID AS ReleaseUUID,Products.Name AS ProductName FROM Products JOIN Releases USING(ProductUUID) ORDER BY Products.Name", null, function (prErr, prRes, prFields) {
                     download.DLUUID = formatting.binToHex(download.DLUUID);
+                    download.MediaType = formatting.binToHex(download.MediaType);
                     download.ReleaseUUID = download.ReleaseUUID ? formatting.binToHex(download.ReleaseUUID) : null;
                     var mirrors = miRes.map(function (x) {
                         x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
@@ -71,6 +121,10 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
                     });
                     var mirrorContents = mrRes.map(function (x) {
                         x.MirrorUUID = formatting.binToHex(x.MirrorUUID);
+                        return x;
+                    });
+                    var mediaTypes = mtRes.map(function (x) {
+                        x.MediaTypeUUID = formatting.binToHex(x.MediaTypeUUID);
                         return x;
                     });
                     var availReleases = formatting.groupBy(prRes.map(function (x) {
@@ -83,9 +137,9 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
                         mirrors: mirrors,
                         mirrorContents: mirrorContents,
                         availReleases: availReleases,
-                        fileTypeMappings: config.constants.fileTypeMappings,
-                        fileTypeMappingsInverted: formatting.invertObject(config.constants.fileTypeMappings),
+                        mediaTypes: mediaTypes
                     });
+                });
                 });
             });
         });
@@ -95,20 +149,49 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
 server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     if (req.body && req.params.download && formatting.isHexString(req.params.download) && formatting.isHexString(req.body.releaseUUID) /*&& /^[0-9A-Fa-f]{40}$/.test(req.body.sha1Sum)*/) {
         var uuid = req.params.download;
+        var uuidAsBuf = formatting.hexToBin(uuid);
         var releaseUuidAsBuf = formatting.hexToBin(req.body.releaseUUID);
+        var mediaTypes = req.body.imageType;
         // HACK: oh god mysql2 isn't putting arrays into updates for sets properly?
         var arch = formatting.dbStringifySelect(req.body.arch);
         var rtm = req.body.rtm ? "True" : "False";
         var upgrade = req.body.upgrade ? "True" : "False";
-        var dbParams = [releaseUuidAsBuf, req.body.name, arch, req.body.version, rtm, upgrade, req.body.information, req.body.language, req.body.imageType, req.body.fileSize, req.body.downloadPath, req.body.downloadPath, req.body.fileName, new Date(), req.body.fileHash, req.body.ipfsPath, formatting.hexToBin(uuid)];
-        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, ImageType = ?, FileSize = ?, DownloadPath = ?, OriginalPath = ?, FileName = ?, LastUpdated = ?, FileHash = ?, IPFSPath = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
+        var dbParams = [releaseUuidAsBuf, req.body.name, arch, req.body.version, rtm, upgrade, req.body.information, req.body.language, req.body.fileSize, req.body.downloadPath, req.body.downloadPath, req.body.fileName, new Date(), req.body.fileHash, req.body.ipfsPath, uuidAsBuf];
+        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, FileSize = ?, DownloadPath = ?, OriginalPath = ?, FileName = ?, LastUpdated = ?, FileHash = ?, IPFSPath = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
                     message: "The download could not be edited."
                 });
             } else {
-                return res.redirect("/download/" + uuid);
             }
+            // now just delete and reinsert the set. (XXX: Transaction?)
+            database.execute("DELETE FROM DownloadMediaType WHERE DLUUID = ?", [uuidAsBuf], function(deleteErr) {
+                if (deleteErr) {
+                    return res.status(500).render("error", {
+                        message: "There was an error unassigning the media types from the download."
+                    });
+                }
+                // thanks, i hate it! if we were using Promise, it'd be easier to wait on .all
+                var counter = mediaTypes.length;
+                var hadError = false;
+                for (var i = 0; i < mediaTypes.length; i++) {
+                    var mediaTypeAsBuf = formatting.hexToBin(mediaTypes[i]);
+                    database.execute("INSERT INTO DownloadMediaType (DLUUID, MediaTypeUUID) VALUES (?, ?)", [uuidAsBuf, mediaTypeAsBuf], function (insertError) {
+                        if (insertError) {
+                            hadError = true;
+                        }
+                        counter--;
+                    });
+                }
+                while (counter > 0) {
+                    if (hadError) {
+                        return res.status(500).render("error", {
+                            message: "There was an error assigning the media types to the download."
+                        });
+                    }
+                    return res.redirect("/download/" + uuid);
+                }
+            });
         });
     } else {
         return res.status(400).render("error", {

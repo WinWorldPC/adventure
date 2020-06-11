@@ -61,9 +61,9 @@
     <div class="row">
         <div class="form-group col">
             <label for="imageType">File type</label>
-            <select required class="form-control" id="imageType" name="imageType">
-                <% Object.keys(fileTypeMappingsInverted).forEach(function (i, n, a) { %>
-                <option <%= download.ImageType && download.ImageType == fileTypeMappingsInverted[i] ? "selected" : "" %> value="<%= fileTypeMappingsInverted[i] %>"><%= i %></option>
+            <select multiple required class="form-control" id="imageType" name="imageType">
+                <% mediaTypes.forEach(function (i, n, a) { %>
+                <option <%= i.Has ? "selected" : "" %> value="<%= i.MediaTypeUUID %>"><%= i.FriendlyName %></option>
                 <% }); %>
             </select>
         </div>

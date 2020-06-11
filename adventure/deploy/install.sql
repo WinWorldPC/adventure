@@ -11,6 +11,24 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+create or replace table MediaType(
+    MediaTypeUUID binary(16) primary key,
+    FriendlyName varchar(50),
+    ShortName varchar(50)
+);
+
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+create or replace trigger BeforeCreateMediaType
+    before insert
+    on MediaType
+    for each row
+BEGIN
+	set new.MediaTypeUUID = uuidbin(uuid());
+END;
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
 -- Dumping structure for table winworld.Contributions
 CREATE TABLE IF NOT EXISTS `Contributions` (
   `ContributionUUID` binary(16) NOT NULL,
@@ -394,6 +412,12 @@ SET SQL_MODE=@OLDTMP_SQL_MODE;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 
+/* Begin non-dumped tables */
+create or replace table DownloadMediaType(
+    DLUUID binary(16),
+    MediaTypeUUID binary(16)
+);
+
 /* Begin non-dumped functions */
 create or replace function ProductPlatforms
 (productID binary(16))
@@ -454,5 +478,35 @@ begin
         inner join Downloads d on h.DownloadUUID = d.DLUUID
         where downloadID = d.DLUUID;
     return hits;
+end;
+
+create or replace function MediaTypeFriendlyNames(
+    dluuid binary(16)
+)
+returns varchar(1024) deterministic
+begin
+    declare ret varchar(1024);
+    set ret = '';
+    select group_concat(distinct mt.FriendlyName separator '///')
+        into ret
+        from DownloadMediaType dmt
+        inner join MediaType mt on dmt.MediaTypeUUID = mt.MediaTypeUUID
+        where dmt.DLUUID = dluuid;
+    return ret;
+end;
+
+create or replace function MediaTypeShortNames(
+    dluuid binary(16)
+)
+returns varchar(1024) deterministic
+begin
+    declare ret varchar(1024);
+    set ret = '';
+    select group_concat(distinct mt.ShortName separator '///')
+        into ret
+        from DownloadMediaType dmt
+        inner join MediaType mt on dmt.MediaTypeUUID = mt.MediaTypeUUID
+        where dmt.DLUUID = dluuid;
+    return ret;
 end;
 

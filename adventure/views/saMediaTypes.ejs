@@ -1,0 +1,46 @@
+﻿<%- include("head", {title: "Media types"}) %>
+<h1>Media types</h1>
+<table class="table table-striped table-sm table-responsive">
+    <thead>
+        <tr>
+            <th>Friendly name</th>
+            <th>Short name</th>
+            <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+            <th>Actions</th>
+            <% } %>
+        </tr>
+    </thead>
+    <tbody>
+        <% mediaTypes.forEach(function (mediaType) { %>
+        <tr>
+            <td><%= mediaType.FriendlyName %></td>
+            <td><code><%= mediaType.ShortName %></code></td>
+            <% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+            <td>
+                <a class="btn btn-danger" href="/sa/deleteMediaType/<%= mediaType.MediaTypeUUID %>">Remove</a>
+            </td>
+            <% } %>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+<% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+<h2>Create media type</h2>
+<form method="post" action="/sa/createMediaType">
+    <div class="row">
+        <div class="form-group col">
+            <label for="friendly">Name</label>
+            <input required type="text" class="form-control" id="friendly" name="friendly" placeholder="Name">
+        </div>
+        <div class="form-group col">
+            <label for="shortName">Short name</label>
+            <input required type="text" class="form-control" id="shortName" name="shortName" placeholder="Short name">
+            <small class="form-text text-muted">
+                This name is used for icon file names (stored in the resource directory) and compatibility with older versions of the software.
+            </small>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<% } %>
+<%- include("foot") %>
