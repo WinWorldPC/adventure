@@ -394,6 +394,8 @@ SET SQL_MODE=@OLDTMP_SQL_MODE;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 
+DELIMITER // -- fix for functions
+
 /* Begin non-dumped functions */
 create or replace function ProductPlatforms
 (productID binary(16))
