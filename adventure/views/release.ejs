@@ -48,7 +48,6 @@
                     <div class="carousel-item <%= n ? '' : 'active' %>">
                         <%# Lazy load images %>
                         <a href="/screenshot/<%= release.ReleaseUUID %>/<%= i.ScreenshotUUID %>">
-                            <%# Carousel captions suck a bit IMHO, so just embrace the hovertext %>
                             <img class="d-block w-100" <%= n ? 'data-src' : 'src' %>="<%= i.ScreenshotFile %>" alt="<%= i.ScreenshotTitle %>" title="<%= i.ScreenshotTitle %>" />
                         </a>
                     </div>
@@ -65,6 +64,10 @@
                     <span class="sr-only">Next</span>
                 </a>
                 <% } %>
+            </div>
+            <%# This is static for the first entry, but noscript users can't use the carousel anyways %>
+            <div id="screenshotCaption" class="figure-caption mx-auto" style="width:650px">
+                <%= screenshots[0].ScreenshotTitle %>
             </div>
             <% } %>
             <% if (release.Notes) { %>

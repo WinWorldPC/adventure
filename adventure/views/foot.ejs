@@ -15,6 +15,11 @@
 			includeResetDivider: true,
 			inheritClass: true
 		});
+        $("#screenshotPanel").on("slide.bs.carousel", function (ev) {
+            var caption = $("#screenshotCaption");
+            var text = $(ev.relatedTarget).find("img").attr("alt");
+            caption.text(text);
+        });
 	});
 </script>
 </body>
