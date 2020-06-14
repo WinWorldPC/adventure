@@ -40,8 +40,3 @@ img.adventure-icon {
         margin-top: 4.5px;
     }
 }
-
-/* make carousel text outside */
-.carousel-caption {
-    bottom: -9em;
-}
