@@ -23,3 +23,20 @@ img.adventure-icon {
     width: 37px;
     border-radius: 50%;
 }
+
+/* clamp to two icons, margin above. sides is through whitespace #text */
+@media (min-width: 992px) {
+    .adventure-media-column {
+        max-width: 64px
+    }
+    /* XXX: Remove the #text nodes from template? */
+    .adventure-media-column img:nth-child(n+3) {
+        margin-top: 4.5px;
+    }
+}
+/* but on small screens, they all need it */
+@media (max-width: 991px) {
+    .adventure-media-column img:nth-child(n+1) {
+        margin-top: 4.5px;
+    }
+}

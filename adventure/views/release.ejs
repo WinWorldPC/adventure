@@ -158,22 +158,24 @@
 <table id="downloadsTable" class="table table-striped table-sm table-responsive">
     <thead>
         <tr>
-            <th>Download name</th>
+            <th><span class="sr-only">Type</span></th>
+            <th>Name</th>
             <th>Version</th>
             <th>Language</th>
             <th>Architecture</th>
-            <th>File size</th>
-            <th>Downloads</th>
+            <th>Size</th>
         </tr>
     </thead>
     <tbody>
         <% (downloads || []).forEach(function(i, n, a) {%>
         <tr>
+            <td align="right" class="adventure-media-column">
+                <% i.MediaTypeFriendlyNames.forEach((mt, idx) => { %>
+                    <img class="adventure-media-icon" src="/res/img/site-icons/media-<%= i.MediaTypeShortNames[idx] %>.png" title="<%= mt %>" alt="<%= mt %>">
+                <% }); %>
+            </td>
             <td>
                 <a href="/download/<%= i.DLUUID %>" title="<%= i.FileName %>">
-                    <% i.MediaTypeFriendlyNames.forEach((mt, idx) => { %>
-                    <img src="/res/img/site-icons/media-<%= i.MediaTypeShortNames[idx] %>.png" title="<%= mt %>" alt="<%= mt %>">
-                    <% }); %>
                     <%= i.Name %>
                 </a>
             </td>
@@ -183,13 +185,12 @@
                 <span class="downloadTagUpgrade badge badge-secondary"><%= i.Upgrade == "True" ? "Upgrade" : "" %></span>
             </td>
             <td><%= i.Language %></td>
-                    <td align="right">
-                        <% i.Arch.split(',').sort(function(a,b){if(a=="x86"){return 1}else{return -1}}).forEach(function(ee,ii,aa) { %>
-                            <img src="/res/img/site-icons/arch-<%= ee %>.png" title="<%= ee %>">
-                        <% }) %>
-                    </td>
+            <td align="right">
+                <% i.Arch.split(',').sort(function(a,b){if(a=="x86"){return 1}else{return -1}}).forEach(function(ee,ii,aa) { %>
+                    <img src="/res/img/site-icons/arch-<%= ee %>.png" title="<%= ee %>">
+                <% }) %>
+            </td>
             <td><span title="<%= i.FileHash || i.SHA1Sum.toString('hex') %>"><%= i.FileSize %></span></td>
-            <td><%= i.DownloadCount %></td>
         </tr>
         <% }); %>
     </tbody>
