@@ -489,13 +489,15 @@ function filesRoute(req, res) {
     database.execute("SELECT COUNT(*) FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL", function (cErr, cRes, cFields) {
         var count = cRes[0]["COUNT(*)"];
         var pages = Math.ceil(count / config.perPage);
-        database.execute("SELECT *, MediaTypeFriendlyNames(DLUUID) AS `MediaTypeFriendlyNames`, MediaTypeShortNames(DLUUID) AS `MediaTypeShortNames` FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL ORDER BY `FileName` LIMIT ?,?", [(page - 1) * config.perPage, config.perPage], function (fiErr, fiRes, fiFields) {
+        database.execute("SELECT *, MediaTypeFriendlyNames(DLUUID) AS `MediaTypeFriendlyNames`, MediaTypeShortNames(DLUUID) AS `MediaTypeShortNames`, DownloadArchitectureFriendlyNames(DLUUID) AS `DownloadArchitectureFriendlyNames`, DownloadArchitectureShortNames(DLUUID) AS `DownloadArchitectureShortNames` FROM `Downloads` WHERE `ReleaseUUID` IS NOT NULL ORDER BY `FileName` LIMIT ?,?", [(page - 1) * config.perPage, config.perPage], function (fiErr, fiRes, fiFields) {
             var files = fiRes.map(function (x) {
                 x.FileSize = formatting.formatBytes(x.FileSize);
                 x.DLUUID = formatting.binToHex(x.DLUUID);
                 x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
                 x.MediaTypeFriendlyNames = x.MediaTypeFriendlyNames.split("///");
                 x.MediaTypeShortNames = x.MediaTypeShortNames.split("///");
+                x.DownloadArchitectureFriendlyNames = x.DownloadArchitectureFriendlyNames.split("///");
+                x.DownloadArchitectureShortNames = x.DownloadArchitectureShortNames.split("///");
                 return x;
             });
             res.render("files", {
@@ -596,7 +598,7 @@ server.get("/product/:product/:release", function (req, res) {
             }
             database.execute("SELECT * FROM `Serials` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (seErr, seRes, seFields) {
                 database.execute("SELECT * FROM `Screenshots` WHERE `ReleaseUUID` = ?", [release.ReleaseUUID], function (scErr, scRes, scFields) {
-                    database.execute("SELECT `Downloads`.*, MediaTypeFriendlyNames(DLUUID) AS `MediaTypeFriendlyNames`, MediaTypeShortNames(DLUUID) AS `MediaTypeShortNames`, DownloadDownloadCount(DLUUID) as `DownloadCount` FROM `Downloads` WHERE `ReleaseUUID` = ? ORDER BY `Name`", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
+                    database.execute("SELECT `Downloads`.*, MediaTypeFriendlyNames(DLUUID) AS `MediaTypeFriendlyNames`, MediaTypeShortNames(DLUUID) AS `MediaTypeShortNames`, DownloadArchitectureFriendlyNames(DLUUID) AS `DownloadArchitectureFriendlyNames`, DownloadArchitectureShortNames(DLUUID) AS `DownloadArchitectureShortNames`, DownloadDownloadCount(DLUUID) as `DownloadCount` FROM `Downloads` WHERE `ReleaseUUID` = ? ORDER BY `Name`", [release.ReleaseUUID], function (dlErr, dlRes, dlFields) {
                         release.InstallInstructions = marked(release.InstallInstructions || "");
                         release.Notes = marked(release.Notes || "");
                         product.Notes = marked(product.Notes || "");
@@ -610,6 +612,8 @@ server.get("/product/:product/:release", function (req, res) {
                             x.DLUUID = formatting.binToHex(x.DLUUID);
                             x.MediaTypeFriendlyNames = x.MediaTypeFriendlyNames.split("///");
                             x.MediaTypeShortNames = x.MediaTypeShortNames.split("///");
+                            x.DownloadArchitectureFriendlyNames = x.DownloadArchitectureFriendlyNames.split("///");
+                            x.DownloadArchitectureShortNames = x.DownloadArchitectureShortNames.split("///");
                             return x;
                         });
                         var screenshots = scRes == null ? null : scRes.map(function (x) {
@@ -835,7 +839,7 @@ server.get("/download/:download", function (req, res) {
         });
     }
     var uuidAsBuf = formatting.hexToBin(req.params.download);
-    database.execute("SELECT Downloads.*, MediaTypeFriendlyNames(DLUUID) AS `MediaTypeFriendlyNames`, DownloadDownloadCount(DLUUID) as `DownloadCount` FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
+    database.execute("SELECT Downloads.*, MediaTypeFriendlyNames(DLUUID) AS `MediaTypeFriendlyNames`, DownloadArchitectureFriendlyNames(DLUUID) AS `DownloadArchitectureFriendlyNames`, DownloadArchitectureShortNames(DLUUID) AS `DownloadArchitectureShortNames`, DownloadDownloadCount(DLUUID) as `DownloadCount` FROM `Downloads` WHERE `DLUUID` = ?", [uuidAsBuf], function (dlErr, dlRes, dlFields) {
         var download = dlRes[0] || null;
         if (dlErr || download == null) {
             console.log(dlErr || "[ERR] download was null! /download/" + req.params.download + " refererr: " + req.get("Referrer"));
@@ -872,7 +876,16 @@ server.get("/download/:download", function (req, res) {
                     if (download.Information) {
                         download.Information - marked(download.Information);
                     }
-                    download.MediaTypeFriendlyNames = download.MediaTypeFriendlyNames.split("///");
+                    if (download.MediaTypeFriendlyNames) {
+                        download.MediaTypeFriendlyNames = download.MediaTypeFriendlyNames.split("///");
+                    } else {
+                        download.MediaTypeFriendlyNames = "";
+                    }
+                    if (download.DownloadArchitectureFriendlyNames) {
+                        download.DownloadArchitectureFriendlyNames = download.DownloadArchitectureFriendlyNames.split("///");
+                    } else {
+                        download.DownloadArchitectureFriendlyNames = ""
+                    }
                     download.FileSize = formatting.formatBytes(download.FileSize);
                     // turn these into the proper links
                     download.ReleaseUUID = formatting.binToHex(download.ReleaseUUID);

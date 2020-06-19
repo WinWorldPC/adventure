@@ -97,9 +97,9 @@
                 <dt>Language</dt>
                 <dd><%= download.Language %></dd>
                 <dt>Processor architecture</dt>
-                <dd><%= download.Arch %></dd>
+                <dd><%= download.DownloadArchitectureFriendlyNames && download.DownloadArchitectureFriendlyNames.length > 0 ? download.DownloadArchitectureFriendlyNames.toString().split("///").join(", ") : "None" %></dd>
                 <dt>File type</dt>
-                <dd><%= download.MediaTypeFriendlyNames.length > 0 ? download.MediaTypeFriendlyNames.join(", ") : "None" %></dd>
+                <dd><%= download.MediaTypeFriendlyNames && download.MediaTypeFriendlyNames.length > 0 ? download.MediaTypeFriendlyNames.join(", ") : "None" %></dd>
                 <dt>File size</dt>
                 <dd><%= download.FileSize %></dd>
                 <dt>Checksum</dt>

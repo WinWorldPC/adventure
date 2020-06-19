@@ -127,4 +127,13 @@ module.exports = {
             return "";
         }
     },
+
+    // for <select>s when they return a single element, but you expect to iterate like an array
+    alwaysArray: function (x) {
+        if (Array.isArray(x)) {
+            return x;
+        } else {
+            return [x];
+        }
+    }
 };

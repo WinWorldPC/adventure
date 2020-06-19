@@ -52,9 +52,9 @@
     </div>
     <div class="form-group">
         <label for="arch">Processor architecture</label>
-        <select multiple class="form-control" id="arch" name="arch">
-            <% config.constants.arch.forEach(function (i, n, a) { %>
-            <option <%= download.Arch && download.Arch.split(',').some(x => x == i) ? "selected" : "" %> value="<%= i %>"><%= i %></option>
+        <select multiple required class="form-control" id="arch" name="arch">
+            <% architectures.forEach(function (i, n, a) { %>
+            <option <%= i.Has ? "selected" : "" %> value="<%= i.ArchitectureUUID %>"><%= i.FriendlyName %></option>
             <% }); %>
         </select>
     </div>

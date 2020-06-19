@@ -26,6 +26,7 @@
             </td>
             <td><%= i.Language %></td>
             <td><%= i.Arch %></td>
+            <td><%= i.DownloadArchitectureFriendlyNames.toString().split("///").join(", ") %></td>
             <td><%= i.MediaTypeFriendlyNames.toString().split("///").join(", ") %></td>
             <td><span title="<%= i.FileHash || i.SHA1Sum.toString('hex') %>"><%= i.FileSize %></span></td>
         </tr>

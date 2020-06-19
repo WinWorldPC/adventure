@@ -17,6 +17,12 @@ create or replace table MediaType(
     ShortName varchar(50)
 );
 
+create or replace table Architecture(
+    ArchitectureUUID binary(16) primary key,
+    FriendlyName varchar(50),
+    ShortName varchar(50)
+);
+
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
 create or replace trigger BeforeCreateMediaType
@@ -25,6 +31,18 @@ create or replace trigger BeforeCreateMediaType
     for each row
 BEGIN
 	set new.MediaTypeUUID = uuidbin(uuid());
+END;
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+create or replace trigger BeforeCreateArchitecture
+    before insert
+    on Architecture
+    for each row
+BEGIN
+	set new.ArchitectureUUID = uuidbin(uuid());
 END;
 DELIMITER ;
 SET SQL_MODE=@OLDTMP_SQL_MODE;
@@ -418,6 +436,11 @@ create or replace table DownloadMediaType(
     MediaTypeUUID binary(16)
 );
 
+create or replace table DownloadArchitecture(
+    DLUUID binary(16),
+    ArchitectureUUID binary(16)
+);
+
 /* Begin non-dumped functions */
 create or replace function ProductPlatforms
 (productID binary(16))
@@ -510,3 +533,32 @@ begin
     return ret;
 end;
 
+create or replace function DownloadArchitectureFriendlyNames(
+    dluuid binary(16)
+)
+returns varchar(1024) deterministic
+begin
+    declare ret varchar(1024);
+    set ret = '';
+    select group_concat(distinct a.FriendlyName separator '///')
+        into ret
+        from DownloadArchitecture da
+        inner join Architecture a on da.ArchitectureUUID = a.ArchitectureUUID
+        where da.DLUUID = dluuid;
+    return ret;
+end;
+
+create or replace function DownloadArchitectureShortNames(
+    dluuid binary(16)
+)
+returns varchar(1024) deterministic
+begin
+    declare ret varchar(1024);
+    set ret = '';
+    select group_concat(distinct a.ShortName separator '///')
+        into ret
+        from DownloadArchitecture da
+        inner join Architecture a on da.ArchitectureUUID = a.ArchitectureUUID
+        where da.DLUUID = dluuid;
+    return ret;
+end;

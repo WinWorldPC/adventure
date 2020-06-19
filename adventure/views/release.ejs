@@ -189,9 +189,9 @@
             </td>
             <td><%= i.Language %></td>
             <td align="right">
-                <% i.Arch.split(',').sort(function(a,b){if(a=="x86"){return 1}else{return -1}}).forEach(function(ee,ii,aa) { %>
-                    <img src="/res/img/site-icons/arch-<%= ee %>.png" title="<%= ee %>">
-                <% }) %>
+                <% i.DownloadArchitectureFriendlyNames.forEach((da, idx) => { %>
+                    <img class="adventure-media-icon" src="/res/img/site-icons/arch-<%= i.DownloadArchitectureShortNames[idx] %>.png" title="<%= da %>" alt="<%= da %>">
+                <% }); %>
             </td>
             <td><span title="<%= i.FileHash || i.SHA1Sum.toString('hex') %>"><%= i.FileSize %></span></td>
         </tr>

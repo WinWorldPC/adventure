@@ -10,6 +10,51 @@ var restrictedRoute = middleware.restrictedRoute;
 var urlencodedParser = middleware.bodyParser;
 var server = express.Router();
 
+server.get("/sa/architectures", function (req, res) {
+    database.execute("SELECT * From Architecture", [], function (arErr, arRes) {
+        var architectures = arRes.map(function (x) {
+            x.ArchitectureUUID = formatting.binToHex(x.ArchitectureUUID);
+            return x;
+        });
+        return res.render("saArchitectures", {
+            architectures: architectures
+        });
+    });
+});
+
+server.get("/sa/deleteArchitecture/:architecture", restrictedRoute("sa"), function (req, res) {
+    var architecture = formatting.hexToBin(req.params.architecture);
+    // XXX: Wrap in transaction?
+    database.execute("DELETE FROM DownloadArchitectures WHERE ArchitectureUUID = ?", [architecture], function (updateError) {
+        if (updateError) {
+            return res.status(500).render("error", {
+                message: "There was an error disassociating the downloads from the architecture type."
+            });
+        }
+        database.execute("DELETE FROM Architecture WHERE ArchitectureUUID = ?", [mediaType], function (deleteError) {
+            if (updateError) {
+                return res.status(500).render("error", {
+                    message: "There was an error deleting the architecture."
+                });
+            }
+            res.redirect("/sa/architectures");
+        });
+    });
+});
+
+server.post("/sa/createArchitecture", restrictedRoute("sa"), urlencodedParser, function (req, res) {
+    var friendlyName = req.body.friendly;
+    var shortName = req.body.shortName;
+    database.execute("INSERT INTO Architecture (FriendlyName, ShortName) VALUES (?, ?)", [friendlyName, shortName], function (insertError) {
+        if (insertError) {
+            return res.status(500).render("error", {
+                message: "There was an error creating the architecture."
+            });
+        }
+        res.redirect("/sa/architectures");
+    });
+});
+
 server.get("/sa/mediaTypes", function (req, res) {
     database.execute("SELECT * From MediaType", [], function (mtErr, mtRes) {
         var mediaTypes = mtRes.map(function (x) {
@@ -36,7 +81,7 @@ server.get("/sa/deleteMediaType/:mediaType", restrictedRoute("sa"), function (re
         database.execute("DELETE FROM MediaType WHERE MediaTypeUUID = ?", [mediaType], function (deleteError) {
             if (updateError) {
                 return res.status(500).render("error", {
-                    message: "There was an error disassociating the downloads from the media type."
+                    message: "There was an error deleting the architecture."
                 });
             }
             res.redirect("/sa/mediaTypes");
@@ -110,7 +155,9 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
             database.execute("SELECT * FROM `DownloadMirrors`", null, function (miErr, miRes, miFields) {
                 // for attachment dropdown; should also order releases when grouped too
                 // the subquery in mediatype is for returning all mediatypes, but if the releaseuuid exists in DMT
+                // XXX: These could be done asynchronously from each other
                 database.execute("select mt.*, dmt.DLUUID is not null as `Has` from MediaType mt left join (select DLUUID, MediaTypeUUID from DownloadMediaType where DLUUID = ?) dmt on dmt.MediaTypeUUID = mt.MediaTypeUUID", [download.DLUUID], function (mtErr, mtRes, mtFields) {
+                database.execute("select a.*, da.DLUUID is not null as `Has` from Architecture a left join (select DLUUID, ArchitectureUUID from DownloadArchitecture where DLUUID = ?) da on da.ArchitectureUUID = a.ArchitectureUUID", [download.DLUUID], function (arErr, arRes, arFields) {
                 database.execute("SELECT Releases.Name AS ReleaseName,Releases.ReleaseUUID AS ReleaseUUID,Products.Name AS ProductName FROM Products JOIN Releases USING(ProductUUID) ORDER BY Products.Name", null, function (prErr, prRes, prFields) {
                     download.DLUUID = formatting.binToHex(download.DLUUID);
                     download.MediaType = formatting.binToHex(download.MediaType);
@@ -127,6 +174,10 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
                         x.MediaTypeUUID = formatting.binToHex(x.MediaTypeUUID);
                         return x;
                     });
+                    var architectures = arRes.map(function (x) {
+                        x.ArchitectureUUID = formatting.binToHex(x.ArchitectureUUID);
+                        return x;
+                    });
                     var availReleases = formatting.groupBy(prRes.map(function (x) {
                         x.ReleaseUUID = formatting.binToHex(x.ReleaseUUID);
                         return x;
@@ -137,8 +188,10 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
                         mirrors: mirrors,
                         mirrorContents: mirrorContents,
                         availReleases: availReleases,
-                        mediaTypes: mediaTypes
+                        mediaTypes: mediaTypes,
+                        architectures: architectures
                     });
+                });
                 });
                 });
             });
@@ -151,29 +204,25 @@ server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlenco
         var uuid = req.params.download;
         var uuidAsBuf = formatting.hexToBin(uuid);
         var releaseUuidAsBuf = formatting.hexToBin(req.body.releaseUUID);
-        var mediaTypes = req.body.imageType;
-        // HACK: oh god mysql2 isn't putting arrays into updates for sets properly?
-        var arch = formatting.dbStringifySelect(req.body.arch);
+        var mediaTypes = formatting.alwaysArray(req.body.imageType);
+        var arch = formatting.alwaysArray(req.body.arch);
         var rtm = req.body.rtm ? "True" : "False";
         var upgrade = req.body.upgrade ? "True" : "False";
-        var dbParams = [releaseUuidAsBuf, req.body.name, arch, req.body.version, rtm, upgrade, req.body.information, req.body.language, req.body.fileSize, req.body.downloadPath, req.body.downloadPath, req.body.fileName, new Date(), req.body.fileHash, req.body.ipfsPath, uuidAsBuf];
-        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Arch = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, FileSize = ?, DownloadPath = ?, OriginalPath = ?, FileName = ?, LastUpdated = ?, FileHash = ?, IPFSPath = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
+        var dbParams = [releaseUuidAsBuf, req.body.name, req.body.version, rtm, upgrade, req.body.information, req.body.language, req.body.fileSize, req.body.downloadPath, req.body.downloadPath, req.body.fileName, new Date(), req.body.fileHash, req.body.ipfsPath, uuidAsBuf];
+        database.execute("UPDATE Downloads SET ReleaseUUID = ?, Name = ?, Version = ?, RTM = ?, Upgrade = ?, Information = ?, Language = ?, FileSize = ?, DownloadPath = ?, OriginalPath = ?, FileName = ?, LastUpdated = ?, FileHash = ?, IPFSPath = ? WHERE DLUUID = ?", dbParams, function (rlErr, rlRes, rlFields) {
             if (rlErr) {
                 return res.status(500).render("error", {
                     message: "The download could not be edited."
                 });
-            } else {
             }
-            // now just delete and reinsert the set. (XXX: Transaction?)
+            // thanks, i hate it! if we were using Promise, it'd be easier to wait on .all
+            var counter = mediaTypes.length + arch.length;
+            var hadError = false;
+            // now just delete and reinsert the sets. (XXX: Transaction?)
             database.execute("DELETE FROM DownloadMediaType WHERE DLUUID = ?", [uuidAsBuf], function(deleteErr) {
                 if (deleteErr) {
-                    return res.status(500).render("error", {
-                        message: "There was an error unassigning the media types from the download."
-                    });
+                    hadError = true;
                 }
-                // thanks, i hate it! if we were using Promise, it'd be easier to wait on .all
-                var counter = mediaTypes.length;
-                var hadError = false;
                 for (var i = 0; i < mediaTypes.length; i++) {
                     var mediaTypeAsBuf = formatting.hexToBin(mediaTypes[i]);
                     database.execute("INSERT INTO DownloadMediaType (DLUUID, MediaTypeUUID) VALUES (?, ?)", [uuidAsBuf, mediaTypeAsBuf], function (insertError) {
@@ -183,15 +232,29 @@ server.post("/sa/editDownloadMetadata/:download", restrictedRoute("sa"), urlenco
                         counter--;
                     });
                 }
-                while (counter > 0) {
-                    if (hadError) {
-                        return res.status(500).render("error", {
-                            message: "There was an error assigning the media types to the download."
-                        });
-                    }
-                    return res.redirect("/download/" + uuid);
+            });
+            database.execute("DELETE FROM DownloadArchitecture WHERE DLUUID = ?", [uuidAsBuf], function(deleteErr) {
+                if (deleteErr) {
+                    hadError = true;
+                }
+                for (var i = 0; i < arch.length; i++) {
+                    var architectureAsBuf = formatting.hexToBin(arch[i]);
+                    database.execute("INSERT INTO DownloadArchitecture (DLUUID, ArchitectureUUID) VALUES (?, ?)", [uuidAsBuf, architectureAsBuf], function (insertError) {
+                        if (insertError) {
+                            hadError = true;
+                        }
+                        counter--;
+                    });
                 }
             });
+            while (counter > 0) {
+                if (hadError) {
+                    return res.status(500).render("error", {
+                        message: "There was an error assigning the media types and architectures to the download."
+                    });
+                }
+                return res.redirect("/download/" + uuid);
+            }
         });
     } else {
         return res.status(400).render("error", {
