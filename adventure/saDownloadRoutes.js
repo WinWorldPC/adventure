@@ -156,8 +156,8 @@ server.get("/sa/download/:download", restrictedRoute("sa"), function (req, res) 
                 // for attachment dropdown; should also order releases when grouped too
                 // the subquery in mediatype is for returning all mediatypes, but if the releaseuuid exists in DMT
                 // XXX: These could be done asynchronously from each other
-                database.execute("select mt.*, dmt.DLUUID is not null as `Has` from MediaType mt left join (select DLUUID, MediaTypeUUID from DownloadMediaType where DLUUID = ?) dmt on dmt.MediaTypeUUID = mt.MediaTypeUUID", [download.DLUUID], function (mtErr, mtRes, mtFields) {
-                database.execute("select a.*, da.DLUUID is not null as `Has` from Architecture a left join (select DLUUID, ArchitectureUUID from DownloadArchitecture where DLUUID = ?) da on da.ArchitectureUUID = a.ArchitectureUUID", [download.DLUUID], function (arErr, arRes, arFields) {
+                database.execute("select mt.*, dmt.DLUUID is not null as `Has` from MediaType mt left join (select DLUUID, MediaTypeUUID from DownloadMediaType where DLUUID = ?) dmt on dmt.MediaTypeUUID = mt.MediaTypeUUID ORDER BY mt.FriendlyName", [download.DLUUID], function (mtErr, mtRes, mtFields) {
+                database.execute("select a.*, da.DLUUID is not null as `Has` from Architecture a left join (select DLUUID, ArchitectureUUID from DownloadArchitecture where DLUUID = ?) da on da.ArchitectureUUID = a.ArchitectureUUID ORDER BY a.FriendlyName", [download.DLUUID], function (arErr, arRes, arFields) {
                 database.execute("SELECT Releases.Name AS ReleaseName,Releases.ReleaseUUID AS ReleaseUUID,Products.Name AS ProductName FROM Products JOIN Releases USING(ProductUUID) ORDER BY Products.Name", null, function (prErr, prRes, prFields) {
                     download.DLUUID = formatting.binToHex(download.DLUUID);
                     download.MediaType = formatting.binToHex(download.MediaType);
