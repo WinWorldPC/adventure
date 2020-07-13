@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: "Edit profile"}) %>
+<%- include("head", {title: "Edit profile"}) %>
 <h1>Edit profile</h1>
 <h2>Details</h2>
 <form>
@@ -36,6 +36,20 @@
         <input readonly type="email" class="form-control" id="email" name="email" placeholder="Email address" value="<%= user.Email %>">
     </div>
     <% } %>
+    <div class="form-group">
+        <label for="theme">Theme preference</label>
+        <select name="theme" id="theme" class="form-control">
+        <% for (var theme in config.constants.themeMappings) { %>
+            <% if (theme == user.ThemeName) { %>
+            <option value="<%= theme %>" selected="selected"><%= theme %> (current)</option>
+            <% } else { %>
+                <% if (config.usersCanChangeTheme) { %>
+                <option value="<%= theme %>"><%= theme %></option>
+                <% } %>
+            <% } %>
+        <% } %>
+        </select>
+    </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 <% if (user.UserFlags && user.UserFlags.length > 0) { %>

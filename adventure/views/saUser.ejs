@@ -1,4 +1,4 @@
-﻿<%- include("head", {title: "Editing user " + editingUser.ShortName}) %>
+<%- include("head", {title: "Editing user " + editingUser.ShortName}) %>
 <h1>Editing user <var><%= editingUser.ShortName  %></var></h1>
 <h2>Details</h2>
 <form>
@@ -30,6 +30,18 @@
     <div class="form-group">
         <label for="email">Email address</label>
         <input type="email" class="form-control" id="email" name="email" placeholder="Email address" value="<%= editingUser.Email %>">
+    </div>
+    <div class="form-group">
+        <label for="theme">Theme preference</label>
+        <select name="theme" id="theme" class="form-control">
+        <% for (var theme in config.constants.themeMappings) { %>
+            <% if (theme == editingUser.ThemeName) { %>
+            <option value="<%= theme %>" selected="selected"><%= theme %> (current)</option>
+            <% } else { %>
+            <option value="<%= theme %>"><%= theme %></option>
+            <% } %>
+        <% } %>
+        </select>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

@@ -1,4 +1,4 @@
-﻿var mysql = require("mysql2"),
+var mysql = require("mysql2"),
     formatting = require("./formatting.js");
 
 var pool = null;
@@ -151,8 +151,8 @@ module.exports = {
             });
         })
     },
-    userEditProfile: function (id, enabled, email, cb) {
-        this.execute("UPDATE Users SET Email = ?, AccountEnabled = ? WHERE UserID = ?", [email, enabled, id], function (prErr, prRes, prFields) {
+    userEditProfile: function (id, enabled, email, theme, cb) {
+        this.execute("UPDATE Users SET Email = ?, ThemeName = ?, AccountEnabled = ? WHERE UserID = ?", [email, theme, enabled, id], function (prErr, prRes, prFields) {
             cb(prErr);
         });
     },

@@ -1,0 +1,2 @@
+/* Automatic light/dark mode theme */
+@import "dark.css" screen and (prefers-color-scheme: dark);

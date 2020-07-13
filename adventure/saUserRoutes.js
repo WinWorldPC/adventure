@@ -1,4 +1,4 @@
-﻿var express = require("express"),
+var express = require("express"),
     fs = require("fs"),
     path = require("path"),
     passport = require("passport"),
@@ -80,10 +80,10 @@ server.post("/sa/user/changepw/:userId", restrictedRoute("sa"), urlencodedParser
 
 server.post("/sa/user/edit/:userId", restrictedRoute("sa"), urlencodedParser, function (req, res) {
     // TODO: Extend as we extend editable profile options (none for now)
-    if (req.body && req.body.email) {
+    if (req.body && req.body.email && req.body.theme) {
         var uuidAsBuf = formatting.hexToBin(req.params.userId);
         var enabled = req.body.enabled ? "True" : "False";
-        database.userEditProfile(uuidAsBuf, enabled, req.body.email, function (prErr) {
+        database.userEditProfile(uuidAsBuf, enabled, req.body.email, req.body.theme, function (prErr) {
             if (prErr) {
                 return res.status(500).render("error", {
                     message: "There was an error changing the user's profile."
