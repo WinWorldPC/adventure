@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "WinWorld",
   "headerFragment": "res/headerFragment.html",
   "footerFragment": "res/footerFragment.html",
@@ -31,6 +31,7 @@
   "pageDirectory": "pages",
   "viewDirectory": "views",
   "resDirectory": "res",
+  "usersCanChangeTheme": true,
 
   "constants": {
     "tagMappings": {
@@ -121,7 +122,14 @@
       "IBM3x0",
       "SuperH",
       "Other"
-    ]
+    ],
+
+    "themeMappings": {
+      "Default": "/res/css/theme/default.css",
+      "Dark": "/res/css/theme/dark.css",
+      "Classic": "/res/css/theme/classic.css",
+      "Auto": "/res/css/theme/auto.css"
+    }
   }
 
 }

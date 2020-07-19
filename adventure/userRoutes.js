@@ -1,4 +1,4 @@
-﻿var express = require("express"),
+var express = require("express"),
     fs = require("fs"),
     path = require("path"),
     querystring = require('querystring'),
@@ -150,7 +150,7 @@ server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req
 
 server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, res) {
     // TODO: Extend as we extend editable profile options (none for now)
-    if (req.body && req.body.email) {
+    if (req.body && req.body.email && req.body.theme) {
         // HACK: nasty way to demangle UInt8Array
         var id = formatting.hexToBin(req.user.UserID.toString("hex"));
         // check for existing user with email
@@ -160,7 +160,8 @@ server.post("/user/edit", restrictedRoute(), urlencodedParser, function (req, re
                 return res.status(400).render("editProfile");
             }
             var newEmail = config.usersCanEditEmail ? req.body.email : req.user.Email;
-            database.userEditProfile(req.user.UserID, req.user.AccountEnabled, newEmail, function (prErr) {
+            var newTheme = config.usersCanChangeTheme ? req.body.theme : req.user.ThemeName;
+            database.userEditProfile(req.user.UserID, req.user.AccountEnabled, newEmail, newTheme, function (prErr) {
                 if (prErr) {
                     req.flash("danger", "There was an error changing your profile.");
                     return res.status(500).render("editProfile");
