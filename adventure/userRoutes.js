@@ -114,6 +114,30 @@ server.get("/user/edit", restrictedRoute(), function (req, res) {
     return res.render("editProfile");
 });
 
+server.get("/user/profile", restrictedRoute(), function (req, res) {
+    return res.redirect("/user/profile/" + req.user.ShortName);
+});
+
+server.get("/user/profile/:name", function (req, res) {
+    database.userByName(req.params.name, function (err, user) {
+        if (err) {
+            return res.status(500).render("error", {
+                message: "There was an error fetching from the database."
+            });
+        } else if (user == null) {
+            return res.status(404).render("error", {
+                message: "There was no user."
+            });
+        } else {
+            user.UserID = formatting.binToHex(user.UserID);
+            res.render("publicProfile", {
+                viewingUser: user,
+                userFlags: database.userFlags,
+            });
+        }
+    });
+});
+
 server.post("/user/changepw", restrictedRoute(), urlencodedParser, function (req, res) {
     if (req.body && req.body.password && req.body.newPassword && req.body.newPasswordR) {
         formatting.checkPassword(req.body.password, req.user.Salt, req.user.Password, function(checkErr, success) {

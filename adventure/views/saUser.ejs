@@ -1,5 +1,6 @@
 <%- include("head", {title: "Editing user " + editingUser.ShortName}) %>
 <h1>Editing user <var><%= editingUser.ShortName  %></var></h1>
+<a href="/user/profile/<%= editingUser.ShortName %>" class="btn btn-primary">View profile</a>
 <h2>Details</h2>
 <form>
     <div class="form-group">
