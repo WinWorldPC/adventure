@@ -7,12 +7,18 @@
 <% }); %>
 <% } %>
 </p>
-<p><strong>Joined</strong> <%= viewingUser.RegistrationTime %></p>
-<p><strong>Last Active</strong> <%= viewingUser.LastSeenTime %></p>
-<% if (config.usersCanChangeTheme) { %>
+<p><strong>Joined</strong> <%= new Date(viewingUser.RegistrationTime).toLocaleDateString() %></p>
+<p><strong>Last Active</strong> <%= new Date(viewingUser.LastSeenTime).toLocaleString() %></p>
+<% if (user && config.usersCanChangeTheme) { %>
 <p><strong>Using Theme</strong> <%= viewingUser.ThemeName %></p>
 <% } %>
 <% if (config.useVanilla) { %>
 <p><a href="<%= config.vanillaBaseUrl %>/profile/<%= viewingUser.ShortName %>">Show profile on forum</a></p>
+<% } %>
+<% if (user && user.UserFlags.some(function (x) { return x.FlagName == "sa"; })) { %>
+<p><a href="/sa/user/<%= viewingUser.UserID %>">Manage user</a></p>
+<% } %>
+<% if (user && user.ShortName == viewingUser.ShortName) { %>
+<p><a href="/user/edit">Edit profile</a></p>
 <% } %>
 <%- include("foot") %>
