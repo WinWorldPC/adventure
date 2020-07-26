@@ -4,8 +4,12 @@
 <form method="post" action="/sa/createReleaseFromContribution/<%= contribution.ContributionUUID %>">
     <div class="row">
         <div class="form-group col">
-            <label for="name">Name</label>
-            <input required type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%= contribution.ReleaseTitle %>">
+            <label for="name">Product name</label>
+            <input required type="text" class="form-control" id="productName" name="productName" placeholder="Product name" value="<%= contribution.ProductTitle %>">
+        </div>
+        <div class="form-group col">
+            <label for="name">Release name</label>
+            <input required type="text" class="form-control" id="name" name="name" placeholder="Release name" value="<%= contribution.ReleaseTitle %>">
         </div>
         <div class="form-group col">
             <label for="vendorName">Vendor name</label>

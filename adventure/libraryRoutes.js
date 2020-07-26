@@ -123,9 +123,30 @@ function libraryRoute(req, res) {
     }
 }
 
+// These are first so that they aren't overridden by the category routes
 server.get("/library/contribute", restrictedRoute(), function (req, res) {
     return res.render("contribute", {
         platformMappingsInverted: formatting.invertObject(config.constants.platformMappings)
+    });
+});
+server.get("/library/my/contributions", restrictedRoute(), function (req, res) {
+    var page = req.query.page || 1;
+    var uuidAsBuf = req.user.UserID;
+    database.execute("SELECT COUNT(*) FROM `Contributions` WHERE `UserUUID` = ?", [uuidAsBuf] ,function (cErr, cRes, cFields) {
+        var count = cRes[0]["COUNT(*)"];
+        var pages = Math.ceil(count / config.perPage);
+        database.execute("SELECT * FROM `Contributions` WHERE `UserUUID` = ? ORDER BY ContributionCreated DESC LIMIT ?,?", [uuidAsBuf, (page - 1) * config.perPage, config.perPage], function (coErr, coRes, coFields) {
+            var contributions = coRes.map(function (x) {
+                x.UserUUID = formatting.binToHex(x.UserUUID);
+                x.ContributionUUID = formatting.binToHex(x.ContributionUUID);
+                return x;
+            });
+            return res.render("mycontributions", {
+                contributions: contributions,
+                page: page,
+                pages: pages
+            });
+        });
     });
 });
 

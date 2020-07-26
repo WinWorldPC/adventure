@@ -1,0 +1,63 @@
+<%- include("head", {title: "My contributions"}) %>
+<h1>My contributions</h1>
+<table id="saContributionsTable" class="table table-striped table-sm table-responsive">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% (contributions || []).forEach(function(i, n, a) {%>
+        <tr>
+            <td>
+                <%= i.ProductTitle %> <%= i.ReleaseTitle %>
+            </td>
+            <td>
+                <%= i.Status %> (<%= i.Status == "Rejected" && i.RejectionReason ? i.RejectionReason : i.ContributionCreated.toDateString() %>)
+            </td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+<nav aria-label="Page navigation">
+    <ul id="contributionsPagination" class="pagination">
+        <%# HACK: How the hell does EJS get a string when we passed a number? %>
+        <% page = Number(page); pageBounds = config.perPageBounds; %>
+        <%# Anyways, do bounds checking so we can make the pagination manageable. %>
+        <% if (page - pageBounds > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/library/my/contributions?page=1">1</a>
+                </li>
+        <% } %>
+        <% if (page - pageBounds > 2) { %>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">...</a>
+                </li>
+        <% } %>
+        <% for (var i = page - pageBounds > 0 ? page - pageBounds : 1; i <= (page + pageBounds < pages ? page + pageBounds : pages); i++) { %>
+            <% if (i != page) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/library/my/contributions?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } else { %>
+                <li class="page-item active">
+                    <a class="page-link" href="/library/my/contributions?page=<%= i %>">
+                        <%= i %><span class="sr-only">(current)</span>
+                    </a>
+                </li>
+            <% } %>
+        <% } %>
+        <% if (page + pageBounds < pages - 1) { %>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">...</a>
+                </li>
+        <% } %>
+        <% if (page + pageBounds < pages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/library/my/contributions?page=<%= pages %>"><%= pages %></a>
+                </li>
+        <% } %>
+    </ul>
+</nav>
+<%- include("foot") %>
