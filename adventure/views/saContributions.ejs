@@ -1,4 +1,5 @@
-﻿<%- include("head", {title: "Contributions"}) %>
+<%- include("head", {title: "Contributions"}) %>
+<h1>Contributions</h1>
 <table id="saContributionsTable" class="table table-striped table-sm table-responsive">
     <thead>
         <tr>
@@ -11,11 +12,11 @@
         <% (contributions || []).forEach(function(i, n, a) {%>
         <tr>
             <td>
-                <a href="/sa/contribution/<%= i.ContributionUUID %>"><%= i.ReleaseTitle %></a>
+                <a href="/sa/contribution/<%= i.ContributionUUID %>"><%= i.ProductTitle %> <%= i.ReleaseTitle %></a>
             </td>
             <td><%= i.UserUUID %></td>
             <td>
-                <%= i.Status %> (<%= i.ContributionCreated.toDateString() %>)
+                <%= i.Status %> (<%= i.Status == "Rejected" && i.RejectionReason ? i.RejectionReason : i.ContributionCreated.toDateString() %>)
             </td>
         </tr>
         <% }); %>
