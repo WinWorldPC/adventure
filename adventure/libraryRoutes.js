@@ -122,6 +122,13 @@ function libraryRoute(req, res) {
         });
     }
 }
+
+server.get("/library/contribute", restrictedRoute(), function (req, res) {
+    return res.render("contribute", {
+        platformMappingsInverted: formatting.invertObject(config.constants.platformMappings)
+    });
+});
+
 server.get("/library/:category", libraryRoute);
 server.get("/library/:category/:tag", libraryRoute);
 server.get("/library", function (req, res) {

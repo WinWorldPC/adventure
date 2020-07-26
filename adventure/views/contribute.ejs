@@ -1,0 +1,94 @@
+﻿<%- include("head", {title: "Contribute"}) %>
+<h1>Contribute</h1>
+<h2>Basic metadata</h2>
+<form method="post" action="/library/contribute/redirectToSecondStep">
+    <div class="row">
+        <div class="form-group col">
+            <label for="name">Name</label>
+            <input required type="text" class="form-control" id="name" name="name" placeholder="Name" value="">
+        </div>
+        <div class="form-group col">
+            <label for="vendorName">Vendor name</label>
+            <input type="text" class="form-control" id="vendorName" name="vendorName" placeholder="Vendor name" value="">
+        </div>
+    </div>
+    <%
+    // HACK: datetime-local != toISOString
+    function pad(number) {
+        if (number < 10) {
+            return '0' + number;
+        }
+        return number;
+    }
+    function shortIso(d) {
+        return d.getUTCFullYear() +
+        '-' + pad(d.getUTCMonth() + 1) +
+        '-' + pad(d.getUTCDate()) +
+        'T' + pad(d.getUTCHours()) +
+        ':' + pad(d.getUTCMinutes());
+    }
+    %>
+    <div class="row">
+        <div class="form-group col">
+            <label for="releaseDate">Release date</label>
+            <input type="datetime-local" class="form-control" id="releaseDate" name="releaseDate" placeholder="Release date" value="">
+            <small class="form-text text-muted">
+                If your browser doesn't support HTML 5 datetime fields, use a format like <pre>2000-02-15T06:00</pre>.
+            </small>
+        </div>
+        <div class="form-group col">
+            <label for="endOfLife">End of life  </label>
+            <input type="datetime-local" class="form-control" id="endOfLife" name="endOfLife" placeholder="End of life" value="">
+            <small class="form-text text-muted">
+                If your browser doesn't support HTML 5 datetime fields, use a format like <pre>2000-02-15T06:00</pre>.
+            </small>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col">
+            <label for="notes">Notes</label>
+            <textarea rows="5" class="form-control" id="notes" name="notes"></textarea>
+            <small class="form-text text-muted">
+                This field is formatted in Markdown
+            </small>
+        </div>
+        <div class="form-group col">
+            <label for="installInstructions">Installation instructions</label>
+            <textarea rows="5" class="form-control" id="installInstructions" name="installInstructions"></textarea>
+            <small class="form-text text-muted">
+                This field is formatted in Markdown
+            </small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="platform">Platforms</label>
+        <select multiple class="form-control" id="platform" name="platform">
+            <% Object.keys(platformMappingsInverted).forEach(function (i, n, a) { %>
+            <option><%= i %></option>
+            <% }); %>
+        </select>
+    </div>
+    <div class="row">
+        <div class="form-group col">
+            <label for="cpuRequirement">Required CPU</label>
+            <input type="text" class="form-control" id="cpuRequirement" name="cpuRequirement" placeholder="Required CPU" value="">
+        </div>
+        <div class="form-group col">
+            <label for="ramRequirement">Required RAM</label>
+            <input required type="number" class="form-control" id="ramRequirement" name="ramRequirement" placeholder="Required RAM" value="">
+            <small class="form-text text-muted">
+                This field is converted to the most sensible human-readable byte size. Enter 0 to blank.
+            </small>
+        </div>
+        <div class="form-group col">
+            <label for="diskSpaceRequired">Required free disk space</label>
+            <input required type="number" class="form-control" id="diskSpaceRequired" name="diskSpaceRequired" placeholder="Required free disk space" value="">
+            <small class="form-text text-muted">
+                This field is converted to the most sensible human-readable byte size. Enter 0 to blank.
+            </small>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Next Step</button>
+    <a class="btn btn-outline-primary" href="/library">Cancel</a>
+</form>
+<%- include("foot") %>
