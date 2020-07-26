@@ -125,6 +125,11 @@ function libraryRoute(req, res) {
 
 // These are first so that they aren't overridden by the category routes
 server.get("/library/contribute", restrictedRoute(), function (req, res) {
+    if (!config.allowContributions) { // If allowContributions is FALSE
+        return res.status(500).render("error", {
+            message: "Contributions aren't being accepted at this time."
+        });
+    }
     return res.render("contribute", {
         platformMappingsInverted: formatting.invertObject(config.constants.platformMappings)
     });
