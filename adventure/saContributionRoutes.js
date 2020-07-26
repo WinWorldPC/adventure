@@ -63,7 +63,8 @@ server.post("/sa/rejectContribution/:contribution", restrictedRoute("sa"), urlen
         var uuidAsBuf = formatting.hexToBin(uuid);
         var status = "Rejected";
         var rejectionReason = req.body.rejectionReason;
-        database.execute("UPDATE `Contributions` SET `Status` = ?, `RejectionReason` = ? WHERE `ContributionUUID` = ?", [status, rejectionReason, uuidAsBuf], function (scErr, scRes, scFields) {
+        var userIdAsBuf = req.user.UserID;
+        database.execute("UPDATE `Contributions` SET `Status` = ?, `RejectionReason` = ?, ProcessTime = NOW(), ProcessBy = ? WHERE `ContributionUUID` = ?", [status, rejectionReason, userIdAsBuf, uuidAsBuf], function (scErr, scRes, scFields) {
             if (scErr) {
                 return res.status(500).render("error", {
                     message: "The contribution could not be rejected."
