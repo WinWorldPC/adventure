@@ -125,8 +125,18 @@ server.get("/user/profile/:name", function (req, res) {
                 message: "There was an error fetching from the database."
             });
         } else if (user == null) {
-            return res.status(404).render("error", {
-                message: "There was no user."
+            database.userById(formatting.hexToBin(req.params.name), function (err, user) {
+                if (err) {
+                    return res.status(500).render("error", {
+                        message: "There was an error fetching from the database."
+                    });
+                } else if (user == null) {
+                    return res.status(404).render("error", {
+                        message: "There was no user."
+                    });
+                } else {
+                    return res.redirect("/user/profile/" + user.ShortName);
+                }
             });
         } else {
             user.UserID = formatting.binToHex(user.UserID);

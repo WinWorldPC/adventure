@@ -14,7 +14,7 @@
             <td>
                 <a href="/sa/contribution/<%= i.ContributionUUID %>"><%= i.ProductTitle %> <%= i.ReleaseTitle %></a>
             </td>
-            <td><a href="/sa/user/<%= i.UserUUID %>"><%= i.UserUUID %></a></td>
+            <td><a href="/user/profile/<%= i.UserUUID %>"><%= i.UserUUID %></a></td>
             <td>
                 <%= i.Status %> (<%= i.Status == "Rejected" && i.RejectionReason ? i.RejectionReason : i.ContributionCreated.toDateString() %>)
             </td>
