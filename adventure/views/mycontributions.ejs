@@ -1,10 +1,9 @@
-<%- include("head", {title: "Contributions"}) %>
-<h1>Contributions</h1>
+<%- include("head", {title: "My contributions"}) %>
+<h1>My contributions</h1>
 <table id="saContributionsTable" class="table table-striped table-sm table-responsive">
     <thead>
         <tr>
             <th>Name</th>
-            <th>Uploader</th>
             <th>Status</th>
         </tr>
     </thead>
@@ -12,9 +11,8 @@
         <% (contributions || []).forEach(function(i, n, a) {%>
         <tr>
             <td>
-                <a href="/sa/contribution/<%= i.ContributionUUID %>"><%= i.ProductTitle %> <%= i.ReleaseTitle %></a>
+                <%= i.ProductTitle %> <%= i.ReleaseTitle %>
             </td>
-            <td><a href="/user/profile/<%= i.UserUUID %>"><%= i.UserUUID %></a></td>
             <td>
                 <%= i.Status %> (<%= i.Status == "Rejected" && i.RejectionReason ? i.RejectionReason : i.ContributionCreated.toDateString() %>)
             </td>
@@ -29,7 +27,7 @@
         <%# Anyways, do bounds checking so we can make the pagination manageable. %>
         <% if (page - pageBounds > 1) { %>
                 <li class="page-item">
-                    <a class="page-link" href="/sa/contributions?page=1&status=<%= status %>">1</a>
+                    <a class="page-link" href="/library/my/contributions?page=1">1</a>
                 </li>
         <% } %>
         <% if (page - pageBounds > 2) { %>
@@ -40,11 +38,11 @@
         <% for (var i = page - pageBounds > 0 ? page - pageBounds : 1; i <= (page + pageBounds < pages ? page + pageBounds : pages); i++) { %>
             <% if (i != page) { %>
                 <li class="page-item">
-                    <a class="page-link" href="/sa/contributions?page=<%= i %>&status=<%= status %>"><%= i %></a>
+                    <a class="page-link" href="/library/my/contributions?page=<%= i %>"><%= i %></a>
                 </li>
             <% } else { %>
                 <li class="page-item active">
-                    <a class="page-link" href="/sa/contributions?page=<%= i %>&status=<%= status %>">
+                    <a class="page-link" href="/library/my/contributions?page=<%= i %>">
                         <%= i %><span class="sr-only">(current)</span>
                     </a>
                 </li>
@@ -57,7 +55,7 @@
         <% } %>
         <% if (page + pageBounds < pages) { %>
                 <li class="page-item">
-                    <a class="page-link" href="/sa/contributions?page=<%= pages %>&status=<%= status %>"><%= pages %></a>
+                    <a class="page-link" href="/library/my/contributions?page=<%= pages %>"><%= pages %></a>
                 </li>
         <% } %>
     </ul>

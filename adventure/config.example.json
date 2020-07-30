@@ -32,6 +32,7 @@
   "viewDirectory": "views",
   "resDirectory": "res",
   "usersCanChangeTheme": true,
+  "allowContributions": true,
 
   "constants": {
     "tagMappings": {
