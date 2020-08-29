@@ -35,7 +35,7 @@ isn't of the highest priority, and is mostly for developers to hack on.
   "admin" with password "changeme".
 
 * Start adventure; the only and required command-line parameter is the path to
-  the configuration file. Alternatively, set this up in yoour init daemon; a
+  the configuration file. Alternatively, set this up in your init daemon; a
   systemd unit is provided in `deploy/adventure.example.service`.
 
 * It is required that you also set up a timer or cron job to run `gc.js` to
