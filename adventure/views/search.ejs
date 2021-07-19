@@ -21,7 +21,7 @@
 		<div class="col-md-3 form-inline">
 			<input type="text" class="form-control" name="q" placeholder="Search text" value="<%= search %>" />
 		</div>
-		<div class="col-md-2 form-inline"> 
+		<div class="col-md-2 form-inline">
 			<label>Released year:</label> &nbsp;
 		</div>
 		<div class="col-md-3 form-inline input-group">
@@ -110,14 +110,14 @@
                         <% }) %>
                     <% } %>
                     <%# Keep items unique by using Set %>
-                       
+
                     <% new Set(releasesCollection[i.PUID].map(function(x) { return x.Platform.split(","); }).reduce((acc, val) => acc.concat(val), [])).forEach(function(p,n,a) { %>
                             <a class="badge badge-info" href="/search/?<%= currentGET %>&platforms=<%= p %>"><%= p %></a>
                             <% }) %>
                 </div>
 
                     <%- i.Notes %>
-    
+
 			<ul class="nav justify-content-center">
                         <% releasesCollection[i.PUID].forEach(function(r,n,a) { %>
                             <li class="nav-link active"><a href="/product/<%= i.Slug %>/<%= r.Slug %>"><%= r.Name %> </a> </li>
@@ -164,7 +164,7 @@
         <% } %>
         <% if (page + pageBounds < pages) { %>
                 <li class="page-item">
-                        <a class="page-link" href="/search/?<%= currentGET %>page=<%= pages %>"><%= pages %></a>
+                        <a class="page-link" href="/search/?<%= currentGET %>&page=<%= pages %>"><%= pages %></a>
                 </li>
         <% } %>
     </ul>
